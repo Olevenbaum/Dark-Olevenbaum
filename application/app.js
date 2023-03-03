@@ -27,43 +27,19 @@ for (const file of slashCommandFiles) {
     }
 }
 
-client.once(Events.ClientReady, (c) => {
-    console.log(`Ready! Logged in as ${c.user.tag}`);
-});
+const eventsPath = path.join(__dirname, "events");
+const eventFiles = fs
+    .readdirSync(eventsPath)
+    .filter((file) => file.endsWith(".js"));
 
-client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isChatInputCommand()) return;
-    console.log(interaction);
-
-    const slashCommand = interaction.client.slashCommands.get(
-        interaction.commandName
-    );
-
-    if (!slashCommand) {
-        console.error(
-            `No slashCommand matching ${interaction.commandName} was found.`
-        );
-        return;
+for (const file of eventFiles) {
+    const filePath = path.join(eventsPath, file);
+    const event = require(filePath);
+    if (event.once) {
+        client.once(event.name, (...args) => event.execute(...args));
+    } else {
+        client.on(event.name, (...args) => event.execute(...args));
     }
-
-    try {
-        await slashCommand.execute(interaction);
-    } catch (error) {
-        console.error(error);
-        if (interaction.replied || interaction.deferred) {
-            await interaction.followUp({
-                content:
-                    "There was an error while executing this slashCommand!",
-                ephemeral: true,
-            });
-        } else {
-            await interaction.reply({
-                content:
-                    "There was an error while executing this slashCommand!",
-                ephemeral: true,
-            });
-        }
-    }
-});
+}
 
 client.login(token);
