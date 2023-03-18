@@ -5,6 +5,10 @@ const { Events } = require("discord.js");
 const { consoleSpace } = require("../../configuration.json");
 
 module.exports = {
+    // Setting event name and kind
+    name: Events.ClientReady,
+    once: true,
+
     // Handling event
     async execute(client) {
         // Updating new or deleted slash commands
@@ -19,8 +23,4 @@ module.exports = {
             `Discord bot logged in successfully as ${client.user.tag}`
         );
     },
-
-    // Setting event name and kind
-    name: Events.ClientReady,
-    once: true,
 };

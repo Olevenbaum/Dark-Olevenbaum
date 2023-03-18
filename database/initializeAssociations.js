@@ -2,6 +2,7 @@
 const { consoleSpace } = require("../configuration.json");
 
 module.exports = async (sequelize) => {
+    // Saving models
     const models = sequelize.models;
 
     // Associations

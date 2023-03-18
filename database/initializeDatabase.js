@@ -19,6 +19,16 @@ for (const file of templateFiles) {
     templates.set(file.replace(".json", ""), template);
 }
 
+// Implementing method to check if string contains capital letters
+function hasCapitalLetter(string) {
+    for (const character of string) {
+        if (character === character.toUpperCase()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 module.exports = async (sequelize) => {
     // Checking connection with database
     await sequelize
@@ -50,7 +60,7 @@ module.exports = async (sequelize) => {
         .sync()
         .then(async () => {
             for (const model in sequelize.models) {
-                if (!models.includes(model)) {
+                if (!models.includes(model) && !hasCapitalLetter(model)) {
                     await sequelize.models[model].drop();
                     console.info(
                         "[INFORMATION]".padEnd(consoleSpace),

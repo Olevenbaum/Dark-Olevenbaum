@@ -5,6 +5,9 @@ const { InteractionType } = require("discord.js");
 const { consoleSpace } = require("../../../configuration.json");
 
 module.exports = {
+    // Setting interaction type name
+    name: InteractionType.ApplicationCommandAutocomplete,
+
     // Handling interaction
     async execute(interaction) {
         const slashCommand = interaction.client.slashCommands.get(
@@ -16,7 +19,4 @@ module.exports = {
                 console.error("[ERROR]".padEnd(consoleSpace), ":", error)
             );
     },
-
-    // Setting interaction type name
-    name: InteractionType.ApplicationCommandAutocomplete,
 };
