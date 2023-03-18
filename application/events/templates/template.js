@@ -2,9 +2,9 @@
 const { Events } = require("discord.js");
 
 module.exports = {
-    // Setting event name
-    name: Events,
-
     // Handling event
     execute(client) {},
+
+    // Setting event name
+    name: Events,
 };

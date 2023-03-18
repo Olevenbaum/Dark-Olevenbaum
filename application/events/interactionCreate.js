@@ -17,13 +17,13 @@ for (const file of interactionFiles) {
 }
 
 module.exports = {
-    // Setting event name
-    name: Events.InteractionCreate,
-
     // Handling event
     async execute(interaction) {
         // Executing interaction type specific script
         await interactionTypes.get(interaction.type).execute(interaction);
     },
+
+    // Setting event name and kind
+    name: Events.InteractionCreate,
     once: false,
 };

@@ -5,8 +5,6 @@ const { InteractionType } = require("discord.js");
 const { consoleSpace } = require("../../../configuration.json");
 
 module.exports = {
-    // Setting interaction type name
-    name: InteractionType.ApplicationCommand,
     // Handling interaction
     async execute(interaction) {
         const slashCommand = interaction.client.slashCommands.get(
@@ -31,4 +29,7 @@ module.exports = {
             }
         });
     },
+
+    // Setting interaction type name
+    name: InteractionType.ApplicationCommand,
 };

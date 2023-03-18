@@ -10,5 +10,4 @@ module.exports = {
 
     // Handling command reponse
     async execute(interaction) {},
-    once: false,
 };
