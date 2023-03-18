@@ -1,7 +1,18 @@
 {
     "dependencies": {
         "discord.js": "^14.7.1",
-        "node.js": "^0.0.1-security"
+        "node.js": "^0.0.1-security",
+        "npm": "^9.6.0",
+        "pg": "^8.10.0",
+        "sequelize": "^6.29.3",
+        "sqlite3": "^5.1.4"
     },
-    "main": "application/app.js"
+    "license": "Unilicense",
+    "main": "application/application.js",
+    "name": "dark-olevenbaum",
+    "scripts": {
+        "commands": "node ./management/resetCommands.js",
+        "database": "node ./management/resetDatabase.js",
+        "start": "node ."
+    }
 }
