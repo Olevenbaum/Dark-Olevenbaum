@@ -1,20 +1,24 @@
 // Importing classes
 const { Events } = require("discord.js");
 
+// Importing configuration data
+const { consoleSpace } = require("../../configuration.json");
+
 module.exports = {
     // Setting event name
     name: Events.ClientReady,
+
     // Handling event
     async execute(client) {
         // Updating new or deleted slash commands
-        require("../refreshCommands.js")(client);
+        await require("../refreshCommands.js")(client);
 
         // Updating new or deleted models in database
-        require("../../database/initializeDatabase.js")(client.sequelize);
+        await require("../../database/initializeDatabase.js")(client.sequelize);
 
         console.info(
-            "[INFORMATION]".padEnd(15),
-            ": ",
+            "[INFORMATION]".padEnd(consoleSpace),
+            ":",
             `Discord bot logged in successfully as ${client.user.tag}`
         );
     },

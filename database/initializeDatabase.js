@@ -5,9 +5,12 @@ const path = require("node:path");
 // Importing classes
 const { Collection } = require("discord.js");
 
-// Reading constant files to be added to database
+// Importing configuration data
+const { consoleSpace } = require("../configuration.json");
+
+// Reading constant tables to be added to database
 const templates = new Collection();
-const templatesPath = path.join(__dirname, "../resources/templates");
+const templatesPath = path.join(__dirname, "./constantTables");
 const templateFiles = fs
     .readdirSync(templatesPath)
     .filter((file) => file.endsWith(".json"));
@@ -22,11 +25,13 @@ module.exports = async (sequelize) => {
         .authenticate()
         .then(
             console.info(
-                "[INFORMATION]: Connection with the database has been established successfully"
+                "[INFORMATION]".padEnd(consoleSpace),
+                ":",
+                "Connection with the database has been established successfully"
             )
         )
         .catch((error) => {
-            console.error("[ERROR]      :", error);
+            console.error("[ERROR]".padEnd(consoleSpace), ":", error);
         });
 
     // Adding models to database
@@ -41,25 +46,31 @@ module.exports = async (sequelize) => {
     }
 
     // Synchronising models and drop models that have been deleted
-    sequelize.sync().then(async () => {
-        for (const model in sequelize.models) {
-            if (!models.includes(model)) {
-                await sequelize.models[model].drop();
-                console.info(
-                    "[INFORMATION]".padEnd(15),
-                    ": ",
-                    "Successfully deleted table from database"
-                );
+    await sequelize
+        .sync()
+        .then(async () => {
+            for (const model in sequelize.models) {
+                if (!models.includes(model)) {
+                    await sequelize.models[model].drop();
+                    console.info(
+                        "[INFORMATION]".padEnd(consoleSpace),
+                        ":",
+                        `Successfully deleted table ${model.tableName} from database`
+                    );
+                }
             }
-        }
-    });
-
-    // Creating and updating associations
-    require("./initializeAssociations.js");
+        })
+        .then(
+            // Creating and updating associations
+            await require("./initializeAssociations.js")(sequelize)
+        )
+        .catch((error) =>
+            console.error("[ERROR]".padEnd(consoleSpace), ":", error)
+        );
 
     console.info(
-        "[INFORMATION]".padEnd(15),
-        ": ",
+        "[INFORMATION]".padEnd(consoleSpace),
+        ":",
         "Successfully updated database"
     );
 };

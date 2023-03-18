@@ -7,7 +7,11 @@ const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { Sequelize } = require("sequelize");
 
 // Importing configuration data
-const { application, database } = require("../configuration.json");
+const {
+    application,
+    consoleSpace,
+    database,
+} = require("../configuration.json");
 
 // Creating new client
 const client = new Client({
@@ -40,8 +44,8 @@ for (const slashCommandFile of slashCommandFiles) {
         client.slashCommands.set(slashCommand.data.name, slashCommand);
     } else {
         console.warn(
-            "[WARNING]".padEnd(15),
-            ": ",
+            "[WARNING]".padEnd(consoleSpace),
+            ":",
             `The slash command ${slashCommand.data.name} is missing a required 'data' or 'execute' property.`
         );
     }
@@ -62,8 +66,8 @@ for (const eventFile of eventFiles) {
         }
     } else {
         console.warn(
-            "[WARNING]".padEnd(15),
-            ": ",
+            "[WARNING]".padEnd(consoleSpace),
+            ":",
             `The event ${event.name} is missing a required 'execute' property.`
         );
     }

@@ -6,7 +6,7 @@ const path = require("node:path");
 const { REST, Routes } = require("discord.js");
 
 // Importing configuration data
-const { application } = require("../configuration.json");
+const { application, consoleSpace } = require("../configuration.json");
 
 // Creating REST manager
 const rest = new REST().setToken(application.token);
@@ -25,8 +25,8 @@ for (const file of slashCommandFiles) {
 
 // Reloading all slash commands by deleting them first
 console.info(
-    "[INFORMATION]".padEnd(15),
-    ": ",
+    "[INFORMATION]".padEnd(consoleSpace),
+    ":",
     `Started refreshing ${slashCommands.length} application slash commands.`
 );
 rest.put(Routes.applicationCommands(application.applicationID), {
@@ -34,11 +34,11 @@ rest.put(Routes.applicationCommands(application.applicationID), {
 })
     .then(
         console.info(
-            "[INFORMATION]".padEnd(15),
-            ": ",
+            "[INFORMATION]".padEnd(consoleSpace),
+            ":",
             "Successfully reloaded all application slash commands."
         )
     )
     .catch((error) => {
-        console.error("[ERROR]".padEnd(15), ":", error);
+        console.error("[ERROR]".padEnd(consoleSpace), ":", error);
     });

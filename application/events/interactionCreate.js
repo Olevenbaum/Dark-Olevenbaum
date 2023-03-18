@@ -19,6 +19,7 @@ for (const file of interactionFiles) {
 module.exports = {
     // Setting event name
     name: Events.InteractionCreate,
+
     // Handling event
     async execute(interaction) {
         // Executing interaction type specific script

@@ -7,11 +7,11 @@ const { Collection } = require("discord.js");
 const { Sequelize } = require("sequelize");
 
 // Importing configuration data
-const { database } = require("../configuration.json");
+const { consoleSpace, database } = require("../configuration.json");
 
 // Creating collection for constant tables
 const templates = new Collection();
-const templatesPath = path.join(__dirname, "../resources/templates");
+const templatesPath = path.join(__dirname, "../database/constantTables");
 const templateFiles = fs
     .readdirSync(templatesPath)
     .filter((file) => file.endsWith(".json"));
@@ -33,20 +33,6 @@ const sequelize = new Sequelize(
     }
 );
 
-// Checking connection with database
-await sequelize
-    .authenticate()
-    .then(
-        console.info(
-            "[INFORMATION]".padEnd(15),
-            ": ",
-            "Connection with the database has been established successfully"
-        )
-    )
-    .catch((error) => {
-        console.error("[ERROR]".padEnd(15), ":", error);
-    });
-
 // Adding models to database
 const modelsPath = path.join(__dirname, "../database/models");
 const modelFiles = fs
@@ -55,16 +41,20 @@ const modelFiles = fs
 for (const file of modelFiles) {
     require(path.join(modelsPath, file))(sequelize);
 }
+
 console.info(
-    "[INFORMATION]".padEnd(15),
-    ": ",
+    "[INFORMATION]".padEnd(consoleSpace),
+    ":",
     "Successfully added all models to database"
 );
 
+// Creating associations
+require("../database/initializeAssociations.js")(sequelize);
+
 // Forcing syncronisation of database
-await sequelize
+sequelize
     .sync({ force: true })
-    .then(() => {
+    .then(async () => {
         let promises = [];
 
         // Reading data of constant tables
@@ -76,19 +66,16 @@ await sequelize
         });
 
         // Executing promises
-        Promise.all(promises)
-            .then(
-                console.info(
-                    "[INFORMATION]".padEnd(15),
-                    ": ",
-                    "Constant tables have been initialized"
-                )
-            )
-            .catch((error) => console.error("[ERROR]".padEnd(15), ":", error));
+        await Promise.all(promises).catch((error) =>
+            console.error("[ERROR]".padEnd(consoleSpace), ":", error)
+        );
+
+        console.info(
+            "[INFORMATION]".padEnd(consoleSpace),
+            ":",
+            "Constant tables have been initialized"
+        );
     })
     .catch((error) => {
-        console.error("[ERROR]".padEnd(15), ":", error);
+        console.error("[ERROR]".padEnd(consoleSpace), ":", error);
     });
-
-// Creating associations
-await require("../database/initializeAssociations.js")(sequelize);

@@ -1,11 +1,12 @@
 // Importing classes
 const { DataTypes } = require("sequelize");
 
-module.exports = (sequelize) => {
+module.exports = async (sequelize) => {
     // Defining model
-    return sequelize.define(
+    return await sequelize.define(
         "",
         {},
+
         // Options
         {}
     );

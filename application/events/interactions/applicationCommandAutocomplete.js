@@ -1,6 +1,9 @@
 // Importing classes
 const { InteractionType } = require("discord.js");
 
+// Importing configuration data
+const { consoleSpace } = require("../../../configuration.json");
+
 module.exports = {
     // Setting interaction type name
     name: InteractionType.ApplicationCommandAutocomplete,
@@ -11,6 +14,8 @@ module.exports = {
         );
         await slashCommand
             .autocomplete(interaction)
-            .catch((error) => console.error("[ERROR]".padEnd(15), ": ", error));
+            .catch((error) =>
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error)
+            );
     },
 };

@@ -5,13 +5,13 @@ const { Routes } = require("discord.js");
 const newSlashCommands = [];
 
 // Importing configuration data
-const { application } = require("../configuration.json");
+const { application, consoleSpace } = require("../configuration.json");
 
 module.exports = async (client) => {
-    // Reading registered slashCommands
+    // Reading registered slash commands
     const registeredSlashCommands = await client.application.commands.fetch();
 
-    // Checking for new slashCommands to be registered
+    // Checking for new slash commands to be registered
     client.slashCommands.forEach((slashCommand, slashCommandName) => {
         if (
             !registeredSlashCommands.some(
@@ -23,11 +23,11 @@ module.exports = async (client) => {
         }
     });
 
-    // Registering new slashCommands
+    // Registering new slash commands
     if (newSlashCommands.length !== 0) {
         console.info(
-            "[INFORMATION]".padEnd(15),
-            ": ",
+            "[INFORMATION]".padEnd(consoleSpace),
+            ":",
             `Started refreshing ${newSlashCommands.length} application slash commands.`
         );
 
@@ -37,17 +37,17 @@ module.exports = async (client) => {
             })
             .then(
                 console.info(
-                    "[INFORMATION]".padEnd(15),
-                    ": ",
+                    "[INFORMATION]".padEnd(consoleSpace),
+                    ":",
                     `Successfully reloaded new application slash commands`
                 )
             )
             .catch((error) => {
-                console.error("[ERROR]".padEnd(15), ": ", error);
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error);
             });
     }
 
-    // Unregistering slashCommands that have been deleted
+    // Unregistering slash commands that have been deleted
     registeredSlashCommands.forEach(async (slashCommand, slashCommandID) => {
         if (!client.slashCommands.has(slashCommand.name)) {
             const slashCommandName = slashCommand.name;
@@ -60,20 +60,20 @@ module.exports = async (client) => {
                 )
                 .then(
                     console.info(
-                        "[INFORMATION]".padEnd(15),
-                        ": ",
+                        "[INFORMATION]".padEnd(consoleSpace),
+                        ":",
                         `Successfully deleted application slash command ${slashCommandName}`
                     )
                 )
                 .catch((error) => {
-                    console.error("[ERROR]".padEnd(15), ":", error);
+                    console.error("[ERROR]".padEnd(consoleSpace), ":", error);
                 });
         }
     });
 
     console.info(
-        "[INFORMATION]".padEnd(15),
-        ": ",
+        "[INFORMATION]".padEnd(consoleSpace),
+        ":",
         `Successfully refreshed all application slash commands`
     );
 };
