@@ -23,6 +23,13 @@ module.exports = {
 
     // Handling event
     async execute(interaction) {
+        // Checking for bot interaction
+        if (interaction.user.bot) {
+            interaction.reply(
+                `Bots are not allowed to use any commands of ${interaction.client.user.username}`
+            );
+        }
+
         // Executing interaction type specific script
         await interactionTypes.get(interaction.type).execute(interaction);
     },
