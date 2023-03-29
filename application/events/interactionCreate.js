@@ -5,6 +5,9 @@ const path = require("node:path");
 // Importing classes
 const { Events, Collection } = require("discord.js");
 
+// Importing configuration data
+const { consoleSpace } = require("../../../configuration.json");
+
 // Reading interaction types
 const interactionTypes = new Collection();
 const interactionsPath = path.join(__dirname, "./interactions");
@@ -31,6 +34,11 @@ module.exports = {
         }
 
         // Executing interaction type specific script
-        await interactionTypes.get(interaction.type).execute(interaction);
+        await interactionTypes
+            .get(interaction.type)
+            .execute(interaction)
+            .catch((error) =>
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error)
+            );
     },
 };

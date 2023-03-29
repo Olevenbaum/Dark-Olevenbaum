@@ -1,35 +1,41 @@
-// Import classes
-const { InteractionType } = require("discord.js");
+// Importing modules
+const fs = require("node:fs");
+const path = require("node:path");
+
+// Importing classes
+const { Collection, InteractionType } = require("discord.js");
 
 // Importing configuration data
 const { consoleSpace } = require("../../../configuration.json");
 
+// Reading message component types
+const applicationCommandTypes = new Collection();
+const applicationCommandsPath = path.join(__dirname, "./applicationCommands");
+const applicationCommandFiles = fs
+    .readdirSync(applicationCommandsPath)
+    .filter((file) => file.endsWith(".js"));
+for (const file of applicationCommandFiles) {
+    const applicationCommandType = require(path.join(
+        applicationCommandsPath,
+        file
+    ));
+    applicationCommandTypes.set(
+        applicationCommandType.name,
+        applicationCommandType
+    );
+}
 module.exports = {
     // Setting interaction type name
     name: InteractionType.ApplicationCommand,
 
     // Handling interaction
     async execute(interaction) {
-        const slashCommand = interaction.client.slashCommands.get(
-            interaction.commandName
-        );
-        if (!slashCommand) {
-            console.error(
-                "[ERROR]".padEnd(consoleSpace),
-                ":",
-                `No slash command matching ${interaction.commandName} was found`
+        // Executing interaction type specific script
+        await applicationCommandTypes
+            .get(interaction.commandType)
+            .execute(interaction)
+            .catch((error) =>
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error)
             );
-            return;
-        }
-        await slashCommand.execute(interaction).catch(async (error) => {
-            console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-            if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({
-                    content:
-                        "There was an error while executing this slash command!",
-                    ephemeral: true,
-                });
-            }
-        });
     },
 };

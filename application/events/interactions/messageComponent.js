@@ -5,6 +5,9 @@ const path = require("node:path");
 // Importing classes
 const { Collection } = require("discord.js");
 
+// Importing configuration data
+const { consoleSpace } = require("../../../configuration.json");
+
 // Reading message component types
 const messageComponentTypes = new Collection();
 const messageComponentsPath = path.join(__dirname, "./messageComponents");
@@ -21,8 +24,16 @@ for (const file of messageComponentFiles) {
 
 module.exports = {
     // Setting message component type name
-    name: messageComponentType,
+    name: interactionType.MessageComponent,
 
     // Handling interaction
-    async execute(interaction) {},
+    async execute(interaction) {
+        // Executing interaction type specific script
+        await messageComponentTypes
+            .get(interaction.componentType)
+            .execute(interaction)
+            .catch((error) =>
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error)
+            );
+    },
 };
