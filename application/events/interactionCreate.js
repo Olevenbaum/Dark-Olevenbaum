@@ -6,7 +6,7 @@ const path = require("node:path");
 const { Events, Collection } = require("discord.js");
 
 // Importing configuration data
-const { consoleSpace } = require("../../../configuration.json");
+const { consoleSpace } = require("../../configuration.json");
 
 // Reading interaction types
 const interactionTypes = new Collection();

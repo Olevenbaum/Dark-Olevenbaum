@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 // Importing classes
-const { Collection } = require("discord.js");
+const { Collection, InteractionType } = require("discord.js");
 
 // Importing configuration data
 const { consoleSpace } = require("../../../configuration.json");
@@ -24,7 +24,7 @@ for (const file of messageComponentFiles) {
 
 module.exports = {
     // Setting message component type name
-    name: interactionType.MessageComponent,
+    name: InteractionType.MessageComponent,
 
     // Handling interaction
     async execute(interaction) {
