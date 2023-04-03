@@ -13,7 +13,7 @@ const rest = new REST().setToken(application.token);
 
 // Creating array with all slash commands
 let slashCommands = [];
-const slashCommandsPath = path.join(__dirname, "../application/slashCommands");
+const slashCommandsPath = path.join(__dirname, "../resources/slashCommands");
 const slashCommandFiles = fs
     .readdirSync(slashCommandsPath)
     .filter((file) => file.endsWith(".js"));

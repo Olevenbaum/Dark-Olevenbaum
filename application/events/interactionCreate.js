@@ -3,10 +3,13 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 // Importing classes
-const { Events, Collection } = require("discord.js");
+const { Events, Collection, userMention } = require("discord.js");
 
 // Importing configuration data
 const { consoleSpace } = require("../../configuration.json");
+
+// Importing blocked users
+const blockedUsers = require("../../resources/blockedUsers.json");
 
 // Reading interaction types
 const interactionTypes = new Collection();
@@ -29,8 +32,20 @@ module.exports = {
         // Checking for bot interaction
         if (interaction.user.bot) {
             interaction.reply(
-                `Bots are not allowed to use any commands of ${interaction.client.user.username}`
+                `Bots are not allowed to use any commands of ${userMention(
+                    interaction.client.user.id
+                )}`
             );
+        }
+
+        // Checking for blocked users
+        if (blockedUsers.includes(interaction.user.id)) {
+            interaction.reply({
+                content: `You are currently blocked and cannot use any features of ${userMention(
+                    interaction.client.user.id
+                )}`,
+                ephemeral: true,
+            });
         }
 
         // Executing interaction type specific script

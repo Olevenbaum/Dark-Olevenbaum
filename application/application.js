@@ -13,6 +13,15 @@ const {
     database,
 } = require("../configuration.json");
 
+// Reset ability by starting application with argument
+if (process.argv.includes("-r") || process.argv.includes("--reset")) {
+    // Resetting commands
+    require("../management/resetCommands.js");
+
+    // Resetting Database
+    require("../management/resetDatabase.js");
+}
+
 // Creating new client
 const client = new Client({
     intents: [GatewayIntentBits.Guilds],
@@ -31,7 +40,7 @@ client.sequelize = new Sequelize(
 
 // Creating slash commands collection
 client.slashCommands = new Collection();
-const slashCommandsPath = path.join(__dirname, "./slashCommands");
+const slashCommandsPath = path.join(__dirname, "../resources/slashCommands");
 const slashCommandFiles = fs
     .readdirSync(slashCommandsPath)
     .filter((slashCommandFile) => slashCommandFile.endsWith(".js"));
