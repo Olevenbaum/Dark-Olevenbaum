@@ -1,9 +1,9 @@
 // Importing classes and methods
-const { Routes } = require("discord.js");
+const { Collection, Routes } = require("discord.js");
 
 // Creating array for unregistered and changed commands
 const unregisteredCommands = [];
-const changedCommands = [];
+const changedCommands = new Collection();
 
 // Importing configuration data
 const { application, consoleSpace } = require("../configuration.json");
@@ -19,62 +19,60 @@ module.exports = async (client) => {
         );
         if (!registeredCommand) {
             unregisteredCommands.push(command.data.toJSON());
-        } else if (registeredCommand !== command) {
-            changedCommands.push(command.data.toJSON());
+        } else {
+            // Fix changed commands check
+            for (const [key, value] in command.data.entries()) {
+                if (registeredCommand[key] != value)
+                    changedCommands.set(
+                        registeredCommand.id,
+                        command.data.toJSON()
+                    );
+                break;
+            }
         }
     });
 
     // Registering new commands
-    unregisteredCommands
-        .forEach(async (unregisteredCommand) => {
-            await client.rest
-                .post(Routes.applicationCommand(application.applicationId), {
-                    body: unregisteredCommand,
-                })
-                .then(
-                    console.info(
-                        "[INFORMATION]".padEnd(consoleSpace),
-                        ":",
-                        `Successfully registered new application command ${unregisteredCommand.name}`
-                    )
+    unregisteredCommands.forEach(async (unregisteredCommand) => {
+        await client.rest
+            .post(Routes.applicationCommands(application.applicationId), {
+                body: unregisteredCommand,
+            })
+            .then(
+                console.info(
+                    "[INFORMATION]".padEnd(consoleSpace),
+                    ":",
+                    `Successfully registered new application command ${unregisteredCommand.name}`
                 )
-                .catch((error) => {
-                    console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-                });
-        })
-        .then(
-            console.info(
-                "[INFORMATION]".padEnd(consoleSpace),
-                ":",
-                `Successfully registered all new application commands`
             )
-        );
+            .catch((error) => {
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+            });
+    });
 
     // Updating changed commands
-    changedCommands
-        .forEach(async (changedCommand) => {
-            await client.rest
-                .patch(Routes.applicationCommand(application.applicationId), {
+    changedCommands.forEach(async (changedCommand, changedCommandId) => {
+        await client.rest
+            .patch(
+                Routes.applicationCommand(
+                    application.applicationId,
+                    changedCommandId
+                ),
+                {
                     body: changedCommand,
-                })
-                .then(
-                    console.info(
-                        "[INFORMATION]".padEnd(consoleSpace),
-                        ":",
-                        `Successfully updated application command ${changedCommand.name}`
-                    )
-                )
-                .catch((error) => {
-                    console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-                });
-        })
-        .then(
-            console.info(
-                "[INFORMATION]".padEnd(consoleSpace),
-                ":",
-                `Successfully updated all new application commands`
+                }
             )
-        );
+            .then(
+                console.info(
+                    "[INFORMATION]".padEnd(consoleSpace),
+                    ":",
+                    `Successfully updated application command ${changedCommand.name}`
+                )
+            )
+            .catch((error) => {
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+            });
+    });
 
     // Unregistering commands that have been deleted
     registeredCommands.forEach(async (command, commandId) => {

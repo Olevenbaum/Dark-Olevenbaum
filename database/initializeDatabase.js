@@ -9,14 +9,14 @@ const { Collection } = require("discord.js");
 const { consoleSpace } = require("../configuration.json");
 
 // Reading constant tables to be added to database
-const templates = new Collection();
-const templatesPath = path.join(__dirname, "./constantTables");
-const templateFiles = fs
-    .readdirSync(templatesPath)
+const constantTables = new Collection();
+const constantTablesPath = path.join(__dirname, "./constantTables");
+const constantTableFiles = fs
+    .readdirSync(constantTablesPath)
     .filter((file) => file.endsWith(".json"));
-for (const file of templateFiles) {
-    const template = require(path.join(templatesPath, file));
-    templates.set(file.replace(".json", ""), template);
+for (const file of constantTableFiles) {
+    const constantTable = require(path.join(constantTablesPath, file));
+    constantTables.set(file.replace(".json", ""), constantTable);
 }
 
 // Implementing method to check if string contains capital letters
@@ -37,7 +37,7 @@ module.exports = async (sequelize) => {
             console.info(
                 "[INFORMATION]".padEnd(consoleSpace),
                 ":",
-                "Connection with the database has been established successfully"
+                "Successfully connected to the database"
             )
         )
         .catch((error) => {
@@ -45,35 +45,56 @@ module.exports = async (sequelize) => {
         });
 
     // Adding models to database
-    const models = [];
     const modelsPath = path.join(__dirname, "../database/models");
     const modelFiles = fs
         .readdirSync(modelsPath)
         .filter((file) => file.endsWith(".js"));
     for (const file of modelFiles) {
         require(path.join(modelsPath, file))(sequelize);
-        models.push(file.replace(".js", ""));
+        console.info(
+            "[INFORMATION]".padEnd(consoleSpace),
+            ":",
+            `Successfully added model ${file.replace(".js", "")}`
+        );
     }
 
-    // Synchronising models and drop models that have been deleted
+    console.info(
+        "[INFORMATION]".padEnd(consoleSpace),
+        ":",
+        "Successfully added all models to database"
+    );
+
+    // Synchronising models
     await sequelize
         .sync()
-        .then(async () => {
-            for (const model in sequelize.models) {
-                if (!models.includes(model) && !hasCapitalLetter(model)) {
-                    await sequelize.models[model].drop();
-                    console.info(
-                        "[INFORMATION]".padEnd(consoleSpace),
-                        ":",
-                        `Successfully deleted table ${model.tableName} from database`
-                    );
-                }
-            }
-        })
         .then(
-            // Creating and updating associations
+            // Creating associations
             await require("./initializeAssociations.js")(sequelize)
         )
+        .then(async () => {
+            let promises = [];
+
+            // Reading data of constant tables
+            constantTables.forEach((constantTable, constantTableName) => {
+                const model = sequelize.models[constantTableName];
+                constantTable.forEach((element) => {
+                    promises.push(model.upsert(element));
+                });
+            });
+
+            // Executing promises
+            await Promise.all(promises).catch((error) =>
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error)
+            );
+
+            if (promises.length > 0) {
+                console.info(
+                    "[INFORMATION]".padEnd(consoleSpace),
+                    ":",
+                    "Successfully read all constant data"
+                );
+            }
+        })
         .catch((error) =>
             console.error("[ERROR]".padEnd(consoleSpace), ":", error)
         );

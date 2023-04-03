@@ -22,6 +22,11 @@ function oneToOne(
             ...options.targetOptions,
         });
     }
+    console.info(
+        "[INFORMATION]".padEnd(consoleSpace),
+        ":",
+        `Successfully created a one-to-one association between the models ${source.tableName} and ${target.tableName}`
+    );
 }
 
 // Creating One-To-Many association
@@ -45,6 +50,11 @@ function oneToMany(
             ...options.targetOptions,
         });
     }
+    console.info(
+        "[INFORMATION]".padEnd(consoleSpace),
+        ":",
+        `Successfully created a one-to-many association between the models ${source.tableName} and ${target.tableName}`
+    );
 }
 
 // Creating Many-To-Many association
@@ -73,6 +83,11 @@ function manyToMany(
         ...options.commonOptions,
         ...options.targetOptions,
     });
+    console.info(
+        "[INFORMATION]".padEnd(consoleSpace),
+        ":",
+        `Successfully created a many-to-many association between the models ${source.tableName} and ${target.tableName}`
+    );
 }
 
 module.exports = async (sequelize) => {
@@ -84,6 +99,6 @@ module.exports = async (sequelize) => {
     console.info(
         "[INFORMATION]".padEnd(consoleSpace),
         ":",
-        "All associatios have been created"
+        "Successfully created all associations"
     );
 };

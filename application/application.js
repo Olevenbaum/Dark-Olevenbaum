@@ -19,15 +19,9 @@ const client = new Client({
 });
 
 // Initializing database
-client.sequelize = new Sequelize(
-    database.name,
-    database.username,
-    database.password,
-    {
-        dialect: "sqlite",
-        storage: "database.sqlite",
-    }
-);
+if (database) {
+    client.sequelize = new Sequelize(database);
+}
 
 // Creating commands collection
 client.commands = new Collection();
@@ -43,7 +37,7 @@ for (const commandFile of commandFiles) {
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
-            `The command ${command.data.name} is missing a required 'data' or 'execute' property.`
+            `Mmissing required 'data' or 'execute' property of command ${command.data.name}`
         );
     }
 }
@@ -65,7 +59,7 @@ for (const eventFile of eventFiles) {
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
-            `The event ${event.name} is missing a required 'execute' property.`
+            `Missing required 'execute' property of event ${event.name}`
         );
     }
 }
