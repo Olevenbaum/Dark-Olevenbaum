@@ -2,7 +2,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-// Importing classes
+// Importing classes and methods
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { Sequelize } = require("sequelize");
 

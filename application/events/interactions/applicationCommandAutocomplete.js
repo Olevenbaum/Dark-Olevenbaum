@@ -1,4 +1,4 @@
-// Importing classes
+// Importing classes and methods
 const { InteractionType } = require("discord.js");
 
 // Importing configuration data

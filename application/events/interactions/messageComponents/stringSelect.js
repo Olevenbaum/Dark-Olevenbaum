@@ -1,4 +1,4 @@
-// Importing classes
+// Importing classes and methods
 const { ComponentType } = require("discord.js");
 
 module.exports = {

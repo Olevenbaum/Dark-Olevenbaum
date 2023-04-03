@@ -1,4 +1,4 @@
-// Importing classes
+// Importing classes and methods
 const { DataTypes } = require("sequelize");
 
 module.exports = async (sequelize) => {

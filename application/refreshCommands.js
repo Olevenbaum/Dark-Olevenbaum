@@ -1,4 +1,4 @@
-// Importing classes
+// Importing classes and methods
 const { Routes } = require("discord.js");
 
 // Creating array for new unregistered slash commands

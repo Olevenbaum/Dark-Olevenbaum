@@ -2,7 +2,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-// Importing classes
+// Importing classes and methods
 const { Collection, InteractionType } = require("discord.js");
 
 // Importing configuration data
