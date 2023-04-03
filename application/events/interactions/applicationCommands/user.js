@@ -6,5 +6,17 @@ module.exports = {
     name: ApplicationCommandType.User,
 
     // Handling interaction
-    async execute(interaction) {},
+    async execute(interaction) {
+        const command = interaction.client.commands
+            .get(interaction.commandName)
+            .filter((command) => command.type === this.name);
+        if (!command) {
+            console.error(
+                "[ERROR]".padEnd(consoleSpace),
+                ":",
+                `No command matching ${interaction.commandName} was found`
+            );
+            return;
+        }
+    },
 };

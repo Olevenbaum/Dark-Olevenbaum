@@ -1,68 +1,97 @@
 // Importing classes and methods
 const { Routes } = require("discord.js");
 
-// Creating array for new unregistered slash commands
-const newSlashCommands = [];
+// Creating array for unregistered and changed commands
+const unregisteredCommands = [];
+const changedCommands = [];
 
 // Importing configuration data
 const { application, consoleSpace } = require("../configuration.json");
 
 module.exports = async (client) => {
-    // Reading registered slash commands
-    const registeredSlashCommands = await client.application.commands.fetch();
+    // Reading registered commands
+    const registeredCommands = await client.application.commands.fetch();
 
-    // Checking for new slash commands to be registered
-    client.slashCommands.forEach((slashCommand, slashCommandName) => {
-        if (
-            !registeredSlashCommands.some(
-                (registeredSlashCommand) =>
-                    slashCommandName === registeredSlashCommand.name
-            )
-        ) {
-            newSlashCommands.push(slashCommand.data.toJSON());
+    // Checking for new or changed commands to be registered or updated
+    client.commands.forEach((command, commandName) => {
+        const registeredCommand = registeredCommands.find(
+            (registeredCommand) => registeredCommand.name === commandName
+        );
+        if (!registeredCommand) {
+            unregisteredCommands.push(command.data.toJSON());
+        } else if (registeredCommand !== command) {
+            changedCommands.push(command.data.toJSON());
         }
     });
 
-    // Registering new slash commands
-    if (newSlashCommands.length !== 0) {
-        console.info(
-            "[INFORMATION]".padEnd(consoleSpace),
-            ":",
-            `Started refreshing ${newSlashCommands.length} application slash commands.`
+    // Registering new commands
+    unregisteredCommands
+        .forEach(async (unregisteredCommand) => {
+            await client.rest
+                .post(Routes.applicationCommand(application.applicationId), {
+                    body: unregisteredCommand,
+                })
+                .then(
+                    console.info(
+                        "[INFORMATION]".padEnd(consoleSpace),
+                        ":",
+                        `Successfully registered new application command ${unregisteredCommand.name}`
+                    )
+                )
+                .catch((error) => {
+                    console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+                });
+        })
+        .then(
+            console.info(
+                "[INFORMATION]".padEnd(consoleSpace),
+                ":",
+                `Successfully registered all new application commands`
+            )
         );
 
-        await client.rest
-            .patch(Routes.applicationCommands(application.applicationID), {
-                body: newSlashCommands,
-            })
-            .then(
-                console.info(
-                    "[INFORMATION]".padEnd(consoleSpace),
-                    ":",
-                    `Successfully reloaded new application slash commands`
+    // Updating changed commands
+    changedCommands
+        .forEach(async (changedCommand) => {
+            await client.rest
+                .patch(Routes.applicationCommand(application.applicationId), {
+                    body: changedCommand,
+                })
+                .then(
+                    console.info(
+                        "[INFORMATION]".padEnd(consoleSpace),
+                        ":",
+                        `Successfully updated application command ${changedCommand.name}`
+                    )
                 )
+                .catch((error) => {
+                    console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+                });
+        })
+        .then(
+            console.info(
+                "[INFORMATION]".padEnd(consoleSpace),
+                ":",
+                `Successfully updated all new application commands`
             )
-            .catch((error) => {
-                console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-            });
-    }
+        );
 
-    // Unregistering slash commands that have been deleted
-    registeredSlashCommands.forEach(async (slashCommand, slashCommandID) => {
-        if (!client.slashCommands.has(slashCommand.name)) {
-            const slashCommandName = slashCommand.name;
+    // Unregistering commands that have been deleted
+    registeredCommands.forEach(async (command, commandId) => {
+        if (!client.commands.has(command.name)) {
+            const commandName = command.name;
             await client.rest
                 .delete(
                     Routes.applicationCommand(
-                        application.applicationID,
-                        slashCommandID
+                        application.applicationId,
+                        commandId
                     )
                 )
                 .then(
                     console.info(
                         "[INFORMATION]".padEnd(consoleSpace),
                         ":",
-                        `Successfully deleted application slash command ${slashCommandName}`
+                        `Successfully deleted application command ${commandName}`
                     )
                 )
                 .catch((error) => {
@@ -74,6 +103,6 @@ module.exports = async (client) => {
     console.info(
         "[INFORMATION]".padEnd(consoleSpace),
         ":",
-        `Successfully refreshed all application slash commands`
+        `Successfully refreshed all application commands`
     );
 };

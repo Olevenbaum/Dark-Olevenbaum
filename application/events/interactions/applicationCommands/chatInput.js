@@ -7,18 +7,18 @@ module.exports = {
 
     // Handling interaction
     async execute(interaction) {
-        const slashCommand = interaction.client.slashCommands.get(
-            interaction.commandName
-        );
-        if (!slashCommand) {
+        const command = interaction.client.commands
+            .get(interaction.commandName)
+            .filter((command) => command.type === this.name);
+        if (!command) {
             console.error(
                 "[ERROR]".padEnd(consoleSpace),
                 ":",
-                `No slash command matching ${interaction.commandName} was found`
+                `No command matching ${interaction.commandName} was found`
             );
             return;
         }
-        await slashCommand.execute(interaction).catch(async (error) => {
+        await command.execute(interaction).catch(async (error) => {
             console.error("[ERROR]".padEnd(consoleSpace), ":", error);
             if (interaction.replied || interaction.deferred) {
                 await interaction.followUp({

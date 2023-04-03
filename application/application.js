@@ -13,15 +13,6 @@ const {
     database,
 } = require("../configuration.json");
 
-// Reset ability by starting application with argument
-if (process.argv.includes("-r") || process.argv.includes("--reset")) {
-    // Resetting commands
-    require("../management/resetCommands.js");
-
-    // Resetting Database
-    require("../management/resetDatabase.js");
-}
-
 // Creating new client
 const client = new Client({
     intents: [GatewayIntentBits.Guilds],
@@ -38,24 +29,21 @@ client.sequelize = new Sequelize(
     }
 );
 
-// Creating slash commands collection
-client.slashCommands = new Collection();
-const slashCommandsPath = path.join(__dirname, "../resources/slashCommands");
-const slashCommandFiles = fs
-    .readdirSync(slashCommandsPath)
-    .filter((slashCommandFile) => slashCommandFile.endsWith(".js"));
-for (const slashCommandFile of slashCommandFiles) {
-    const slashCommand = require(path.join(
-        slashCommandsPath,
-        slashCommandFile
-    ));
-    if ("data" in slashCommand && "execute" in slashCommand) {
-        client.slashCommands.set(slashCommand.data.name, slashCommand);
+// Creating commands collection
+client.commands = new Collection();
+const commandsPath = path.join(__dirname, "../resources/commands");
+const commandFiles = fs
+    .readdirSync(commandsPath)
+    .filter((commandFile) => commandFile.endsWith(".js"));
+for (const commandFile of commandFiles) {
+    const command = require(path.join(commandsPath, commandFile));
+    if ("data" in command && "execute" in command) {
+        client.commands.set(command.data.name, command);
     } else {
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
-            `The slash command ${slashCommand.data.name} is missing a required 'data' or 'execute' property.`
+            `The command ${command.data.name} is missing a required 'data' or 'execute' property.`
         );
     }
 }
