@@ -8,9 +8,12 @@ module.exports = {
     // Handling interaction
     async execute(interaction) {
         const command = interaction.client.commands
-            .get(interaction.commandName)
-            .filter((command) => command.type === this.name);
+            .filter((command) => command.type === this.name)
+            .get(interaction.commandName);
         if (!command) {
+            await interaction.reply(
+                `The command ${interaction.commandName} could not be found.`
+            );
             console.error(
                 "[ERROR]".padEnd(consoleSpace),
                 ":",

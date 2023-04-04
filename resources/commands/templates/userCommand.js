@@ -4,7 +4,7 @@ const { ContextMenuCommandBuilder } = require("discord.js");
 module.exports = {
     // Setting command information, kind and options
     data: new ContextMenuCommandBuilder().setName("").setDescription(""),
-    type: 3,
+    type: 2,
 
     // Handling command autocomplete
     async autocomplete(interaction) {},
