@@ -8,6 +8,33 @@ const changedCommands = new Collection();
 // Importing configuration data
 const { application, consoleSpace } = require("../configuration.json");
 
+// Defining method for comparing command objects
+function compareCommands(registeredCommand, command) {
+    const commandCopy = Object.assign({}, command);
+    // Creating copy of registered command
+    const registeredCommandCopy = {};
+    for (const key in commandCopy) {
+        registeredCommandCopy[key] = registeredCommand[key];
+    }
+
+    // Method for replacing undefined with false
+    function replaceingUndefined(command) {
+        for (const [key, value] of Object.entries(command)) {
+            if (typeof value === "undefined") {
+                command[key] = false;
+            }
+        }
+    }
+
+    replaceingUndefined(commandCopy);
+    replaceingUndefined(registeredCommandCopy);
+
+    // Comparing JSONs of commands
+    const commandJSON = JSON.stringify(commandCopy);
+    const registeredCommandJSON = JSON.stringify(registeredCommandCopy);
+    return commandJSON == registeredCommandJSON;
+}
+
 module.exports = async (client) => {
     // Reading registered commands
     const registeredCommands = await client.application.commands.fetch();
@@ -19,16 +46,8 @@ module.exports = async (client) => {
         );
         if (!registeredCommand) {
             unregisteredCommands.push(command.data.toJSON());
-        } else {
-            // Fix changed commands check
-            for (const [key, value] in command.data.entries()) {
-                if (registeredCommand[key] != value)
-                    changedCommands.set(
-                        registeredCommand.id,
-                        command.data.toJSON()
-                    );
-                break;
-            }
+        } else if (!compareCommands(registeredCommand, command.data)) {
+            changedCommands.set(registeredCommand.id, command.data.toJSON());
         }
     });
 
