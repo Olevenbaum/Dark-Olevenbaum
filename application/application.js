@@ -65,13 +65,39 @@ for (const eventFile of eventFiles) {
 }
 
 // Reading argument of process to choose token
-const index = process.argv.findIndex(
-    (argument) => argument.startsWith("-") && !isNAN(argument.substring(1))
+const argumentIndex = process.argv.findIndex(
+    (argument) => argument.startsWith("-") && !isNaN(argument.substring(1))
 );
-let token = application.token.first();
-if (index >= 0) {
-    token = application.token[index];
+const argument = process.argv[argumentIndex];
+let tokenIndex = argument ? parseInt(argument.substring(1)) : 0;
+if (tokenIndex < 0 || tokenIndex >= application.tokens.length) {
+    console.warn(
+        "[WARNING]".padEnd(consoleSpace),
+        ":",
+        `Index ${tokenIndex} cannot be found in array with length ${application.tokens.length}`
+    );
+    tokenIndex = 0;
 }
 
 // Logging in application
-client.login(token);
+for (let i = 0; i < application.tokens.length; i++) {
+    let success = true;
+    const token =
+        tokenIndex + i >= application.tokens.length
+            ? application.tokens[tokenIndex + i - application.tokens.length]
+            : application.tokens[tokenIndex + i];
+    client.login(token).catch((error) => {
+        console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+        if (i != application.tokens.length - 1) {
+            console.warn(
+                "[WARNING]".padEnd(consoleSpace),
+                ":",
+                `The token is invalid, trying again with next token.`
+            );
+        }
+        success = false;
+    });
+    if (success) {
+        break;
+    }
+}
