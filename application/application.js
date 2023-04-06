@@ -64,5 +64,14 @@ for (const eventFile of eventFiles) {
     }
 }
 
+// Reading argument of process to choose token
+const index = process.argv.findIndex(
+    (argument) => argument.startsWith("-") && !isNAN(argument.substring(1))
+);
+let token = application.token.first();
+if (index >= 0) {
+    token = application.token[index];
+}
+
 // Logging in application
-client.login(application.token);
+client.login(token);

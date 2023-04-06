@@ -12,11 +12,15 @@ The file should be orientated at the following format:
         "application": {
             "applicationId": "your-application-id",
             "publicKey": "your-public-key",
-            "token": "your-application-token"
+            "token": [
+                "your-application-token"
+            ]
         },
         "consoleSpace": 18,
         "database": {}
     }
+
+You can provide multiple tokens. To specify the application you want to start, simply give the index of the token as an argument to start the process with a `-`(e.g. `npm run start -0`). If none is provided, the token at index 0 will be chosen automaticly.
 
 For further information about initializing a database visit [Sequelize](https://sequelize.org/api/v6/class/src/sequelize.js~sequelize#instance-constructor-constructor). All listed options at this webpage can be used in this .json file aswell. If you do not want to use a database at all, just set database to `false`.
 
