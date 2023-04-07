@@ -19,16 +19,6 @@ for (const file of constantTableFiles) {
     constantTables.set(file.replace(".json", ""), constantTable);
 }
 
-// Implementing method to check if string contains capital letters
-function hasCapitalLetter(string) {
-    for (const character of string) {
-        if (character === character.toUpperCase()) {
-            return true;
-        }
-    }
-    return false;
-}
-
 module.exports = async (sequelize) => {
     // Checking connection with database
     await sequelize
@@ -37,7 +27,7 @@ module.exports = async (sequelize) => {
             console.info(
                 "[INFORMATION]".padEnd(consoleSpace),
                 ":",
-                "Successfully connected to the database"
+                "Successfully connected to database"
             )
         )
         .catch((error) => {
@@ -54,7 +44,7 @@ module.exports = async (sequelize) => {
         console.info(
             "[INFORMATION]".padEnd(consoleSpace),
             ":",
-            `Successfully added model ${file.replace(".js", "")}`
+            `Successfully added model '${file.replace(".js", "")}'`
         );
     }
 

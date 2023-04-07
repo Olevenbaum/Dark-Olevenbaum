@@ -24,7 +24,7 @@ module.exports = {
         console.info(
             "[INFORMATION]".padEnd(consoleSpace),
             ":",
-            `Discord bot logged in successfully as ${client.user.username}`
+            `Successfully logged in as ${client.user.username}`
         );
     },
 };
