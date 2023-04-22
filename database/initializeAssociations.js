@@ -68,9 +68,11 @@ function manyToMany(
     }
 ) {
     options.commonOptions = options.commonOptions || {};
-    options.commonOptions.through = `${
-        source.tableName
-    }To${target.tableName[0].toUpperCase()}${target.tableName.slice(1)}`;
+    if (!options.commonOptions.through) {
+        options.commonOptions.through = `${
+            source.tableName
+        }To${target.tableName[0].toUpperCase()}${target.tableName.slice(1)}`;
+    }
     source.belongsToMany(target, {
         ...options.commonOptions,
         ...options.sourceOptions,
