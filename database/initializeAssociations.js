@@ -62,19 +62,15 @@ function manyToMany(
     source,
     target,
     options = {
-        connectionTable: null,
         commonOptions: {},
         sourceOptions: {},
         targetOptions: {},
     }
 ) {
-    const through =
-        options.connectionTable ??
-        `${
-            source.tableName
-        }To${target.tableName[0].toUpperCase()}${target.tableName.slice(1)}`;
-    options.sourceOptions.through = through;
-    options.targetOptions.through = through;
+    options.commonOptions = options.commonOptions || {};
+    options.commonOptions.through = `${
+        source.tableName
+    }To${target.tableName[0].toUpperCase()}${target.tableName.slice(1)}`;
     source.belongsToMany(target, {
         ...options.commonOptions,
         ...options.sourceOptions,
