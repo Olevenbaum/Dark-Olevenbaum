@@ -90,7 +90,7 @@ function manyToMany(
     );
 }
 
-module.exports = async (sequelize) => {
+module.exports = (sequelize) => {
     // Saving models
     const models = sequelize.models;
 

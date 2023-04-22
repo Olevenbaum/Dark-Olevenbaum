@@ -54,13 +54,12 @@ module.exports = async (sequelize) => {
         "Successfully added all models to database"
     );
 
+    // Creating associations
+    require("./initializeAssociations.js")(sequelize);
+
     // Synchronising models
     await sequelize
         .sync()
-        .then(
-            // Creating associations
-            await require("./initializeAssociations.js")(sequelize)
-        )
         .then(async () => {
             let promises = [];
 
