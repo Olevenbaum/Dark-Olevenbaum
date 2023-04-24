@@ -2,7 +2,7 @@
 const { Events } = require("discord.js");
 
 // Importing configuration data
-const { consoleSpace, database } = require("../../configuration.json");
+const { consoleSpace } = require("../../configuration.json");
 
 module.exports = {
     // Setting event name and kind
@@ -15,7 +15,7 @@ module.exports = {
         await require("../refreshCommands.js")(client);
 
         // Updating new or deleted models in database
-        if (database) {
+        if (client.sequelize) {
             await require("../../database/initializeDatabase.js")(
                 client.sequelize
             );
