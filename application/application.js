@@ -12,6 +12,18 @@ const {
     consoleSpace,
     database,
 } = require("../configuration.json");
+const { count } = require("node:console");
+
+// Method for rotating arrays
+Array.prototype.rotate = function (counter, reverse) {
+    counter %= this.length;
+    if (reverse) {
+        this.push(...this.splice(0, this.length - counter));
+    } else {
+        this.unshift(...this.splice(counter, this.length));
+    }
+    return this;
+};
 
 // Creating new client
 const client = new Client({
@@ -80,24 +92,18 @@ if (tokenIndex < 0 || tokenIndex >= application.tokens.length) {
 }
 
 // Logging in application
-for (let i = 0; i < application.tokens.length; i++) {
+application.tokens.rotate(tokenIndex).every(async (token) => {
     let success = true;
-    const token =
-        tokenIndex + i >= application.tokens.length
-            ? application.tokens[tokenIndex + i - application.tokens.length]
-            : application.tokens[tokenIndex + i];
-    client.login(token).catch((error) => {
+    await client.login(token).catch((error) => {
         console.error("[ERROR]".padEnd(consoleSpace), ":", error);
         if (i != application.tokens.length - 1) {
             console.warn(
                 "[WARNING]".padEnd(consoleSpace),
                 ":",
-                `The token is invalid, trying again with next token.`
+                `invalid token provided, trying next token`
             );
+            success = false;
         }
-        success = false;
     });
-    if (success) {
-        break;
-    }
-}
+    return !success;
+});
