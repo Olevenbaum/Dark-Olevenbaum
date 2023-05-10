@@ -21,7 +21,7 @@ The file should be orientated at the following format:
     }
 
 Feel free to make changes whereever you want and modify this template to make it fit your bot application.
-If there happen to occure any errors executing the scripts, please contact me or create an issue and i will try to fix it
+If there are any errors while executing the scripts, please contact me or create an issue and i will try to fix it.
 
 You can provide multiple tokens. To specify the application you want to start, simply give the index of the token as an argument to start the process with `-` for executing the file or `-- -` if you use predefined scripts (e.g. `npm run start -- -"token index"`). If none is provided, the token at index 0 will be chosen automaticly. If the chosen token is invalid, the next token will be chosen.
 
