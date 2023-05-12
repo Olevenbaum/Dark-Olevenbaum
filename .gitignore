@@ -2,5 +2,6 @@
 .vscode
 
 configuration.json
+database.sqlite
 
 node_modules
