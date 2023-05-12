@@ -12,9 +12,8 @@ const {
     consoleSpace,
     database,
 } = require("../configuration.json");
-const { count } = require("node:console");
 
-// Method for rotating arrays
+// Defining method for rotating arrays
 Array.prototype.rotate = function (counter, reverse) {
     counter %= this.length;
     if (reverse) {
@@ -49,7 +48,7 @@ for (const commandFile of commandFiles) {
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
-            `Mmissing required 'data' or 'execute' property of command ${command.data.name}`
+            `Missing required 'data' or 'execute' property of command ${command.data.name}`
         );
     }
 }
@@ -91,7 +90,7 @@ if (tokenIndex < 0 || tokenIndex >= application.tokens.length) {
     tokenIndex = 0;
 }
 
-// Logging in application
+// Logging in application with valid token
 application.tokens.rotate(tokenIndex).every(async (token) => {
     let success = true;
     await client.login(token).catch((error) => {

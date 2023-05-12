@@ -11,15 +11,25 @@ module.exports = {
 
     // Handling event
     async execute(client) {
-        // Updating new or deleted slash commands
-        await require("../refreshCommands.js")(client);
+        // Creating array for promises to be executed to start the application
+        const promises = [];
 
-        // Updating new or deleted models in database
+        // Adding update of new or deleted commands to promises
+        promises.push(require("../refreshCommands.js")(client));
+
+        // Adding update of new or deleted models in database to promises
         if (client.sequelize) {
-            await require("../../database/initializeDatabase.js")(
-                client.sequelize
+            promises.push(
+                require("../../database/initializeDatabase.js")(
+                    client.sequelize
+                )
             );
         }
+
+        // Executing promises
+        await Promise.all(promises).catch((error) =>
+            console.error("[ERROR]".padEnd(consoleSpace), ":", error)
+        );
 
         console.info(
             "[INFORMATION]".padEnd(consoleSpace),

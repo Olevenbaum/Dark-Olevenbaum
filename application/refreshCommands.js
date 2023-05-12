@@ -8,8 +8,18 @@ const changedCommands = new Collection();
 // Importing configuration data
 const { application, consoleSpace } = require("../configuration.json");
 
+// Defining method for replacing undefined with false
+function replaceUndefined(command) {
+    for (const [key, value] of Object.entries(command)) {
+        if (typeof value === "undefined") {
+            command[key] = false;
+        }
+    }
+}
+
 // Defining method for comparing command objects
 function compareCommands(registeredCommand, command) {
+    // Creating copy of unregistered command
     const commandCopy = Object.assign({}, command);
     // Creating copy of registered command
     const registeredCommandCopy = {};
@@ -17,17 +27,9 @@ function compareCommands(registeredCommand, command) {
         registeredCommandCopy[key] = registeredCommand[key];
     }
 
-    // Method for replacing undefined with false
-    function replaceingUndefined(command) {
-        for (const [key, value] of Object.entries(command)) {
-            if (typeof value === "undefined") {
-                command[key] = false;
-            }
-        }
-    }
-
-    replaceingUndefined(commandCopy);
-    replaceingUndefined(registeredCommandCopy);
+    // Replacing undefined values with false
+    replaceUndefined(commandCopy);
+    replaceUndefined(registeredCommandCopy);
 
     // Comparing JSONs of commands
     const commandJSON = JSON.stringify(commandCopy);
@@ -51,75 +53,101 @@ module.exports = async (client) => {
         }
     });
 
-    // Registering new commands
+    // Creating array for promises to be sent to Discord
+    const promises = [];
+
+    // Adding registration of new commands to promises
     unregisteredCommands.forEach(async (unregisteredCommand) => {
-        await client.rest
-            .post(Routes.applicationCommands(application.applicationId), {
-                body: unregisteredCommand,
-            })
-            .then(
-                console.info(
-                    "[INFORMATION]".padEnd(consoleSpace),
-                    ":",
-                    `Successfully registered new application command ${unregisteredCommand.name}`
+        promises.push(
+            client.rest
+                .post(Routes.applicationCommands(application.applicationId), {
+                    body: unregisteredCommand,
+                })
+                .then(
+                    console.info(
+                        "[INFORMATION]".padEnd(consoleSpace),
+                        ":",
+                        `Successfully registered new application command ${unregisteredCommand.name}`
+                    )
                 )
-            )
-            .catch((error) => {
-                console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-            });
+                .catch((error) => {
+                    console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+                })
+        );
     });
 
-    // Updating changed commands
+    // Adding update of changed commands to promises
     changedCommands.forEach(async (changedCommand, changedCommandId) => {
-        await client.rest
-            .patch(
-                Routes.applicationCommand(
-                    application.applicationId,
-                    changedCommandId
-                ),
-                {
-                    body: changedCommand,
-                }
-            )
-            .then(
-                console.info(
-                    "[INFORMATION]".padEnd(consoleSpace),
-                    ":",
-                    `Successfully updated application command ${changedCommand.name}`
-                )
-            )
-            .catch((error) => {
-                console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-            });
-    });
-
-    // Unregistering commands that have been deleted
-    registeredCommands.forEach(async (command, commandId) => {
-        if (!client.commands.has(command.name)) {
-            const commandName = command.name;
-            await client.rest
-                .delete(
+        promises.push(
+            client.rest
+                .patch(
                     Routes.applicationCommand(
                         application.applicationId,
-                        commandId
-                    )
+                        changedCommandId
+                    ),
+                    {
+                        body: changedCommand,
+                    }
                 )
                 .then(
                     console.info(
                         "[INFORMATION]".padEnd(consoleSpace),
                         ":",
-                        `Successfully deleted application command ${commandName}`
+                        `Successfully updated application command ${changedCommand.name}`
                     )
                 )
                 .catch((error) => {
                     console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-                });
+                })
+        );
+    });
+
+    // Added unregistering old commands that have been deleted tp promises
+    registeredCommands.forEach(async (command, commandId) => {
+        if (!client.commands.has(command.name)) {
+            const commandName = command.name;
+            promises.push(
+                client.rest
+                    .delete(
+                        Routes.applicationCommand(
+                            application.applicationId,
+                            commandId
+                        )
+                    )
+                    .then(
+                        console.info(
+                            "[INFORMATION]".padEnd(consoleSpace),
+                            ":",
+                            `Successfully deleted application command ${commandName}`
+                        )
+                    )
+                    .catch((error) => {
+                        console.error(
+                            "[ERROR]".padEnd(consoleSpace),
+                            ":",
+                            error
+                        );
+                    })
+            );
         }
     });
 
-    console.info(
-        "[INFORMATION]".padEnd(consoleSpace),
-        ":",
-        `Successfully refreshed all application commands`
+    // Executing promises
+    await Promise.all(promises).catch((error) =>
+        console.error("[ERROR]".padEnd(consoleSpace), ":", error)
     );
+
+    if (promises.length > 0) {
+        console.info(
+            "[INFORMATION]".padEnd(consoleSpace),
+            ":",
+            `Successfully refreshed all application commands`
+        );
+    } else {
+        console.info(
+            "[INFORMATION]".padEnd(consoleSpace),
+            ":",
+            `No commands to be updated, deleted or added were found`
+        );
+    }
 };

@@ -48,21 +48,30 @@ module.exports = async (sequelize) => {
         );
     }
 
-    console.info(
-        "[INFORMATION]".padEnd(consoleSpace),
-        ":",
-        "Successfully added all models to database"
-    );
+    if (modelFiles.length > 0) {
+        console.info(
+            "[INFORMATION]".padEnd(consoleSpace),
+            ":",
+            "Successfully added all models to database"
+        );
+    } else {
+        console.info(
+            "[INFORMATION]".padEnd(consoleSpace),
+            ":",
+            `No new models were found`
+        );
+    }
 
     // Creating associations
     require("./initializeAssociations.js")(sequelize);
+
+    // Creating array for promises for inserting entities into database
+    const promises = [];
 
     // Synchronising models
     await sequelize
         .sync()
         .then(async () => {
-            let promises = [];
-
             // Reading data of constant tables
             constantTables.forEach((constantTable, constantTableName) => {
                 const model = sequelize.models[constantTableName];
@@ -82,15 +91,29 @@ module.exports = async (sequelize) => {
                     ":",
                     "Successfully read all constant data"
                 );
+            } else {
+                console.info(
+                    "[INFORMATION]".padEnd(consoleSpace),
+                    ":",
+                    `No new constant data had to be added to database`
+                );
             }
         })
         .catch((error) =>
             console.error("[ERROR]".padEnd(consoleSpace), ":", error)
         );
 
-    console.info(
-        "[INFORMATION]".padEnd(consoleSpace),
-        ":",
-        "Successfully updated database"
-    );
+    if (modelFiles.length > 0 || promises.length > 0) {
+        console.info(
+            "[INFORMATION]".padEnd(consoleSpace),
+            ":",
+            "Successfully updated database"
+        );
+    } else {
+        console.info(
+            "[INFORMATION]".padEnd(consoleSpace),
+            ":",
+            `No changes were found in database`
+        );
+    }
 };
