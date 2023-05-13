@@ -23,15 +23,7 @@ for (const file of templateFiles) {
 }
 
 // Creating new sequelize object
-const sequelize = new Sequelize(
-    database.name,
-    database.username,
-    database.password,
-    {
-        dialect: "sqlite",
-        storage: "database.sqlite",
-    }
-);
+const sequelize = new Sequelize(database);
 
 // Adding models to database
 const modelsPath = path.join(__dirname, "../database/models");
@@ -42,11 +34,13 @@ for (const file of modelFiles) {
     require(path.join(modelsPath, file))(sequelize);
 }
 
-console.info(
-    "[INFORMATION]".padEnd(consoleSpace),
-    ":",
-    "Successfully added all models to database"
-);
+if (modelFiles.length > 0) {
+    console.info(
+        "[INFORMATION]".padEnd(consoleSpace),
+        ":",
+        "Successfully added all models to database"
+    );
+}
 
 // Creating associations
 require("../database/initializeAssociations.js")(sequelize);
@@ -55,7 +49,7 @@ require("../database/initializeAssociations.js")(sequelize);
 sequelize
     .sync({ force: true })
     .then(async () => {
-        let promises = [];
+        const promises = [];
 
         // Reading data of constant tables
         templates.forEach((template, templateName) => {
@@ -70,11 +64,13 @@ sequelize
             console.error("[ERROR]".padEnd(consoleSpace), ":", error)
         );
 
-        console.info(
-            "[INFORMATION]".padEnd(consoleSpace),
-            ":",
-            "Constant tables have been initialized"
-        );
+        if (promises.length > 0) {
+            console.info(
+                "[INFORMATION]".padEnd(consoleSpace),
+                ":",
+                "Constant tables have been initialized"
+            );
+        }
     })
     .catch((error) => {
         console.error("[ERROR]".padEnd(consoleSpace), ":", error);

@@ -9,7 +9,7 @@ const { REST, Routes } = require("discord.js");
 const { application, consoleSpace } = require("../configuration.json");
 
 // Creating array with all commands
-let commands = [];
+const commands = [];
 const commandsPath = path.join(__dirname, "../resources/commands");
 const commandFiles = fs
     .readdirSync(commandsPath)
