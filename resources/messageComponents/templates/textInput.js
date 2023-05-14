@@ -8,7 +8,7 @@ module.exports = {
 
     // Creating message component
     create() {
-        return new TextInputBuilder();
+        return new TextInputBuilder().setCustomId(this.name);
     },
 
     // Handling interaction
