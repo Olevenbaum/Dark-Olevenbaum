@@ -70,7 +70,7 @@ module.exports = async (sequelize) => {
 
     // Synchronising models
     await sequelize
-        .sync()
+        .sync({ force: process.argv.includes("-reset_database") })
         .then(async () => {
             // Reading data of constant tables
             constantTables.forEach((constantTable, constantTableName) => {

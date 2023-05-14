@@ -106,33 +106,35 @@ for (const eventFile of eventFiles) {
 }
 
 // Reading argument of process to choose token
-const argumentIndex = process.argv.findIndex(
-    (argument) => argument.startsWith("-") && !isNaN(argument.substring(1))
+const argumentIndex = process.argv.findIndex((argument) =>
+    argument.startsWith("-token")
 );
-const argument = process.argv[argumentIndex];
-let tokenIndex = argument ? parseInt(argument.substring(1)) : 0;
-if (tokenIndex < 0 || tokenIndex >= application.tokens.length) {
-    console.warn(
-        "[WARNING]".padEnd(consoleSpace),
-        ":",
-        `Index ${tokenIndex} cannot be found in array with length ${application.tokens.length}`
-    );
-    tokenIndex = 0;
+console.log(process.argv);
+let tokenIndex;
+if (argumentIndex >= 0) {
+    const arguments = process.argv.splice(argumentIndex, 2);
+    const argument = arguments[1];
+    let tokenIndex = argument ? parseInt(argument) : 0;
+    if (tokenIndex < 0 || tokenIndex >= application.tokens.length) {
+        console.warn(
+            "[WARNING]".padEnd(consoleSpace),
+            ":",
+            `Index ${tokenIndex} cannot be found in array with length ${application.tokens.length}`
+        );
+        tokenIndex = undefined;
+    }
 }
 
 // Logging in application with valid token
-application.tokens.rotate(tokenIndex).every(async (token) => {
+application.tokens.rotate(tokenIndex ?? 0).every(async (token) => {
     let success = true;
-    await client.login(token).catch((error) => {
-        console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-        if (i != application.tokens.length - 1) {
-            console.warn(
-                "[WARNING]".padEnd(consoleSpace),
-                ":",
-                `invalid token provided, trying next token`
-            );
-            success = false;
-        }
+    await client.login(token).catch(() => {
+        console.warn(
+            "[WARNING]".padEnd(consoleSpace),
+            ":",
+            `Invalid token provided, trying again with next token`
+        );
+        success = false;
     });
-    return !success;
+    return success;
 });

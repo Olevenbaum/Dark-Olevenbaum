@@ -8,6 +8,17 @@ const { REST, Routes } = require("discord.js");
 // Importing configuration data
 const { application, consoleSpace } = require("../configuration.json");
 
+// Defining method for rotating arrays
+Array.prototype.rotate = function (counter, reverse) {
+    counter %= this.length;
+    if (reverse) {
+        this.push(...this.splice(0, this.length - counter));
+    } else {
+        this.unshift(...this.splice(counter, this.length));
+    }
+    return this;
+};
+
 // Creating array with all commands
 const commands = [];
 const commandsPath = path.join(__dirname, "../resources/commands");
@@ -50,7 +61,7 @@ for (let i = 0; i < application.tokens.length; i++) {
                 console.warn(
                     "[WARNING]".padEnd(consoleSpace),
                     ":",
-                    `The token is invalid, trying again with next token.`
+                    `Invalid provided, trying again with next token`
                 );
             }
             success = false;
