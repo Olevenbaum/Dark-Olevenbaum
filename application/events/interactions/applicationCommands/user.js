@@ -1,6 +1,9 @@
 // Importing classes and methods
 const { ApplicationCommandType } = require("discord.js");
 
+// Importing configuration data
+const { consoleSpace } = require("../../../../configuration.json");
+
 module.exports = {
     // Setting interaction type name
     name: ApplicationCommandType.User,
