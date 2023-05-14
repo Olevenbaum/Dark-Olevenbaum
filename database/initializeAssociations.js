@@ -93,15 +93,6 @@ module.exports = (sequelize) => {
     const models = sequelize.models;
 
     // Associations
-    oneToMany(models.session, models.player);
-    oneToOne(models.session, models.player, {
-        bothsided: true,
-        sourceOptions: { as: "questioner" },
-    });
-    oneToOne(models.session, models.player, {
-        bothsided: true,
-        sourceOptions: { as: "answerer" },
-    });
 
     console.info(
         "[INFORMATION]".padEnd(consoleSpace),
