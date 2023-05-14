@@ -7,7 +7,7 @@ module.exports = {
     type: ComponentType.ActionRow,
 
     // Creating message component
-    create() {
+    create(interaction) {
         return new ActionRowBuilder();
     },
 

@@ -7,7 +7,7 @@ module.exports = {
     type: ComponentType.StringSelect,
 
     // Creating message component
-    create() {
+    create(interaction) {
         return new StringSelectMenuBuilder().setCustomId(this.name);
     },
 

@@ -7,7 +7,7 @@ module.exports = {
     type: ComponentType.Button,
 
     // Creating message component
-    create() {
+    create(interaction) {
         return new ButtonBuilder().setCustomId(this.name);
     },
 
