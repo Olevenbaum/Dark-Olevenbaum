@@ -20,20 +20,6 @@ for (const file of constantTableFiles) {
 }
 
 module.exports = async (sequelize) => {
-    // Checking connection with database
-    await sequelize
-        .authenticate()
-        .then(
-            console.info(
-                "[INFORMATION]".padEnd(consoleSpace),
-                ":",
-                "Successfully connected to database"
-            )
-        )
-        .catch((error) => {
-            console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-        });
-
     // Adding models to database
     const modelsPath = path.join(__dirname, "../database/models");
     const modelFiles = fs
@@ -54,12 +40,6 @@ module.exports = async (sequelize) => {
             ":",
             "Successfully added all models to database"
         );
-    } else {
-        console.info(
-            "[INFORMATION]".padEnd(consoleSpace),
-            ":",
-            `No new models were found`
-        );
     }
 
     // Creating associations
@@ -68,10 +48,21 @@ module.exports = async (sequelize) => {
     // Creating array for promises for inserting entities into database
     const promises = [];
 
+    // Checking wether database should be deleted
+    const force = process.argv.includes("-reset_database");
+
     // Synchronising models
     await sequelize
-        .sync({ force: process.argv.includes("-reset_database") })
+        .sync({ force })
         .then(async () => {
+            if (force) {
+                console.info(
+                    "[INFORMATION]".padEnd(consoleSpace),
+                    ":",
+                    "Successfully deleted database"
+                );
+            }
+
             // Reading data of constant tables
             constantTables.forEach((constantTable, constantTableName) => {
                 const model = sequelize.models[constantTableName];

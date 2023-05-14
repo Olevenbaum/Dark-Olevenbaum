@@ -32,6 +32,11 @@ const modelFiles = fs
     .filter((file) => file.endsWith(".js"));
 for (const file of modelFiles) {
     require(path.join(modelsPath, file))(sequelize);
+    console.info(
+        "[INFORMATION]".padEnd(consoleSpace),
+        ":",
+        `Successfully added model '${file.replace(".js", "")}'`
+    );
 }
 
 if (modelFiles.length > 0) {
@@ -45,12 +50,13 @@ if (modelFiles.length > 0) {
 // Creating associations
 require("../database/initializeAssociations.js")(sequelize);
 
+// Creating array for promises for inserting entities into database
+const promises = [];
+
 // Forcing syncronisation of database
 sequelize
     .sync({ force: true })
     .then(async () => {
-        const promises = [];
-
         // Reading data of constant tables
         templates.forEach((template, templateName) => {
             const model = sequelize.models[templateName];
