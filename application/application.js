@@ -54,6 +54,7 @@ commandFiles.forEach((commandFile) => {
 });
 
 // Creating message components collections
+client.messageComponents = new Collection();
 const messageComponentsPath = path.join(
     __dirname,
     "../resources/messageComponents"
