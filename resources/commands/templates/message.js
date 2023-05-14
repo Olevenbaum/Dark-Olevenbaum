@@ -1,10 +1,13 @@
 // Importing classes and methods
-const { ContextMenuCommandBuilder } = require("discord.js");
+const {
+    ApplicationCommandType,
+    ContextMenuCommandBuilder,
+} = require("discord.js");
 
 module.exports = {
     // Setting command information, kind and options
     data: new ContextMenuCommandBuilder().setName("").setDescription(""),
-    type: 2,
+    type: ApplicationCommandType.Message,
 
     // Handling command autocomplete
     async autocomplete(interaction) {},

@@ -40,7 +40,7 @@ const commandsPath = path.join(__dirname, "../resources/commands");
 const commandFiles = fs
     .readdirSync(commandsPath)
     .filter((commandFile) => commandFile.endsWith(".js"));
-for (const commandFile of commandFiles) {
+commandFiles.forEach((commandFile) => {
     const command = require(path.join(commandsPath, commandFile));
     if ("data" in command && "execute" in command) {
         client.commands.set(command.data.name, command);
@@ -51,7 +51,38 @@ for (const commandFile of commandFiles) {
             `Missing required 'data' or 'execute' property of command ${command.data.name}`
         );
     }
-}
+});
+
+// Creating message components collections
+const messageComponentsPath = path.join(
+    __dirname,
+    "../resources/messageComponents"
+);
+const messageComponentFiles = fs
+    .readdirSync(messageComponentsPath)
+    .filter((messageComponentFile) => messageComponentFile.endsWith(".js"));
+messageComponentFiles.forEach((messageComponentFile) => {
+    const messageComponent = require(path.join(
+        messageComponentsPath,
+        messageComponentFile
+    ));
+    if (
+        "create" in messageComponent &&
+        "data" in messageComponent &&
+        "execute" in messageComponent
+    ) {
+        client.messageComponents.set(
+            messageComponent.data.name,
+            messageComponent
+        );
+    } else {
+        console.warn(
+            "[WARNING]".padEnd(consoleSpace),
+            ":",
+            `Missing required 'data' or 'execute' property of message component ${messageComponent.data.name}`
+        );
+    }
+});
 
 // Creating event listener
 const eventsPath = path.join(__dirname, "./events");

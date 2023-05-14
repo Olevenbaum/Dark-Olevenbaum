@@ -1,0 +1,16 @@
+// Importing classes and methods
+const { ActionRowBuilder, ComponentType } = require("discord.js");
+
+module.exports = {
+    // Setting interaction type name
+    name: "",
+    type: ComponentType.ActionRow,
+
+    // Creating message component
+    create() {
+        return new ActionRowBuilder();
+    },
+
+    // Handling interaction
+    async execute(interaction) {},
+};
