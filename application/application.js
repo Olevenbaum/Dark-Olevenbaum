@@ -68,18 +68,16 @@ messageComponentFiles.forEach((messageComponentFile) => {
     ));
     if (
         "create" in messageComponent &&
-        "data" in messageComponent &&
-        "execute" in messageComponent
+        "execute" in messageComponent &&
+        "name" in messageComponent &&
+        "type" in messageComponent
     ) {
-        client.messageComponents.set(
-            messageComponent.data.name,
-            messageComponent
-        );
+        client.messageComponents.set(messageComponent.name, messageComponent);
     } else {
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
-            `Missing required 'data' or 'execute' property of message component ${messageComponent.data.name}`
+            `Missing required 'data' or 'execute' property of message component ${messageComponent.name}`
         );
     }
 });
