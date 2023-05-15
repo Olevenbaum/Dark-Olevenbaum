@@ -23,21 +23,45 @@ module.exports = {
     // Handling interaction
     async execute(interaction) {
         // Searching for player or creating new player
-        const [player] =
+        const [player, created] =
             await interaction.client.sequelize.models.player.findOrCreate({
                 default: { id: interaction.user.id },
                 where: { id: interaction.user.id },
             });
 
         // Searching for session of this player
-        const session = await player.getSession();
+        let session = await player.getSession();
 
         // Reading message data
         const message = interaction.message;
-        const sessionId = message.embeds[0].footer.text.replace(/^\D+/g, "");
+        const sessionId = parseInt(
+            message.embeds[0].footer.text.replace(/^\D+/g, "")
+        );
 
         // Checking if user is currently playing Truth or Dare
-        if (!session) {
+        if (session) {
+            if (session.id === sessionId) {
+                interaction.reply({
+                    content: "You cannot join this game twice!",
+                    ephemeral: true,
+                });
+            } else {
+                interaction.reply({
+                    content:
+                        "You cannot join this game since you already joined another one!",
+                    ephemeral: true,
+                });
+            }
+        } else {
+            // Searching for session
+            session =
+                await interaction.client.sequelize.models.session.findByPk(
+                    sessionId
+                );
+
+            // Adding player to session
+            session.addPlayer(player);
+
             const players = await session.getPlayers();
 
             // Editing initial message if the button belongs to it
@@ -66,9 +90,6 @@ module.exports = {
                 message.edit({ embeds: [embed] });
             }
 
-            // Adding player to session
-            session.addPlayer(player);
-
             // Calculating skips based on number average number of skips rounded down
             const skips = session.active
                 ? Math.floor(
@@ -80,17 +101,6 @@ module.exports = {
 
             // Replying to interaction
             interaction.reply(`${userMention(player.id)} joined the game!`);
-        } else if (session.id === sessionId) {
-            interaction.reply({
-                content: "You cannot join this game twice!",
-                ephemeral: true,
-            });
-        } else {
-            interaction.reply({
-                content:
-                    "You cannot join this game since you already joined another one!",
-                ephemeral: true,
-            });
         }
     },
 };

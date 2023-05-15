@@ -18,6 +18,7 @@ module.exports = {
                 .setDescription(
                     "The number of skips everyone should have in this session"
                 )
+                .setMinValue(0)
         )
         .addIntegerOption((option) =>
             option

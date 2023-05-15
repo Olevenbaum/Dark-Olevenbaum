@@ -96,11 +96,13 @@ module.exports = (sequelize) => {
     oneToMany(models.session, models.player);
     oneToOne(models.player, models.session, {
         bothsided: true,
-        sourceOptions: { as: "questioner", foreignKey: "questionedId" },
+        commonOptions: { foreignKey: "questionerId" },
+        targetOptions: { as: "questioner" },
     });
     oneToOne(models.player, models.session, {
         bothsided: true,
-        sourceOptions: { as: "answerer", foreignKey: "answererId" },
+        commonOptions: { foreignKey: "answererId" },
+        targetOptions: { as: "answerer" },
     });
 
     console.info(

@@ -30,39 +30,20 @@ module.exports = {
         );
 
         // Checking if user ever played Truth or Dare
-        if (!player) {
-            interaction.reply({
-                content:
-                    "You cannot leave this game, try joining a game before randomly pressing buttons!",
-                ephemeral: true,
-            });
-        } else {
+        if (player) {
             // Searching for session of this player
             const session = await player.getSession();
 
             // Checking if user is currently playing Truth or Dare
-            if (!session) {
-                interaction.reply({
-                    content:
-                        "You cannot leave this game, try joining a game before randomly pressing buttons!",
-                    ephemeral: true,
-                });
-            } else {
+            if (session) {
                 // Reading message data
                 const message = interaction.message;
-                const sessionId = message.embeds[0].footer.text.replace(
-                    /^\D+/g,
-                    ""
+                const sessionId = parseInt(
+                    message.embeds[0].footer.text.replace(/^\D+/g, "")
                 );
 
                 // Checking if user is playing Truth or Dare in this session
-                if (session.id !== parseInt(sessionId)) {
-                    interaction.reply({
-                        content:
-                            "This button does not belong to your current game!",
-                        ephemeral: true,
-                    });
-                } else {
+                if (session.id === sessionId) {
                     // Checking if player has to answer or question at the moment
                     const answerer = await session.getAnswerer();
                     const questioner = await session.getQuestioner();
@@ -82,10 +63,10 @@ module.exports = {
                         });
                     } else {
                         // Removing skips from player and player from session
-                        await Promise.all(
+                        await Promise.all([
                             session.removePlayer(player),
-                            player.update({ skips: null })
-                        );
+                            player.update({ skips: null }),
+                        ]);
 
                         const players = await session.getPlayers();
 
@@ -143,8 +124,26 @@ module.exports = {
                             }!`
                         );
                     }
+                } else {
+                    interaction.reply({
+                        content:
+                            "This button does not belong to your current game!",
+                        ephemeral: true,
+                    });
                 }
+            } else {
+                interaction.reply({
+                    content:
+                        "You cannot leave this game, try joining a game before randomly pressing buttons!",
+                    ephemeral: true,
+                });
             }
+        } else {
+            interaction.reply({
+                content:
+                    "You cannot leave this game, try joining a game before randomly pressing buttons!",
+                ephemeral: true,
+            });
         }
     },
 };

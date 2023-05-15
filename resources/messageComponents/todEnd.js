@@ -30,39 +30,20 @@ module.exports = {
         );
 
         // Checking if user ever played Truth or Dare
-        if (!player) {
-            interaction.reply({
-                content:
-                    "You cannot end this game, try joining a game before randomly pressing buttons!",
-                ephemeral: true,
-            });
-        } else {
+        if (player) {
             // Searching for session of this player
             const session = await player.getSession();
 
             // Checking if user is currently playing Truth or Dare
             if (!session) {
-                interaction.reply({
-                    content:
-                        "You cannot end this game, try joining a game before randomly pressing buttons!",
-                    ephemeral: true,
-                });
-            } else {
                 // Reading message data
                 const message = interaction.message;
-                const sessionId = message.embeds[0].footer.text.replace(
-                    /^\D+/g,
-                    ""
+                const sessionId = parseInt(
+                    message.embeds[0].footer.text.replace(/^\D+/g, "")
                 );
 
                 // Checking if user is playing Truth or Dare in this session
-                if (session.id !== parseInt(sessionId)) {
-                    interaction.reply({
-                        content:
-                            "This button does not belong to your current game!",
-                        ephemeral: true,
-                    });
-                } else {
+                if (session.id === sessionId) {
                     const players = await session.getPlayers();
 
                     // Removing skips from players and players from session
@@ -110,8 +91,26 @@ module.exports = {
                             player.id
                         )} has ended this game of Truth or Dare!`
                     );
+                } else {
+                    interaction.reply({
+                        content:
+                            "This button does not belong to your current game!",
+                        ephemeral: true,
+                    });
                 }
+            } else {
+                interaction.reply({
+                    content:
+                        "You cannot end this game, try joining a game before randomly pressing buttons!",
+                    ephemeral: true,
+                });
             }
+        } else {
+            interaction.reply({
+                content:
+                    "You cannot end this game, try joining a game before randomly pressing buttons!",
+                ephemeral: true,
+            });
         }
     },
 };

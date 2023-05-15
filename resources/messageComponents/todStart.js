@@ -30,43 +30,24 @@ module.exports = {
         );
 
         // Checking if user ever played Truth or Dare
-        if (!player) {
-            interaction.reply({
-                content:
-                    "You cannot start this game, try joining a game before randomly pressing buttons!",
-                ephemeral: true,
-            });
-        } else {
+        if (player) {
             // Searching for session of this player
             const session = await player.getSession();
 
             // Checking if user is currently playing Truth or Dare
-            if (!session) {
-                interaction.reply({
-                    content:
-                        "You cannot start this game, try joining a game before randomly pressing buttons!",
-                    ephemeral: true,
-                });
-            } else {
+            if (session) {
                 // Reading message data
                 const message = interaction.message;
-                const sessionId = message.embeds[0].footer.text.replace(
-                    /^\D+/g,
-                    ""
+                const sessionId = parseInt(
+                    message.embeds[0].footer.text.replace(/^\D+/g, "")
                 );
 
                 // Checking if user is playing Truth or Dare in this session
-                if (session.id !== parseInt(sessionId)) {
-                    interaction.reply({
-                        content:
-                            "This button does not belong to your current game!",
-                        ephemeral: true,
-                    });
-                } else {
+                if (session.id === sessionId) {
                     const players = await session.getPlayers();
 
                     // Checking if there are enough players to start a game
-                    if (players.length === 0) {
+                    if (players.length <= 1) {
                         interaction.reply({
                             content:
                                 "There are not enough players to start a game! You need at least one more player!",
@@ -78,11 +59,11 @@ module.exports = {
                             players[Math.floor(Math.random() * players.length)];
                         let answerer = players.filter(
                             (player) => player.id !== questioner.id
-                        )[Math.floor(Math.random() * players.length - 1)];
-                        await Promise.all(
+                        )[Math.floor(Math.random() * (players.length - 1))];
+                        await Promise.all([
                             session.setQuestioner(questioner),
-                            session.setAnswerer(answerer)
-                        );
+                            session.setAnswerer(answerer),
+                        ]);
 
                         const components =
                             interaction.client.messageComponents.filter(
@@ -111,8 +92,26 @@ module.exports = {
                         // Replying to interaction
                         interaction.reply({ components, embeds });
                     }
+                } else {
+                    interaction.reply({
+                        content:
+                            "This button does not belong to your current game!",
+                        ephemeral: true,
+                    });
                 }
+            } else {
+                interaction.reply({
+                    content:
+                        "You cannot start this game, try joining a game before randomly pressing buttons!",
+                    ephemeral: true,
+                });
             }
+        } else {
+            interaction.reply({
+                content:
+                    "You cannot start this game, try joining a game before randomly pressing buttons!",
+                ephemeral: true,
+            });
         }
     },
 };
