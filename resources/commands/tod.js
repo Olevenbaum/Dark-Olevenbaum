@@ -61,6 +61,8 @@ module.exports = {
                 rating,
                 skips,
             });
+            session.addPlayer(player);
+            player.update({ skips });
 
             // Defining reply message content
             const components = interaction.client.messageComponents

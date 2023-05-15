@@ -1,5 +1,11 @@
 // Importing classes and methods
-const { ButtonBuilder, ButtonStyle, ComponentType } = require("discord.js");
+const {
+    ButtonBuilder,
+    ButtonStyle,
+    ComponentType,
+    EmbedBuilder,
+    userMention,
+} = require("discord.js");
 
 module.exports = {
     // Setting interaction type name
@@ -60,7 +66,9 @@ module.exports = {
                         ephemeral: true,
                     });
                 } else {
-                    const players = await session.getPlayers();
+                    const players = await session.getPlayers({
+                        attributes: ["id"],
+                    });
 
                     // Checking if there are enough players to start a game
                     if (players.length === 0) {
@@ -69,6 +77,44 @@ module.exports = {
                                 "There are not enough players to start a game! You need at least one more player!",
                             ephemeral: true,
                         });
+                    } else {
+                        // Determining questioner and answerer
+                        let questioner =
+                            players[Math.floor(Math.random() * players.length)];
+                        let answerer = players.filter(
+                            (player) => player.id !== questioner.id
+                        )[Math.floor(Math.random() * players.length - 1)];
+                        await Promise.all(
+                            session.setQuestioner(questioner),
+                            session.setAnswerer(answerer)
+                        );
+
+                        const components =
+                            interaction.client.messageComponents.filter(
+                                (messageComponent) =>
+                                    messageComponent.type ===
+                                        ComponentType.ActionRow &&
+                                    (messageComponent.name === "tod" ||
+                                        messageComponent.name === "tod")
+                            );
+                        const embeds = [
+                            new EmbedBuilder()
+                                .setColor(0x0099ff)
+                                .setTitle("Truth or Dare")
+                                .setDescription(
+                                    `${userMention(
+                                        questioner.id
+                                    )} says in a threatening voice: Truth or Dare, ${userMention(
+                                        answerer.id
+                                    )}?`
+                                )
+                                .setFooter({
+                                    text: `Session ID: ${session.id}`,
+                                }),
+                        ];
+
+                        // Replying to interaction
+                        interaction.reply({ components, embeds });
                     }
                 }
             }

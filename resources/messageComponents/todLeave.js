@@ -88,9 +88,11 @@ module.exports = {
                             ephemeral: true,
                         });
                     } else {
-                        // Remove player from session
-                        await session.removePlayer(player);
-                        player.update({ skips: null });
+                        // Removing skips from player and player from session
+                        await Promise.all(
+                            session.removePlayer(player),
+                            player.update({ skips: null })
+                        );
 
                         const players = await session.getPlayers();
 

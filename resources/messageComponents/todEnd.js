@@ -68,13 +68,13 @@ module.exports = {
                 } else {
                     const players = await session.getPlayers();
 
-                    // Removing skips
+                    // Removing skips from players and players from session
                     await Promise.all(
-                        players.map((player) => player.update({ skips: null }))
+                        players.map(
+                            (player) => player.update({ skips: null }),
+                            session.removePlayers()
+                        )
                     );
-
-                    // Removing all players from session
-                    await session.removePlayers();
 
                     // Editing initial message if the button belongs to it
                     if (
