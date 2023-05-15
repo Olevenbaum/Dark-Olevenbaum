@@ -3,5 +3,6 @@
 
 configuration.json
 database.sqlite
+database/database.sqlite
 
 node_modules

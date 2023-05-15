@@ -13,6 +13,7 @@
     "scripts": {
         "commands": "node ./management/resetCommands.js",
         "database": "node ./management/resetDatabase.js",
-        "start": "node ."
+        "start": "node .",
+        "test": "node . -reset_database"
     }
 }
