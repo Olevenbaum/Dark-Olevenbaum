@@ -30,9 +30,7 @@ module.exports = {
             });
 
         // Searching for session of this player
-        const session = await player.getSession({
-            attributes: ["active", "id", "rating", "skips"],
-        });
+        const session = await player.getSession();
 
         // Reading message data
         const message = interaction.message;

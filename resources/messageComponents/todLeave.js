@@ -25,7 +25,6 @@ module.exports = {
         // Searching for player
         const player = await interaction.client.sequelize.models.player.findOne(
             {
-                attributes: ["id"],
                 where: { id: interaction.user.id },
             }
         );
@@ -39,9 +38,7 @@ module.exports = {
             });
         } else {
             // Searching for session of this player
-            const session = await player.getSession({
-                attributes: ["id", "rating", "skips"],
-            });
+            const session = await player.getSession();
 
             // Checking if user is currently playing Truth or Dare
             if (!session) {
@@ -67,12 +64,8 @@ module.exports = {
                     });
                 } else {
                     // Checking if player has to answer or question at the moment
-                    const answerer = await session.getAnswerer({
-                        attributes: ["id"],
-                    });
-                    const questioner = await session.getQuestioner({
-                        attributes: ["id"],
-                    });
+                    const answerer = await session.getAnswerer();
+                    const questioner = await session.getQuestioner();
                     if (answerer === player.id) {
                         interaction.reply({
                             content: `Coward, do not run from your responsibilities! Stay in this game and answer you question from ${userMention(

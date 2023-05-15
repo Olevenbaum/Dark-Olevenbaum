@@ -25,7 +25,6 @@ module.exports = {
         // Searching for player
         const player = await interaction.client.sequelize.models.player.findOne(
             {
-                attributes: ["id"],
                 where: { id: interaction.user.id },
             }
         );
@@ -39,9 +38,7 @@ module.exports = {
             });
         } else {
             // Searching for session of this player
-            const session = await player.getSession({
-                attributes: ["id"],
-            });
+            const session = await player.getSession();
 
             // Checking if user is currently playing Truth or Dare
             if (!session) {

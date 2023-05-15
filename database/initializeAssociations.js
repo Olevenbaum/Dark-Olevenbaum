@@ -94,13 +94,13 @@ module.exports = (sequelize) => {
 
     // Associations
     oneToMany(models.session, models.player);
-    oneToOne(models.session, models.player, {
+    oneToOne(models.player, models.session, {
         bothsided: true,
-        sourceOptions: { as: "questioner" },
+        sourceOptions: { as: "questioner", foreignKey: "questionedId" },
     });
-    oneToOne(models.session, models.player, {
+    oneToOne(models.player, models.session, {
         bothsided: true,
-        sourceOptions: { as: "answerer" },
+        sourceOptions: { as: "answerer", foreignKey: "answererId" },
     });
 
     console.info(
