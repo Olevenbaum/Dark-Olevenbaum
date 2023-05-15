@@ -1,6 +1,8 @@
 // Importing classes and methods
 const { ComponentType } = require("discord.js");
-const messageComponent = require("./templates/messageComponent");
+
+// Importing configuration data
+const { consoleSpace } = require("../configuration.json");
 
 module.exports = {
     // Setting interaction type name
