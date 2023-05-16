@@ -2,7 +2,7 @@
 const { ActionRowBuilder, ComponentType } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type name
+    // Setting interaction type and name
     name: "endOrLeave",
     type: ComponentType.ActionRow,
 

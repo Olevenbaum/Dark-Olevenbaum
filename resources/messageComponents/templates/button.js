@@ -2,7 +2,7 @@
 const { ButtonBuilder, ComponentType } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type name
+    // Setting interaction type and name
     name: "",
     type: ComponentType.Button,
 

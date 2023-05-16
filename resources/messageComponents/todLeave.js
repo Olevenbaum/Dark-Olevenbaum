@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type name
+    // Setting interaction type and name
     name: "todLeave",
     type: ComponentType.Button,
 
@@ -38,8 +38,17 @@ module.exports = {
             if (session) {
                 // Reading message data
                 const message = interaction.message;
+
+                // Reading old embed
+                const oldEmbed = message.embeds.find((embed) =>
+                    embed.fields.some((field) =>
+                        field.name.startsWith("Players")
+                    )
+                );
+
+                // Searching embed for session ID
                 const sessionId = parseInt(
-                    message.embeds[0].footer.text.replace(/^\D+/g, "")
+                    oldEmbed.footer.text.replace(/^\D+/g, "")
                 );
 
                 // Checking if user is playing Truth or Dare in this session
@@ -47,7 +56,9 @@ module.exports = {
                     // Checking if player has to answer or question at the moment
                     const answerer = await session.getAnswerer();
                     const questioner = await session.getQuestioner();
+
                     if (answerer === player.id) {
+                        // Replying to interaction
                         interaction.reply({
                             content: `Coward, do not run from your responsibilities! Stay in this game and answer you question from ${userMention(
                                 questioner.id
@@ -55,6 +66,7 @@ module.exports = {
                             ephemeral: true,
                         });
                     } else if (questioner === player.id) {
+                        // Replying to interaction
                         interaction.reply({
                             content: `You have to ask ${userMention(
                                 answerer.id
@@ -68,14 +80,11 @@ module.exports = {
                             player.update({ skips: null }),
                         ]);
 
+                        // Searching for players of session
                         const players = await session.getPlayers();
 
                         // Editing initial message if the button belongs to it
-                        if (
-                            message.embeds[0].fields[0].name.startsWith(
-                                "Players"
-                            )
-                        ) {
+                        if (oldEmbed) {
                             let playersString = "";
                             if (players.length === 0) {
                                 playersString = "- none -";
@@ -87,9 +96,7 @@ module.exports = {
                                         )}`)
                                 );
                             }
-                            const embed = EmbedBuilder.from(
-                                message.embeds[0]
-                            ).setFields(
+                            const embed = EmbedBuilder.from(oldEmbed).setFields(
                                 {
                                     name: `Players [${players.length}]:`,
                                     value: playersString,
@@ -108,10 +115,9 @@ module.exports = {
                             message.edit({ embeds: [embed] });
                         }
 
-                        // Deleting session if there are not enough players left
+                        // Deleting session and removing buttons if there are not enough players left
                         if (players.length === 0) {
                             session.destroy();
-
                             message.edit({ components: [] });
                         }
 
@@ -125,6 +131,7 @@ module.exports = {
                         );
                     }
                 } else {
+                    // Replying to interaction
                     interaction.reply({
                         content:
                             "This button does not belong to your current game!",
@@ -132,6 +139,7 @@ module.exports = {
                     });
                 }
             } else {
+                // Replying to interaction
                 interaction.reply({
                     content:
                         "You cannot leave this game, try joining a game before randomly pressing buttons!",
@@ -139,6 +147,7 @@ module.exports = {
                 });
             }
         } else {
+            // Replying to interaction
             interaction.reply({
                 content:
                     "You cannot leave this game, try joining a game before randomly pressing buttons!",

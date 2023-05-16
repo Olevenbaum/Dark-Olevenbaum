@@ -105,7 +105,10 @@ module.exports = {
             ];
 
             // Replying to interaction
-            interaction.reply({ components, embeds });
+            const message = await interaction.reply({ components, embeds });
+
+            // Updating initial message of session
+            session.update({ lastMessage: message.createdAt });
         }
     },
 };

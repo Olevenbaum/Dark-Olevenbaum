@@ -25,7 +25,7 @@ for (const file of applicationCommandFiles) {
     );
 }
 module.exports = {
-    // Setting interaction type name
+    // Setting interaction type and name
     name: InteractionType.ApplicationCommand,
 
     // Handling interaction

@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type name
+    // Setting interaction type and name
     name: "todJoin",
     type: ComponentType.Button,
 
@@ -23,7 +23,7 @@ module.exports = {
     // Handling interaction
     async execute(interaction) {
         // Searching for player or creating new player
-        const [player, created] =
+        const [player] =
             await interaction.client.sequelize.models.player.findOrCreate({
                 default: { id: interaction.user.id },
                 where: { id: interaction.user.id },
@@ -34,18 +34,25 @@ module.exports = {
 
         // Reading message data
         const message = interaction.message;
-        const sessionId = parseInt(
-            message.embeds[0].footer.text.replace(/^\D+/g, "")
+
+        // Reading old embed
+        const oldEmbed = message.embeds.find((embed) =>
+            embed.fields.some((field) => field.name.startsWith("Players"))
         );
+
+        // Searching embed for session ID
+        const sessionId = parseInt(oldEmbed.footer.text.replace(/^\D+/g, ""));
 
         // Checking if user is currently playing Truth or Dare
         if (session) {
             if (session.id === sessionId) {
+                // Replying to interaction
                 interaction.reply({
                     content: "You cannot join this game twice!",
                     ephemeral: true,
                 });
             } else {
+                // Replying to interaction
                 interaction.reply({
                     content:
                         "You cannot join this game since you already joined another one!",
@@ -62,16 +69,17 @@ module.exports = {
             // Adding player to session
             session.addPlayer(player);
 
+            // Searching for players of session
             const players = await session.getPlayers();
 
             // Editing initial message if the button belongs to it
-            if (message.embeds[0].fields[0].name.startsWith("Players")) {
+            if (oldEmbed) {
                 let playersString = "";
                 players.forEach(
                     (player) =>
                         (playersString += `\n- ${userMention(player.id)}`)
                 );
-                const embed = EmbedBuilder.from(message.embeds[0]).setFields(
+                const embed = EmbedBuilder.from(oldEmbed).setFields(
                     {
                         name: `Players [${players.length}]:`,
                         value: playersString,

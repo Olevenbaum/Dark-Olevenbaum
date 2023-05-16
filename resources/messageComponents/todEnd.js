@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type name
+    // Setting interaction type and name
     name: "todEnd",
     type: ComponentType.Button,
 
@@ -38,8 +38,17 @@ module.exports = {
             if (!session) {
                 // Reading message data
                 const message = interaction.message;
+
+                // Reading old embed of initial message
+                const oldEmbed = message.embeds.find((embed) =>
+                    embed.fields.some((field) =>
+                        field.name.startsWith("Players")
+                    )
+                );
+
+                // Searching embed for session ID
                 const sessionId = parseInt(
-                    message.embeds[0].footer.text.replace(/^\D+/g, "")
+                    oldEmbed.footer.text.replace(/^\D+/g, "")
                 );
 
                 // Checking if user is playing Truth or Dare in this session
@@ -54,13 +63,9 @@ module.exports = {
                         )
                     );
 
-                    // Editing initial message if the button belongs to it
-                    if (
-                        message.embeds[0].fields[0].name.startsWith("Players")
-                    ) {
-                        const embed = EmbedBuilder.from(
-                            message.embeds[0]
-                        ).setFields(
+                    // Editing initial message or sending new one if the button belongs to it
+                    if (oldEmbed) {
+                        const embed = EmbedBuilder.from(oldEmbed).setFields(
                             {
                                 name: `Players [0]:`,
                                 value: "- none -",
@@ -76,7 +81,11 @@ module.exports = {
                                 value: `${session.skips}`,
                             }
                         );
-                        message.edit({ components: [], embeds: [embed] });
+                        if (message.editable) {
+                            message.edit({ components: [], embeds: [embed] });
+                        } else {
+                            interaction.channel.send(message);
+                        }
                     } else {
                         // Removing buttons from old message
                         message.edit({ components: [] });
@@ -92,6 +101,7 @@ module.exports = {
                         )} has ended this game of Truth or Dare!`
                     );
                 } else {
+                    // Replying to interaction
                     interaction.reply({
                         content:
                             "This button does not belong to your current game!",
@@ -99,6 +109,7 @@ module.exports = {
                     });
                 }
             } else {
+                // Replying to interaction
                 interaction.reply({
                     content:
                         "You cannot end this game, try joining a game before randomly pressing buttons!",
@@ -106,6 +117,7 @@ module.exports = {
                 });
             }
         } else {
+            // Replying to interaction
             interaction.reply({
                 content:
                     "You cannot end this game, try joining a game before randomly pressing buttons!",
