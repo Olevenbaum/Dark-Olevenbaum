@@ -37,7 +37,9 @@ module.exports = {
                 // Searching embed for session ID
                 const sessionId = parseInt(
                     message.embeds
-                        .find((embed) => embed.footer.startsWith("Session ID:"))
+                        .find((embed) =>
+                            embed.footer.text.startsWith("Session ID:")
+                        )
                         .footer.text.replace(/^\D+/g, "")
                 );
 
@@ -46,16 +48,16 @@ module.exports = {
                     // Checking if player is answerer
                     if (player === (await session.getAnswerer())) {
                         // Editing old message
-                        const components = message.components.slice(
+                        let components = message.components.splice(
                             message.components.findIndex((component) =>
                                 component.components.some(
                                     (component) =>
                                         component.type ===
                                             ComponentType.Button &&
-                                        (component.custom_id === "todDare" ||
-                                            component.custom_id ===
+                                        (component.customId === "todDare" ||
+                                            component.customId ===
                                                 "todRandom" ||
-                                            component.custom_id === "todTruth")
+                                            component.customId === "todTruth")
                                 )
                             ),
                             1,
@@ -64,7 +66,7 @@ module.exports = {
                                     (messageComponent) =>
                                         messageComponent.type ===
                                             ComponentType.ActionRow &&
-                                        messageComponent.custom_id ===
+                                        messageComponent.name ===
                                             "todDareRandomTruth"
                                 )
                                 .create(interaction, {
@@ -74,6 +76,21 @@ module.exports = {
                         );
 
                         message.edit({ components });
+
+                        // Replying to interaction
+                        components = interaction.client.messageComponents
+                            .filter(
+                                (messageComponent) =>
+                                    messageComponent.type ===
+                                    ComponentType.ActionRow
+                            )
+                            .map((messageComponent) =>
+                                messageComponent.create(interaction)
+                            );
+
+                        const embeds = [];
+
+                        interaction.reply({ components, embeds });
                     } else {
                         // Replying to interaction
                         interaction.reply({

@@ -73,18 +73,18 @@ module.exports = {
             const players = await session.getPlayers();
 
             // Reading old embed
-            const oldEmbed = message.embeds.find((embed) =>
+            const initialEmbed = message.embeds.find((embed) =>
                 embed.fields.some((field) => field.name.startsWith("Players"))
             );
 
             // Editing initial message if the button belongs to it
-            if (oldEmbed) {
+            if (initialEmbed) {
                 let playersString = "";
                 players.forEach(
                     (player) =>
                         (playersString += `\n- ${userMention(player.id)}`)
                 );
-                const embed = EmbedBuilder.from(oldEmbed).setFields(
+                const embed = EmbedBuilder.from(initialEmbed).setFields(
                     {
                         name: `Players [${players.length}]:`,
                         value: playersString,

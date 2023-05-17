@@ -76,15 +76,17 @@ module.exports = {
                         );
 
                         // Reading old embed of initial message
-                        const oldEmbed = message.embeds.find((embed) =>
+                        const initialEmbed = message.embeds.find((embed) =>
                             embed.fields.some((field) =>
                                 field.name.startsWith("Players")
                             )
                         );
 
                         // Editing initial message if the button belongs to it
-                        if (oldEmbed) {
-                            const embed = EmbedBuilder.from(oldEmbed).setFields(
+                        if (initialEmbed) {
+                            const embed = EmbedBuilder.from(
+                                initialEmbed
+                            ).setFields(
                                 {
                                     name: `Players [0]:`,
                                     value: "- none -",

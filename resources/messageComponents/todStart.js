@@ -87,17 +87,21 @@ module.exports = {
                             ]);
 
                             // Editing old message
-                            const components = message.components.slice(
-                                message.components.findIndex((component) =>
-                                    component.components.some(
-                                        (component) =>
-                                            component.type ===
-                                                ComponentType.Button &&
-                                            (component.custom_id ===
-                                                "todJoin" ||
-                                                component.custom_id ===
-                                                    "todStart")
-                                    )
+                            let components = message.components;
+                            components.splice(
+                                message.components.findIndex(
+                                    (component) =>
+                                        component.type ===
+                                            ComponentType.ActionRow &&
+                                        component.components.some(
+                                            (component) =>
+                                                component.type ===
+                                                    ComponentType.Button &&
+                                                (component.customId ===
+                                                    "todJoin" ||
+                                                    component.customId ===
+                                                        "todStart")
+                                        )
                                 ),
                                 1,
                                 interaction.client.messageComponents
@@ -105,7 +109,7 @@ module.exports = {
                                         (messageComponent) =>
                                             messageComponent.type ===
                                                 ComponentType.ActionRow &&
-                                            messageComponent.custom_id ===
+                                            messageComponent.name ===
                                                 "todJoinStart"
                                     )
                                     .create(interaction, {
@@ -129,12 +133,18 @@ module.exports = {
                                             messageComponent.name ===
                                                 "todDareRandomTruth")
                                 )
-                                .map((component) => component.create());
+                                .map((component) =>
+                                    component.create(interaction)
+                                );
 
                             const embeds = [
-                                new EmbedBuilder()
-                                    .setColor(0x0099ff)
-                                    .setTitle("Truth or Dare")
+                                EmbedBuilder.from(
+                                    message.embeds.find((embed) =>
+                                        embed.footer.text.startsWith(
+                                            "Session ID:"
+                                        )
+                                    )
+                                )
                                     .setDescription(
                                         `${userMention(
                                             questioner.id
@@ -142,9 +152,7 @@ module.exports = {
                                             answerer.id
                                         )}?`
                                     )
-                                    .setFooter({
-                                        text: `Session ID: ${session.id}`,
-                                    }),
+                                    .setFields(),
                             ];
 
                             // Replying to interaction
