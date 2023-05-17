@@ -36,6 +36,7 @@ module.exports = {
                     interaction.client.user.id
                 )}`
             );
+            return;
         }
 
         // Checking for blocked users
@@ -46,6 +47,7 @@ module.exports = {
                 )}`,
                 ephemeral: true,
             });
+            return;
         }
 
         // Executing interaction type specific script

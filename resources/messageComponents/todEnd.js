@@ -13,11 +13,12 @@ module.exports = {
     type: ComponentType.Button,
 
     // Creating message component
-    create(interaction) {
+    create(interaction, options = {}) {
         return new ButtonBuilder()
             .setCustomId(this.name)
+            .setDisabled(options.disabled ?? false)
             .setLabel("End")
-            .setStyle(ButtonStyle.Danger);
+            .setStyle(options.style ?? ButtonStyle.Danger);
     },
 
     // Handling interaction
@@ -35,71 +36,86 @@ module.exports = {
             const session = await player.getSession();
 
             // Checking if user is currently playing Truth or Dare
-            if (!session) {
+            if (session) {
                 // Reading message data
                 const message = interaction.message;
 
-                // Reading old embed of initial message
-                const oldEmbed = message.embeds.find((embed) =>
-                    embed.fields.some((field) =>
-                        field.name.startsWith("Players")
-                    )
-                );
-
                 // Searching embed for session ID
                 const sessionId = parseInt(
-                    oldEmbed.footer.text.replace(/^\D+/g, "")
+                    message.embeds
+                        .find((embed) =>
+                            embed.footer.text.startsWith("Session ID:")
+                        )
+                        .footer.text.replace(/^\D+/g, "")
                 );
 
                 // Checking if user is playing Truth or Dare in this session
                 if (session.id === sessionId) {
-                    const players = await session.getPlayers();
+                    // Checking if player has to answer a question at the moment
+                    if (
+                        player === (await session.getAnswerer()) &&
+                        (await session.getPlayers()).length > 1
+                    ) {
+                        // Replying to interaction
+                        interaction.reply({
+                            content: `Coward, do not run from your responsibilities! Stay in this game and answer your question from ${userMention(
+                                questioner.id
+                            )} before leaving!`,
+                            ephemeral: true,
+                        });
+                    } else {
+                        // Searching for players of session
+                        const players = await session.getPlayers();
 
-                    // Removing skips from players and players from session
-                    await Promise.all(
-                        players.map(
-                            (player) => player.update({ skips: null }),
-                            session.removePlayers()
-                        )
-                    );
-
-                    // Editing initial message or sending new one if the button belongs to it
-                    if (oldEmbed) {
-                        const embed = EmbedBuilder.from(oldEmbed).setFields(
-                            {
-                                name: `Players [0]:`,
-                                value: "- none -",
-                            },
-                            {
-                                inline: true,
-                                name: "Rating:",
-                                value: `${session.rating}+`,
-                            },
-                            {
-                                inline: true,
-                                name: "Skips:",
-                                value: `${session.skips}`,
-                            }
+                        // Removing skips from players and players from session
+                        await Promise.all(
+                            players.map(
+                                (player) => player.update({ skips: null }),
+                                session.removePlayers()
+                            )
                         );
-                        if (message.editable) {
+
+                        // Reading old embed of initial message
+                        const oldEmbed = message.embeds.find((embed) =>
+                            embed.fields.some((field) =>
+                                field.name.startsWith("Players")
+                            )
+                        );
+
+                        // Editing initial message if the button belongs to it
+                        if (oldEmbed) {
+                            const embed = EmbedBuilder.from(oldEmbed).setFields(
+                                {
+                                    name: `Players [0]:`,
+                                    value: "- none -",
+                                },
+                                {
+                                    inline: true,
+                                    name: "Rating:",
+                                    value: `${session.rating}+`,
+                                },
+                                {
+                                    inline: true,
+                                    name: "Skips:",
+                                    value: `${session.skips}`,
+                                }
+                            );
                             message.edit({ components: [], embeds: [embed] });
                         } else {
-                            interaction.channel.send(message);
+                            // Removing buttons from old message
+                            message.edit({ components: [] });
                         }
-                    } else {
-                        // Removing buttons from old message
-                        message.edit({ components: [] });
+
+                        // Deleting session
+                        session.destroy();
+
+                        // Replying to interaction
+                        interaction.reply(
+                            `${userMention(
+                                player.id
+                            )} has ended this game of Truth or Dare!`
+                        );
                     }
-
-                    // Deleting session
-                    session.destroy();
-
-                    // Replying to interaction
-                    interaction.reply(
-                        `${userMention(
-                            player.id
-                        )} has ended this game of Truth or Dare!`
-                    );
                 } else {
                     // Replying to interaction
                     interaction.reply({

@@ -3,20 +3,26 @@ const { ActionRowBuilder, ComponentType } = require("discord.js");
 
 module.exports = {
     // Setting interaction type and name
-    name: "joinOrStart",
+    name: "todEndJoinLeave",
     type: ComponentType.ActionRow,
 
     // Creating message component
-    create(interaction) {
+    create(interaction, options = {}) {
         return new ActionRowBuilder().addComponents(
             interaction.client.messageComponents
                 .filter(
                     (messageComponent) =>
                         messageComponent.type === ComponentType.Button &&
-                        (messageComponent.name === "todJoin" ||
-                            messageComponent.name === "todStart")
+                        (messageComponent.name === "todEnd" ||
+                            messageComponent.name === "todJoin" ||
+                            messageComponent.name === "todLeave")
                 )
-                .map((messageComponent) => messageComponent.create())
+                .map((messageComponent) =>
+                    messageComponent.create(interaction, {
+                        ...options.general,
+                        ...options[messageComponent.name],
+                    })
+                )
         );
     },
 

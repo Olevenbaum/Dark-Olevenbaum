@@ -13,11 +13,12 @@ module.exports = {
     type: ComponentType.Button,
 
     // Creating message component
-    create(interaction) {
+    create(interaction, options = {}) {
         return new ButtonBuilder()
             .setCustomId(this.name)
+            .setDisabled(options.disabled ?? false)
             .setLabel("Join")
-            .setStyle(ButtonStyle.Primary);
+            .setStyle(options.style ?? ButtonStyle.Primary);
     },
 
     // Handling interaction
@@ -35,13 +36,12 @@ module.exports = {
         // Reading message data
         const message = interaction.message;
 
-        // Reading old embed
-        const oldEmbed = message.embeds.find((embed) =>
-            embed.fields.some((field) => field.name.startsWith("Players"))
-        );
-
         // Searching embed for session ID
-        const sessionId = parseInt(oldEmbed.footer.text.replace(/^\D+/g, ""));
+        const sessionId = parseInt(
+            message.embeds
+                .find((embed) => embed.footer.text.startsWith("Session ID:"))
+                .footer.text.replace(/^\D+/g, "")
+        );
 
         // Checking if user is currently playing Truth or Dare
         if (session) {
@@ -71,6 +71,11 @@ module.exports = {
 
             // Searching for players of session
             const players = await session.getPlayers();
+
+            // Reading old embed
+            const oldEmbed = message.embeds.find((embed) =>
+                embed.fields.some((field) => field.name.startsWith("Players"))
+            );
 
             // Editing initial message if the button belongs to it
             if (oldEmbed) {

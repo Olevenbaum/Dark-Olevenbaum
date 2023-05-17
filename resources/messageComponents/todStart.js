@@ -13,11 +13,12 @@ module.exports = {
     type: ComponentType.Button,
 
     // Creating message component
-    create(interaction) {
+    create(interaction, options = {}) {
         return new ButtonBuilder()
             .setCustomId(this.name)
+            .setDisabled(options.disabled ?? false)
             .setLabel("Start")
-            .setStyle(ButtonStyle.Primary);
+            .setStyle(options.style ?? ButtonStyle.Primary);
     },
 
     // Handling interaction
@@ -39,16 +40,13 @@ module.exports = {
                 // Reading message data
                 const message = interaction.message;
 
-                // Reading old embed
-                const oldEmbed = message.embeds.find((embed) =>
-                    embed.fields.some((field) =>
-                        field.name.startsWith("Players")
-                    )
-                );
-
                 // Searching embed for session ID
                 const sessionId = parseInt(
-                    oldEmbed.footer.text.replace(/^\D+/g, "")
+                    message.embeds
+                        .find((embed) =>
+                            embed.footer.text.startsWith("Session ID:")
+                        )
+                        .footer.text.replace(/^\D+/g, "")
                 );
 
                 // Checking if user is playing Truth or Dare in this session
@@ -83,42 +81,55 @@ module.exports = {
                             await Promise.all([
                                 session.setQuestioner(questioner),
                                 session.setAnswerer(answerer),
+
                                 // Activating session
                                 session.update({ active: true }),
                             ]);
 
                             // Editing old message
-                            let components = message.components;
-                            const startButton = ButtonBuilder()
-                                .from(
-                                    components
-                                        .filter(
-                                            (component) =>
-                                                component.type ===
-                                                ComponentType.ActionRow
-                                        )[1]
-                                        .components.filter(
-                                            (component) =>
-                                                component.type ===
-                                                    ComponentType.Button &&
+                            const components = message.components.slice(
+                                message.components.findIndex((component) =>
+                                    component.components.some(
+                                        (component) =>
+                                            component.type ===
+                                                ComponentType.Button &&
+                                            (component.custom_id ===
+                                                "todJoin" ||
                                                 component.custom_id ===
-                                                    "todStart"
-                                        )
-                                )
-                                .setStyle(ButtonStyle.Success)
-                                .setDisabled(true);
+                                                    "todStart")
+                                    )
+                                ),
+                                1,
+                                interaction.client.messageComponents
+                                    .find(
+                                        (messageComponent) =>
+                                            messageComponent.type ===
+                                                ComponentType.ActionRow &&
+                                            messageComponent.custom_id ===
+                                                "todJoinStart"
+                                    )
+                                    .create(interaction, {
+                                        todStart: {
+                                            disabled: true,
+                                            style: ButtonStyle.Success,
+                                        },
+                                    })
+                            );
 
-                            message.edit({ components: [] });
+                            message.edit({ components });
 
                             // Defining reply message content
-                            components =
-                                interaction.client.messageComponents.filter(
+                            components = interaction.client.messageComponents
+                                .filter(
                                     (messageComponent) =>
                                         messageComponent.type ===
                                             ComponentType.ActionRow &&
-                                        (messageComponent.name === "tod" ||
-                                            messageComponent.name === "tod")
-                                );
+                                        (messageComponent.name ===
+                                            "todEndJoinLeave" ||
+                                            messageComponent.name ===
+                                                "todDareRandomTruth")
+                                )
+                                .map((component) => component.create());
 
                             const embeds = [
                                 new EmbedBuilder()

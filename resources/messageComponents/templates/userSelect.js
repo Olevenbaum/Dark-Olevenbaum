@@ -7,7 +7,7 @@ module.exports = {
     type: ComponentType.UserSelect,
 
     // Creating message component
-    create(interaction) {
+    create(interaction, options) {
         return new UserSelectMenuBuilder().setCustomId(this.name);
     },
 

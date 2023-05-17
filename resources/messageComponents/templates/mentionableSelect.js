@@ -7,7 +7,7 @@ module.exports = {
     type: ComponentType.MentionableSelect,
 
     // Creating message component
-    create(interaction) {
+    create(interaction, options = {}) {
         return new MentionableSelectMenuBuilder().setCustomId(this.name);
     },
 

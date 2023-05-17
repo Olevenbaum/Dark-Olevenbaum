@@ -7,7 +7,7 @@ module.exports = {
     type: ComponentType.ChannelSelect,
 
     // Creating message component
-    create(interaction) {
+    create(interaction, options = {}) {
         return new ChannelSelectMenuBuilder().setCustomId(this.name);
     },
 

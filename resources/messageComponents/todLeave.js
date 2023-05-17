@@ -13,11 +13,12 @@ module.exports = {
     type: ComponentType.Button,
 
     // Creating message component
-    create(interaction) {
+    create(interaction, options = {}) {
         return new ButtonBuilder()
             .setCustomId(this.name)
+            .setDisabled(options.disabled ?? false)
             .setLabel("Leave")
-            .setStyle(ButtonStyle.Danger);
+            .setStyle(options.style ?? ButtonStyle.Danger);
     },
 
     // Handling interaction
@@ -39,16 +40,13 @@ module.exports = {
                 // Reading message data
                 const message = interaction.message;
 
-                // Reading old embed
-                const oldEmbed = message.embeds.find((embed) =>
-                    embed.fields.some((field) =>
-                        field.name.startsWith("Players")
-                    )
-                );
-
                 // Searching embed for session ID
                 const sessionId = parseInt(
-                    oldEmbed.footer.text.replace(/^\D+/g, "")
+                    message.embeds
+                        .find((embed) =>
+                            embed.footer.text.startsWith("Session ID:")
+                        )
+                        .footer.text.replace(/^\D+/g, "")
                 );
 
                 // Checking if user is playing Truth or Dare in this session
@@ -60,7 +58,7 @@ module.exports = {
                     if (answerer === player.id) {
                         // Replying to interaction
                         interaction.reply({
-                            content: `Coward, do not run from your responsibilities! Stay in this game and answer you question from ${userMention(
+                            content: `Coward, do not run from your responsibilities! Stay in this game and answer your question from ${userMention(
                                 questioner.id
                             )} before leaving!`,
                             ephemeral: true,
@@ -82,6 +80,13 @@ module.exports = {
 
                         // Searching for players of session
                         const players = await session.getPlayers();
+
+                        // Reading old embed
+                        const oldEmbed = message.embeds.find((embed) =>
+                            embed.fields.some((field) =>
+                                field.name.startsWith("Players")
+                            )
+                        );
 
                         // Editing initial message if the button belongs to it
                         if (oldEmbed) {

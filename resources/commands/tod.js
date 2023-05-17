@@ -69,8 +69,8 @@ module.exports = {
                 .filter(
                     (messageComponent) =>
                         messageComponent.type === ComponentType.ActionRow &&
-                        (messageComponent.name === "joinOrStart" ||
-                            messageComponent.name === "endOrLeave")
+                        (messageComponent.name === "todEndLeave" ||
+                            messageComponent.name === "todJoinStart")
                 )
                 .map((messageComponent) =>
                     messageComponent.create(interaction)
@@ -88,7 +88,7 @@ module.exports = {
                     .setFields(
                         {
                             name: "Players [1]:",
-                            value: userMention(interaction.user.id),
+                            value: `- ${userMention(interaction.user.id)}`,
                         },
                         {
                             inline: true,

@@ -7,7 +7,7 @@ module.exports = {
     type: ComponentType.RoleSelect,
 
     // Creating message component
-    create(interaction) {
+    create(interaction, options = {}) {
         return new RoleSelectMenuBuilder().setCustomId(this.name);
     },
 

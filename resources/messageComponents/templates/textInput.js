@@ -7,7 +7,7 @@ module.exports = {
     type: ComponentType.TextInput,
 
     // Creating message component
-    create(interaction) {
+    create(interaction, options) {
         return new TextInputBuilder().setCustomId(this.name);
     },
 
