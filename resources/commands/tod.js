@@ -69,8 +69,8 @@ module.exports = {
                 .filter(
                     (messageComponent) =>
                         messageComponent.type === ComponentType.ActionRow &&
-                        (messageComponent.name === "todEndLeave" ||
-                            messageComponent.name === "todJoinStart")
+                        (messageComponent.name === "todPlayerManagemnet" ||
+                            messageComponent.name === "todSessionStart")
                 )
                 .map((messageComponent) =>
                     messageComponent.create(interaction)

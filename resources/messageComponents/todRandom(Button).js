@@ -3,7 +3,7 @@ const { ButtonBuilder, ComponentType, ButtonStyle } = require("discord.js");
 
 module.exports = {
     // Setting interaction type and name
-    name: "todTruth",
+    name: "todRandom",
     type: ComponentType.Button,
 
     // Creating message component
@@ -11,7 +11,7 @@ module.exports = {
         return new ButtonBuilder()
             .setCustomId(this.name)
             .setDisabled(options.disabled ?? false)
-            .setLabel("Truth")
+            .setLabel(options.label ?? "Random")
             .setStyle(options.style ?? ButtonStyle.Secondary);
     },
 
@@ -47,9 +47,12 @@ module.exports = {
                 if (session.id === sessionId) {
                     // Checking if player is answerer
                     if (player === (await session.getAnswerer())) {
+                        // Reading message components
+                        const components = message.components;
+
                         // Editing old message
-                        const components = message.components.splice(
-                            message.components.findIndex((component) =>
+                        components.splice(
+                            components.findIndex((component) =>
                                 component.components.some(
                                     (component) =>
                                         component.type ===
@@ -66,12 +69,11 @@ module.exports = {
                                     (messageComponent) =>
                                         messageComponent.type ===
                                             ComponentType.ActionRow &&
-                                        messageComponent.name ===
-                                            "todDareRandomTruth"
+                                        messageComponent.name === "todChoices"
                                 )
                                 .create(interaction, {
                                     general: { disabled: true },
-                                    todTruth: { style: ButtonStyle.Success },
+                                    todRandom: { style: ButtonStyle.Success },
                                 })
                         );
 

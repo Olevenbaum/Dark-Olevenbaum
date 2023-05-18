@@ -3,7 +3,7 @@ const { ActionRowBuilder, ComponentType } = require("discord.js");
 
 module.exports = {
     // Setting interaction type and name
-    name: "todDareRandomTruth",
+    name: "todChoices",
     type: ComponentType.ActionRow,
 
     // Creating message component

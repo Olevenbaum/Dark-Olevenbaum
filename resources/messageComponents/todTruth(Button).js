@@ -3,7 +3,7 @@ const { ButtonBuilder, ComponentType, ButtonStyle } = require("discord.js");
 
 module.exports = {
     // Setting interaction type and name
-    name: "todDare",
+    name: "todTruth",
     type: ComponentType.Button,
 
     // Creating message component
@@ -11,7 +11,7 @@ module.exports = {
         return new ButtonBuilder()
             .setCustomId(this.name)
             .setDisabled(options.disabled ?? false)
-            .setLabel("Dare")
+            .setLabel(options.label ?? "Truth")
             .setStyle(options.style ?? ButtonStyle.Secondary);
     },
 
@@ -47,9 +47,12 @@ module.exports = {
                 if (session.id === sessionId) {
                     // Checking if player is answerer
                     if (player === (await session.getAnswerer())) {
+                        // Reading message components
+                        const components = message.components;
+
                         // Editing old message
-                        let components = message.components.splice(
-                            message.components.findIndex((component) =>
+                        components.splice(
+                            components.findIndex((component) =>
                                 component.components.some(
                                     (component) =>
                                         component.type ===
@@ -66,29 +69,46 @@ module.exports = {
                                     (messageComponent) =>
                                         messageComponent.type ===
                                             ComponentType.ActionRow &&
-                                        messageComponent.name ===
-                                            "todDareRandomTruth"
+                                        messageComponent.name === "todChoices"
                                 )
                                 .create(interaction, {
                                     general: { disabled: true },
-                                    todDare: { style: ButtonStyle.Success },
+                                    todTruth: { style: ButtonStyle.Success },
                                 })
                         );
 
                         message.edit({ components });
 
                         // Replying to interaction
-                        components = interaction.client.messageComponents
-                            .filter(
-                                (messageComponent) =>
-                                    messageComponent.type ===
-                                    ComponentType.ActionRow
-                            )
-                            .map((messageComponent) =>
-                                messageComponent.create(interaction)
-                            );
+                        components.splice(
+                            0,
+                            components.length,
+                            interaction.client.messageComponents
+                                .filter(
+                                    (messageComponent) =>
+                                        messageComponent.type ===
+                                        ComponentType.ActionRow
+                                )
+                                .map((messageComponent) =>
+                                    messageComponent.create(interaction)
+                                )
+                        );
 
-                        const embeds = [];
+                        const embeds = [
+                            EmbedBuilder.from(
+                                message.embeds.find((embed) =>
+                                    embed.footer.text.startsWith("Session ID:")
+                                )
+                            )
+                                .setTitle("Dare")
+                                .setDescription(
+                                    `${userMention(
+                                        questioner.id
+                                    )}, do you want to ask ${userMention(
+                                        answerer.id
+                                    )} a custom or a random question?`
+                                ),
+                        ];
 
                         interaction.reply({ components, embeds });
                     } else {

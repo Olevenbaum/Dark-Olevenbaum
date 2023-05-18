@@ -17,7 +17,7 @@ module.exports = {
         return new ButtonBuilder()
             .setCustomId(this.name)
             .setDisabled(options.disabled ?? false)
-            .setLabel("Join")
+            .setLabel(options.label ?? "Join")
             .setStyle(options.style ?? ButtonStyle.Primary);
     },
 

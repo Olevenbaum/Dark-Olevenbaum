@@ -17,7 +17,7 @@ module.exports = {
         return new ButtonBuilder()
             .setCustomId(this.name)
             .setDisabled(options.disabled ?? false)
-            .setLabel("Start")
+            .setLabel(options.label ?? "Start")
             .setStyle(options.style ?? ButtonStyle.Primary);
     },
 
@@ -86,8 +86,10 @@ module.exports = {
                                 session.update({ active: true }),
                             ]);
 
+                            // Reading message components
+                            const components = message.components;
+
                             // Editing old message
-                            let components = message.components;
                             components.splice(
                                 message.components.findIndex(
                                     (component) =>
@@ -97,10 +99,8 @@ module.exports = {
                                             (component) =>
                                                 component.type ===
                                                     ComponentType.Button &&
-                                                (component.customId ===
-                                                    "todJoin" ||
-                                                    component.customId ===
-                                                        "todStart")
+                                                component.customId ===
+                                                    "todStart"
                                         )
                                 ),
                                 1,
@@ -110,7 +110,7 @@ module.exports = {
                                             messageComponent.type ===
                                                 ComponentType.ActionRow &&
                                             messageComponent.name ===
-                                                "todJoinStart"
+                                                "todSessionStart"
                                     )
                                     .create(interaction, {
                                         todStart: {
@@ -123,19 +123,23 @@ module.exports = {
                             message.edit({ components });
 
                             // Defining reply message content
-                            components = interaction.client.messageComponents
-                                .filter(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
-                                            ComponentType.ActionRow &&
-                                        (messageComponent.name ===
-                                            "todEndJoinLeave" ||
-                                            messageComponent.name ===
-                                                "todDareRandomTruth")
-                                )
-                                .map((component) =>
-                                    component.create(interaction)
-                                );
+                            components.splice(
+                                0,
+                                components.length,
+                                interaction.client.messageComponents
+                                    .filter(
+                                        (messageComponent) =>
+                                            messageComponent.type ===
+                                                ComponentType.ActionRow &&
+                                            (messageComponent.name ===
+                                                "todPlayerManagement" ||
+                                                messageComponent.name ===
+                                                    "todChoices")
+                                    )
+                                    .map((component) =>
+                                        component.create(interaction)
+                                    )
+                            );
 
                             const embeds = [
                                 EmbedBuilder.from(
