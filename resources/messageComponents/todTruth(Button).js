@@ -1,5 +1,11 @@
 // Importing classes and methods
-const { ButtonBuilder, ComponentType, ButtonStyle } = require("discord.js");
+const {
+    ButtonBuilder,
+    ComponentType,
+    ButtonStyle,
+    EmbedBuilder,
+    userMention,
+} = require("discord.js");
 
 module.exports = {
     // Setting interaction type and name
@@ -87,7 +93,9 @@ module.exports = {
                                 .filter(
                                     (messageComponent) =>
                                         messageComponent.type ===
-                                        ComponentType.ActionRow
+                                            ComponentType.ActionRow &&
+                                        messageComponent.name ===
+                                            "todCustomOrRandom"
                                 )
                                 .map((messageComponent) =>
                                     messageComponent.create(interaction)

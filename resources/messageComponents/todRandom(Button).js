@@ -1,5 +1,11 @@
 // Importing classes and methods
-const { ButtonBuilder, ComponentType, ButtonStyle } = require("discord.js");
+const {
+    ButtonBuilder,
+    ComponentType,
+    ButtonStyle,
+    EmbedBuilder,
+    userMention,
+} = require("discord.js");
 
 module.exports = {
     // Setting interaction type and name
@@ -78,6 +84,48 @@ module.exports = {
                         );
 
                         message.edit({ components });
+
+                        // Replying to interaction
+                        components.splice(
+                            0,
+                            components.length,
+                            interaction.client.messageComponents
+                                .filter(
+                                    (messageComponent) =>
+                                        messageComponent.type ===
+                                            ComponentType.ActionRow &&
+                                        messageComponent.name ===
+                                            "todCustomOrRandom"
+                                )
+                                .map((messageComponent) =>
+                                    messageComponent.create(interaction)
+                                )
+                        );
+
+                        // Determining Truth or Dare
+                        const tod = Math.random() < 0.5;
+
+                        const embeds = [
+                            EmbedBuilder.from(
+                                message.embeds.find((embed) =>
+                                    embed.footer.text.startsWith("Session ID:")
+                                )
+                            )
+                                .setTitle(tod ? "Dare" : "Truth")
+                                .setDescription(
+                                    `${userMention(
+                                        questioner.id
+                                    )}, do you want to ${
+                                        tod ? "dare" : "ask"
+                                    } ${userMention(answerer.id)} ${
+                                        tod ? "to do" : ""
+                                    } a custom or a random ${
+                                        tod ? "task" : "question"
+                                    }?`
+                                ),
+                        ];
+
+                        interaction.reply({ components, embeds });
                     } else {
                         // Replying to interaction
                         interaction.reply({

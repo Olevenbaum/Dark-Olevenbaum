@@ -56,7 +56,7 @@ module.exports = {
                     const questioner = await session.getQuestioner();
 
                     // Checking if player has to ask or answer a question at the moment
-                    if (answerer.id === player.id) {
+                    if (session.active && answerer.id === player.id) {
                         // Replying to interaction
                         interaction.reply({
                             content: `Coward, do not run from your responsibilities! Stay in this game and answer your question from ${userMention(
@@ -64,7 +64,7 @@ module.exports = {
                             )} before leaving!`,
                             ephemeral: true,
                         });
-                    } else if (questioner.id === player.id) {
+                    } else if (session.active && questioner.id === player.id) {
                         // Replying to interaction
                         interaction.reply({
                             content: `You have to ask ${userMention(

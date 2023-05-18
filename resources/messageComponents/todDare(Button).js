@@ -97,7 +97,9 @@ module.exports = {
                                 .filter(
                                     (messageComponent) =>
                                         messageComponent.type ===
-                                        ComponentType.ActionRow
+                                            ComponentType.ActionRow &&
+                                        messageComponent.name ===
+                                            "todCustomOrRandom"
                                 )
                                 .map((messageComponent) =>
                                     messageComponent.create(interaction)

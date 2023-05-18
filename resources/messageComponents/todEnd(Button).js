@@ -51,10 +51,15 @@ module.exports = {
 
                 // Checking if user is playing Truth or Dare in this session
                 if (session.id === sessionId) {
+                    // Searching for players and answerer of session
+                    const players = await session.getPlayers();
+                    const answerer = await session.getAnswerer();
+
                     // Checking if player has to answer a question at the moment
                     if (
-                        player === (await session.getAnswerer()) &&
-                        (await session.getPlayers()).length > 1
+                        session.active &&
+                        player.id === answerer.id &&
+                        players.length > 1
                     ) {
                         // Replying to interaction
                         interaction.reply({

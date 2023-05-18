@@ -69,7 +69,7 @@ module.exports = {
                 .filter(
                     (messageComponent) =>
                         messageComponent.type === ComponentType.ActionRow &&
-                        (messageComponent.name === "todPlayerManagemnet" ||
+                        (messageComponent.name === "todPlayerManagement" ||
                             messageComponent.name === "todSessionStart")
                 )
                 .map((messageComponent) =>
