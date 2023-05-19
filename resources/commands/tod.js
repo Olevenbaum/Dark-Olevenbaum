@@ -3,6 +3,7 @@ const {
     ApplicationCommandType,
     ComponentType,
     EmbedBuilder,
+    roleMention,
     SlashCommandBuilder,
     userMention,
 } = require("discord.js");
@@ -81,7 +82,7 @@ module.exports = {
                     .setColor(0x0099ff)
                     .setTitle("Truth or Dare")
                     .setDescription(
-                        `${userMention(
+                        `${roleMention(
                             interaction.guild.roles.everyone.id
                         )} gather round for an epic round of Truth or Dare!`
                     )

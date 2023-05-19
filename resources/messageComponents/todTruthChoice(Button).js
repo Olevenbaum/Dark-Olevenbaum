@@ -51,8 +51,16 @@ module.exports = {
 
                 // Checking if user is playing Truth or Dare in this session
                 if (session.id === sessionId) {
+                    // Searching for answerer and questioner
+                    const answerer = await session.getAnswerer();
+                    const questioner = await session.getQuestioner();
+
+                    const user = await interaction.client.users.fetch(
+                        answerer.id
+                    );
+
                     // Checking if player is answerer
-                    if (player === (await session.getAnswerer())) {
+                    if (player === user.id) {
                         // Reading message components
                         const components = message.components;
 
@@ -117,7 +125,7 @@ module.exports = {
                                     `${userMention(
                                         questioner.id
                                     )}, do you want to ask ${userMention(
-                                        answerer.id
+                                        user.id
                                     )} a custom or a random question?`
                                 ),
                         ];
@@ -126,7 +134,11 @@ module.exports = {
                     } else {
                         // Replying to interaction
                         interaction.reply({
-                            content: "Wait for your turn!",
+                            content: `It is ${userMention(user.id)}'${
+                                user.username.toLowerCase().endsWith("s")
+                                    ? ""
+                                    : "s"
+                            } turn, be patient and wait for your turn!`,
                             ephemeral: true,
                         });
                     }

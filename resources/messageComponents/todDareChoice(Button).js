@@ -55,8 +55,12 @@ module.exports = {
                     const answerer = await session.getAnswerer();
                     const questioner = await session.getQuestioner();
 
+                    const user = await interaction.client.users.fetch(
+                        answerer.id
+                    );
+
                     // Checking if player is answerer
-                    if (player.id === answerer.id) {
+                    if (player.id === user.id) {
                         // Reading message components
                         const components = message.components;
 
@@ -121,7 +125,7 @@ module.exports = {
                                     `${userMention(
                                         questioner.id
                                     )}, do you want to dare ${userMention(
-                                        answerer.id
+                                        user.id
                                     )} to do a custom or a random task?`
                                 ),
                         ];
@@ -130,7 +134,11 @@ module.exports = {
                     } else {
                         // Replying to interaction
                         interaction.reply({
-                            content: "Wait for your turn!",
+                            content: `It is ${userMention(user.id)}'${
+                                user.username.toLowerCase().endsWith("s")
+                                    ? ""
+                                    : "s"
+                            } turn, be patient and wait for your turn!`,
                             ephemeral: true,
                         });
                     }
