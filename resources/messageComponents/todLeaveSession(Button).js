@@ -9,7 +9,7 @@ const {
 
 module.exports = {
     // Setting interaction type and name
-    name: "todEnd",
+    name: "todLeaveSession",
     type: ComponentType.Button,
 
     // Creating message component
@@ -17,7 +17,7 @@ module.exports = {
         return new ButtonBuilder()
             .setCustomId(this.name)
             .setDisabled(options.disabled ?? false)
-            .setLabel(options.label ?? "End")
+            .setLabel(options.label ?? "Leave")
             .setStyle(options.style ?? ButtonStyle.Danger);
     },
 
@@ -51,16 +51,12 @@ module.exports = {
 
                 // Checking if user is playing Truth or Dare in this session
                 if (session.id === sessionId) {
-                    // Searching for players and answerer of session
-                    const players = await session.getPlayers();
+                    // Searing for answerer and questioner
                     const answerer = await session.getAnswerer();
+                    const questioner = await session.getQuestioner();
 
-                    // Checking if player has to answer a question at the moment
-                    if (
-                        session.active &&
-                        player.id === answerer.id &&
-                        players.length > 1
-                    ) {
+                    // Checking if player has to ask or answer a question at the moment
+                    if (session.active && answerer.id === player.id) {
                         // Replying to interaction
                         interaction.reply({
                             content: `Coward, do not run from your responsibilities! Stay in this game and answer your question from ${userMention(
@@ -68,19 +64,25 @@ module.exports = {
                             )} before leaving!`,
                             ephemeral: true,
                         });
+                    } else if (session.active && questioner.id === player.id) {
+                        // Replying to interaction
+                        interaction.reply({
+                            content: `You have to ask ${userMention(
+                                answerer.id
+                            )} a question before leaving!`,
+                            ephemeral: true,
+                        });
                     } else {
+                        // Removing skips from player and player from session
+                        await Promise.all([
+                            session.removePlayer(player),
+                            player.update({ skips: null }),
+                        ]);
+
                         // Searching for players of session
                         const players = await session.getPlayers();
 
-                        // Removing skips from players and players from session
-                        await Promise.all(
-                            players.map(
-                                (player) => player.update({ skips: null }),
-                                session.removePlayers()
-                            )
-                        );
-
-                        // Reading old embed of initial message
+                        // Reading old embed
                         const initialEmbed = message.embeds.find((embed) =>
                             embed.fields.some((field) =>
                                 field.name.startsWith("Players")
@@ -89,12 +91,23 @@ module.exports = {
 
                         // Editing initial message if the button belongs to it
                         if (initialEmbed) {
+                            let playersString = "";
+                            if (players.length === 0) {
+                                playersString = "- none -";
+                            } else {
+                                players.forEach(
+                                    (player) =>
+                                        (playersString += `\n- ${userMention(
+                                            player.id
+                                        )}`)
+                                );
+                            }
                             const embed = EmbedBuilder.from(
                                 initialEmbed
                             ).setFields(
                                 {
-                                    name: `Players [0]:`,
-                                    value: "- none -",
+                                    name: `Players [${players.length}]:`,
+                                    value: playersString,
                                 },
                                 {
                                     inline: true,
@@ -107,20 +120,22 @@ module.exports = {
                                     value: `${session.skips}`,
                                 }
                             );
-                            message.edit({ components: [], embeds: [embed] });
-                        } else {
-                            // Removing buttons from old message
+                            message.edit({ embeds: [embed] });
+                        }
+
+                        // Deleting session and removing buttons if there are not enough players left
+                        if (players.length === 0) {
+                            session.destroy();
                             message.edit({ components: [] });
                         }
 
-                        // Deleting session
-                        session.destroy();
-
                         // Replying to interaction
                         interaction.reply(
-                            `${userMention(
-                                player.id
-                            )} has ended this game of Truth or Dare!`
+                            `${userMention(player.id)} has left the game${
+                                players.length === 0
+                                    ? " and thereby ended it"
+                                    : ""
+                            }!`
                         );
                     }
                 } else {
@@ -135,7 +150,7 @@ module.exports = {
                 // Replying to interaction
                 interaction.reply({
                     content:
-                        "You cannot end this game, try joining a game before randomly pressing buttons!",
+                        "You cannot leave this game, try joining a game before randomly pressing buttons!",
                     ephemeral: true,
                 });
             }
@@ -143,7 +158,7 @@ module.exports = {
             // Replying to interaction
             interaction.reply({
                 content:
-                    "You cannot end this game, try joining a game before randomly pressing buttons!",
+                    "You cannot leave this game, try joining a game before randomly pressing buttons!",
                 ephemeral: true,
             });
         }

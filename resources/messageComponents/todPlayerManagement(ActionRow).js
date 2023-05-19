@@ -13,9 +13,9 @@ module.exports = {
                 .filter(
                     (messageComponent) =>
                         messageComponent.type === ComponentType.Button &&
-                        (messageComponent.name === "todEnd" ||
-                            messageComponent.name === "todJoin" ||
-                            messageComponent.name === "todLeave")
+                        (messageComponent.name === "todEndSession" ||
+                            messageComponent.name === "todJoinSession" ||
+                            messageComponent.name === "todLeaveSession")
                 )
                 .map((messageComponent) =>
                     messageComponent.create(interaction, {

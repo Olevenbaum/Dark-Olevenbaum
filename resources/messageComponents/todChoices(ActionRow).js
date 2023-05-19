@@ -13,9 +13,9 @@ module.exports = {
                 .filter(
                     (messageComponent) =>
                         messageComponent.type === ComponentType.Button &&
-                        (messageComponent.name === "todDare" ||
-                            messageComponent.name === "todRandom" ||
-                            messageComponent.name === "todTruth")
+                        (messageComponent.name === "todDareChoice" ||
+                            messageComponent.name === "todRandomChoice" ||
+                            messageComponent.name === "todTruthChoice")
                 )
                 .map((messageComponent) =>
                     messageComponent.create(interaction, {

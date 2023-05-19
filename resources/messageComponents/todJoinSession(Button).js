@@ -9,7 +9,7 @@ const {
 
 module.exports = {
     // Setting interaction type and name
-    name: "todJoin",
+    name: "todJoinSession",
     type: ComponentType.Button,
 
     // Creating message component

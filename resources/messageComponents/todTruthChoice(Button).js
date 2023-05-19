@@ -9,7 +9,7 @@ const {
 
 module.exports = {
     // Setting interaction type and name
-    name: "todDare",
+    name: "todTruthChoice",
     type: ComponentType.Button,
 
     // Creating message component
@@ -17,7 +17,7 @@ module.exports = {
         return new ButtonBuilder()
             .setCustomId(this.name)
             .setDisabled(options.disabled ?? false)
-            .setLabel(options.label ?? "Dare")
+            .setLabel(options.label ?? "Truth")
             .setStyle(options.style ?? ButtonStyle.Secondary);
     },
 
@@ -51,12 +51,8 @@ module.exports = {
 
                 // Checking if user is playing Truth or Dare in this session
                 if (session.id === sessionId) {
-                    // Searching for answerer and questioner
-                    const answerer = await session.getAnswerer();
-                    const questioner = await session.getQuestioner();
-
                     // Checking if player is answerer
-                    if (player.id === answerer.id) {
+                    if (player === (await session.getAnswerer())) {
                         // Reading message components
                         const components = message.components;
 
@@ -67,10 +63,12 @@ module.exports = {
                                     (component) =>
                                         component.type ===
                                             ComponentType.Button &&
-                                        (component.customId === "todDare" ||
+                                        (component.customId ===
+                                            "todDareChoice" ||
                                             component.customId ===
-                                                "todRandom" ||
-                                            component.customId === "todTruth")
+                                                "todRandomChoice" ||
+                                            component.customId ===
+                                                "todTruthChoice")
                                 )
                             ),
                             1,
@@ -83,7 +81,9 @@ module.exports = {
                                 )
                                 .create(interaction, {
                                     general: { disabled: true },
-                                    todDare: { style: ButtonStyle.Success },
+                                    todTruthChoice: {
+                                        style: ButtonStyle.Success,
+                                    },
                                 })
                         );
 
@@ -116,9 +116,9 @@ module.exports = {
                                 .setDescription(
                                     `${userMention(
                                         questioner.id
-                                    )}, do you want to dare ${userMention(
+                                    )}, do you want to ask ${userMention(
                                         answerer.id
-                                    )} to do a custom or a random task?`
+                                    )} a custom or a random question?`
                                 ),
                         ];
 

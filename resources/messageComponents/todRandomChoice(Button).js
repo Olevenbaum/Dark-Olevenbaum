@@ -9,7 +9,7 @@ const {
 
 module.exports = {
     // Setting interaction type and name
-    name: "todTruth",
+    name: "todRandomChoice",
     type: ComponentType.Button,
 
     // Creating message component
@@ -17,7 +17,7 @@ module.exports = {
         return new ButtonBuilder()
             .setCustomId(this.name)
             .setDisabled(options.disabled ?? false)
-            .setLabel(options.label ?? "Truth")
+            .setLabel(options.label ?? "Random")
             .setStyle(options.style ?? ButtonStyle.Secondary);
     },
 
@@ -63,10 +63,12 @@ module.exports = {
                                     (component) =>
                                         component.type ===
                                             ComponentType.Button &&
-                                        (component.customId === "todDare" ||
+                                        (component.customId ===
+                                            "todDareChoice" ||
                                             component.customId ===
-                                                "todRandom" ||
-                                            component.customId === "todTruth")
+                                                "todRandomChoice" ||
+                                            component.customId ===
+                                                "todTruthChoice")
                                 )
                             ),
                             1,
@@ -79,7 +81,9 @@ module.exports = {
                                 )
                                 .create(interaction, {
                                     general: { disabled: true },
-                                    todTruth: { style: ButtonStyle.Success },
+                                    todRandomChoice: {
+                                        style: ButtonStyle.Success,
+                                    },
                                 })
                         );
 
@@ -102,19 +106,26 @@ module.exports = {
                                 )
                         );
 
+                        // Determining Truth or Dare
+                        const tod = Math.random() < 0.5;
+
                         const embeds = [
                             EmbedBuilder.from(
                                 message.embeds.find((embed) =>
                                     embed.footer.text.startsWith("Session ID:")
                                 )
                             )
-                                .setTitle("Dare")
+                                .setTitle(tod ? "Dare" : "Truth")
                                 .setDescription(
                                     `${userMention(
                                         questioner.id
-                                    )}, do you want to ask ${userMention(
-                                        answerer.id
-                                    )} a custom or a random question?`
+                                    )}, do you want to ${
+                                        tod ? "dare" : "ask"
+                                    } ${userMention(answerer.id)} ${
+                                        tod ? "to do" : ""
+                                    } a custom or a random ${
+                                        tod ? "task" : "question"
+                                    }?`
                                 ),
                         ];
 

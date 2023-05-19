@@ -9,7 +9,7 @@ const {
 
 module.exports = {
     // Setting interaction type and name
-    name: "todStart",
+    name: "todStartSession",
     type: ComponentType.Button,
 
     // Creating message component
@@ -100,7 +100,7 @@ module.exports = {
                                                 component.type ===
                                                     ComponentType.Button &&
                                                 component.customId ===
-                                                    "todStart"
+                                                    "todStartSession"
                                         )
                                 ),
                                 1,
@@ -110,10 +110,10 @@ module.exports = {
                                             messageComponent.type ===
                                                 ComponentType.ActionRow &&
                                             messageComponent.name ===
-                                                "todSessionStart"
+                                                "todSessionManagement"
                                     )
                                     .create(interaction, {
-                                        todStart: {
+                                        todStartSession: {
                                             disabled: true,
                                             style: ButtonStyle.Success,
                                         },

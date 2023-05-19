@@ -9,7 +9,7 @@ const {
 
 module.exports = {
     // Setting interaction type and name
-    name: "todRandom",
+    name: "todDareChoice",
     type: ComponentType.Button,
 
     // Creating message component
@@ -17,7 +17,7 @@ module.exports = {
         return new ButtonBuilder()
             .setCustomId(this.name)
             .setDisabled(options.disabled ?? false)
-            .setLabel(options.label ?? "Random")
+            .setLabel(options.label ?? "Dare")
             .setStyle(options.style ?? ButtonStyle.Secondary);
     },
 
@@ -51,8 +51,12 @@ module.exports = {
 
                 // Checking if user is playing Truth or Dare in this session
                 if (session.id === sessionId) {
+                    // Searching for answerer and questioner
+                    const answerer = await session.getAnswerer();
+                    const questioner = await session.getQuestioner();
+
                     // Checking if player is answerer
-                    if (player === (await session.getAnswerer())) {
+                    if (player.id === answerer.id) {
                         // Reading message components
                         const components = message.components;
 
@@ -63,10 +67,12 @@ module.exports = {
                                     (component) =>
                                         component.type ===
                                             ComponentType.Button &&
-                                        (component.customId === "todDare" ||
+                                        (component.customId ===
+                                            "todDareChoice" ||
                                             component.customId ===
-                                                "todRandom" ||
-                                            component.customId === "todTruth")
+                                                "todRandomChoice" ||
+                                            component.customId ===
+                                                "todTruthChoice")
                                 )
                             ),
                             1,
@@ -79,7 +85,9 @@ module.exports = {
                                 )
                                 .create(interaction, {
                                     general: { disabled: true },
-                                    todRandom: { style: ButtonStyle.Success },
+                                    todDareChoice: {
+                                        style: ButtonStyle.Success,
+                                    },
                                 })
                         );
 
@@ -102,26 +110,19 @@ module.exports = {
                                 )
                         );
 
-                        // Determining Truth or Dare
-                        const tod = Math.random() < 0.5;
-
                         const embeds = [
                             EmbedBuilder.from(
                                 message.embeds.find((embed) =>
                                     embed.footer.text.startsWith("Session ID:")
                                 )
                             )
-                                .setTitle(tod ? "Dare" : "Truth")
+                                .setTitle("Dare")
                                 .setDescription(
                                     `${userMention(
                                         questioner.id
-                                    )}, do you want to ${
-                                        tod ? "dare" : "ask"
-                                    } ${userMention(answerer.id)} ${
-                                        tod ? "to do" : ""
-                                    } a custom or a random ${
-                                        tod ? "task" : "question"
-                                    }?`
+                                    )}, do you want to dare ${userMention(
+                                        answerer.id
+                                    )} to do a custom or a random task?`
                                 ),
                         ];
 

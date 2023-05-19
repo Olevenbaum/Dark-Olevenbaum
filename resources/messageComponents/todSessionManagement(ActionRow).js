@@ -3,7 +3,7 @@ const { ActionRowBuilder, ComponentType } = require("discord.js");
 
 module.exports = {
     // Setting interaction type and name
-    name: "todSessionStart",
+    name: "todSessionManagement",
     type: ComponentType.ActionRow,
 
     // Creating message component
@@ -13,7 +13,7 @@ module.exports = {
                 .filter(
                     (messageComponent) =>
                         messageComponent.type === ComponentType.Button &&
-                        messageComponent.name === "todStart"
+                        messageComponent.name === "todStartSession"
                 )
                 .map((messageComponent) =>
                     messageComponent.create(interaction, {

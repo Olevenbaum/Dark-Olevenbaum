@@ -70,7 +70,7 @@ module.exports = {
                     (messageComponent) =>
                         messageComponent.type === ComponentType.ActionRow &&
                         (messageComponent.name === "todPlayerManagement" ||
-                            messageComponent.name === "todSessionStart")
+                            messageComponent.name === "todSessionManagement")
                 )
                 .map((messageComponent) =>
                     messageComponent.create(interaction)
