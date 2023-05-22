@@ -1,5 +1,6 @@
 // Importing classes and methods
 const { ButtonBuilder, ComponentType, ButtonStyle } = require("discord.js");
+const { Op } = require("sequelize");
 
 module.exports = {
     // Setting interaction type and name
@@ -58,6 +59,12 @@ module.exports = {
                         // Reading message components
                         const components = message.components;
 
+                        const tod = message.embeds
+                            .find((embed) =>
+                                embed.footer.text.startsWith("Session ID:")
+                            )
+                            .title.toLowerCase();
+
                         // Reading number of already used random Truths or Dares
                         const counter = message.embeds
                             .find((embed) =>
@@ -98,6 +105,17 @@ module.exports = {
                         message.edit({ components });
 
                         // Replying to interaction
+                        const tods =
+                            await interaction.client.sequelize.models.tod.findAll(
+                                {
+                                    where: {
+                                        kind: "",
+                                        rating: {
+                                            [Op.gte]: session.rating,
+                                        },
+                                    },
+                                }
+                            );
                         components.splice(
                             0,
                             components.length,
