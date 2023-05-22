@@ -5,7 +5,7 @@ const { InteractionType } = require("discord.js");
 const { consoleSpace } = require("../../../configuration.json");
 
 module.exports = {
-    // Setting interaction type name
+    // Setting interaction type and name
     name: InteractionType.ApplicationCommandAutocomplete,
 
     // Handling interaction

@@ -2,7 +2,7 @@
 const { ApplicationCommandType } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type name
+    // Setting interaction type and name
     name: ApplicationCommandType,
 
     // Handling interaction

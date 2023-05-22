@@ -2,12 +2,12 @@
 const { ComponentType, RoleSelectMenuBuilder } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type name
+    // Setting interaction type and name
     name: "",
     type: ComponentType.RoleSelect,
 
     // Creating message component
-    create(interaction) {
+    create(interaction, options = {}) {
         return new RoleSelectMenuBuilder().setCustomId(this.name);
     },
 

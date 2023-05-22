@@ -2,12 +2,12 @@
 const { ComponentType, StringSelectMenuBuilder } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type name
+    // Setting interaction type and name
     name: "",
     type: ComponentType.StringSelect,
 
     // Creating message component
-    create(interaction) {
+    create(interaction, options) {
         return new StringSelectMenuBuilder().setCustomId(this.name);
     },
 

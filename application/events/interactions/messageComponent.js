@@ -23,7 +23,7 @@ for (const file of messageComponentFiles) {
 }
 
 module.exports = {
-    // Setting message component type name
+    // Setting message component type and name
     name: InteractionType.MessageComponent,
 
     // Handling interaction

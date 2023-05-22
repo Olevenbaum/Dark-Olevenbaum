@@ -2,7 +2,7 @@
 const { InteractionType } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type name
+    // Setting interaction type and name
     name: InteractionType.ModalSubmit,
 
     // Handling interaction
