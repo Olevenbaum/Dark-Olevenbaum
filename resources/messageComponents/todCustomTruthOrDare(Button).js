@@ -5,11 +5,10 @@ const {
     ButtonStyle,
     userMention,
 } = require("discord.js");
-const { Op } = require("sequelize");
 
 module.exports = {
     // Setting interaction type and name
-    name: "todRandomTruthOrDare",
+    name: "todCustomTruthOrDare",
     type: ComponentType.Button,
 
     // Creating message component
@@ -17,7 +16,7 @@ module.exports = {
         return new ButtonBuilder()
             .setCustomId(this.name)
             .setDisabled(options.disabled ?? false)
-            .setLabel(options.label ?? "Random [3/3]")
+            .setLabel(options.label ?? "Custom")
             .setStyle(options.style ?? ButtonStyle.Secondary);
     },
 
@@ -123,7 +122,7 @@ module.exports = {
 
                         // Editing old message
                         components.splice(
-                            components.findIndex((component) =>
+                            components.findIndex((messageComponent) =>
                                 messageComponent.components.some(
                                     (messageComponent) =>
                                         messageComponent.type ===
@@ -144,93 +143,68 @@ module.exports = {
                                             "todCustomOrRandom"
                                 )
                                 .create(interaction, {
-                                    general: { disabled: counter === 1 },
                                     todCustomTruthOrDare: {
-                                        disabled:
-                                            counter === 1 ||
-                                            style === ButtonStyle.Success,
+                                        disabled: style === ButtonStyle.Success,
                                         style,
                                     },
                                     todRandomTruthOrDare: {
-                                        label: `Random [${counter - 1}/3]`,
-                                        style: ButtonStyle.Success,
+                                        disabled: counter === 1,
+                                        label: `Random [${counter}/3]`,
+                                        style:
+                                            counter === 3
+                                                ? ButtonStyle.Primary
+                                                : ButtonStyle.Success,
                                     },
                                 })
                         );
 
                         message.edit({ components });
 
-                        // Checking for need of a new embed
-                        if (counter === 3) {
-                            // Replying to interaction
-                            const tods =
-                                await interaction.client.sequelize.models.tod.findAll(
-                                    {
-                                        where: {
-                                            kind: tod.toLowerCase(),
-                                            rating: {
-                                                [Op.gte]: session.rating,
-                                            },
-                                        },
-                                    }
-                                );
-
-                            components.splice(0, components.length);
-                            interaction.client.messageComponents
-                                .filter(
-                                    (messageComponent) =>
-                                        (messageComponent.type ===
-                                            ComponentType.ActionRow &&
-                                            messageComponent.name ===
-                                                "todPlayerManagement") ||
+                        // Replying to interaction
+                        components.splice(0, components.length);
+                        interaction.client.messageComponents
+                            .filter(
+                                (messageComponent) =>
+                                    (messageComponent.type ===
+                                        ComponentType.ActionRow &&
                                         messageComponent.name ===
-                                            "todCustomOrRandom" ||
-                                        messageComponent.name === "todNextRound"
-                                )
-                                .every((messageComponent) => {
-                                    components.push(
-                                        messageComponent.create(interaction, {
-                                            todRandomTruthOrDare:
-                                                messageComponent.name ===
-                                                "todCustomOrRandom"
-                                                    ? {
-                                                          label: `New random [${
-                                                              counter - 1
-                                                          }/3]`,
-                                                      }
-                                                    : null,
-                                        })
-                                    );
-                                });
+                                            "todPlayerManagement") ||
+                                    messageComponent.name ===
+                                        "todCustomOrRandom" ||
+                                    messageComponent.name === "todNextRound"
+                            )
+                            .every((messageComponent) => {
+                                components.push(
+                                    messageComponent.create(interaction, {
+                                        todRandomTruthOrDare:
+                                            messageComponent.name ===
+                                            "todCustomOrRandom"
+                                                ? {
+                                                      label: `New random [${
+                                                          counter - 1
+                                                      }/3]`,
+                                                  }
+                                                : null,
+                                    })
+                                );
+                            });
 
-                            const embeds = [
-                                EmbedBuilder.from(
-                                    message.embeds.find((embed) =>
-                                        embed.footer.text.startsWith(
-                                            "Session ID:"
-                                        )
-                                    )
+                        const embeds = [
+                            EmbedBuilder.from(
+                                message.embeds.find((embed) =>
+                                    embed.footer.text.startsWith("Session ID:")
                                 )
-                                    .setTitle(`Random ${tod}`)
-                                    .setDescription(
-                                        tods[Math.random() * tods.length].text
-                                    )
-                                    .setAuthor({
-                                        name: interaction.client.user.username,
-                                        iconURL:
-                                            interaction.client.user.avatarURL(),
-                                    }),
-                            ];
+                            )
+                                .setTitle(`Random ${tod}`)
+                                .setDescription()
+                                .setAuthor({
+                                    name: interaction.client.user.username,
+                                    iconURL:
+                                        interaction.client.user.avatarURL(),
+                                }),
+                        ];
 
-                            interaction.reply({ components, embeds });
-                        } else {
-                            // Replying to interaction
-                            interaction.reply(
-                                `${userMention(
-                                    user.id
-                                )} chose a new random question!`
-                            );
-                        }
+                        interaction.reply({ components, embeds });
                     } else if (player.id === answerer.id) {
                         // Replying to interaction
                         interaction.reply({

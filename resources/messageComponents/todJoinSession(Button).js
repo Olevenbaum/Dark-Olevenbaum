@@ -103,7 +103,7 @@ module.exports = {
                 message.edit({ embeds: [embed] });
             }
 
-            // Calculating skips based on number average number of skips rounded down
+            // Calculating skips based on average number of skips rounded down
             const skips = session.active
                 ? Math.floor(
                       players.reduce((sum, player) => sum + player.skips) /

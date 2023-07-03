@@ -66,16 +66,16 @@ module.exports = {
 
                         // Editing old message
                         components.splice(
-                            components.findIndex((component) =>
-                                component.components.some(
-                                    (component) =>
-                                        component.type ===
+                            components.findIndex((messageComponent) =>
+                                messageComponent.components.some(
+                                    (messageComponent) =>
+                                        messageComponent.type ===
                                             ComponentType.Button &&
-                                        (component.customId ===
+                                        (messageComponent.customId ===
                                             "todDareChoice" ||
-                                            component.customId ===
+                                            messageComponent.customId ===
                                                 "todRandomChoice" ||
-                                            component.customId ===
+                                            messageComponent.customId ===
                                                 "todTruthChoice")
                                 )
                             ),
@@ -98,21 +98,22 @@ module.exports = {
                         message.edit({ components });
 
                         // Replying to interaction
-                        components.splice(
-                            0,
-                            components.length,
-                            interaction.client.messageComponents
-                                .filter(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
-                                            ComponentType.ActionRow &&
+                        components.splice(0, components.length);
+                        interaction.client.messageComponents
+                            .filter(
+                                (messageComponent) =>
+                                    (messageComponent.type ===
+                                        ComponentType.ActionRow &&
                                         messageComponent.name ===
-                                            "todCustomOrRandom"
-                                )
-                                .map((messageComponent) =>
+                                            "todPlayerManagement") ||
+                                    messageComponent.name ===
+                                        "todCustomOrRandom"
+                            )
+                            .every((messageComponent) => {
+                                components.push(
                                     messageComponent.create(interaction)
-                                )
-                        );
+                                );
+                            });
 
                         const embeds = [
                             EmbedBuilder.from(
