@@ -2,9 +2,9 @@
 const { Events } = require("discord.js");
 
 module.exports = {
-    // Setting event name and kind
-    name: Events.GuildRoleUpdate,
+    // Setting event kind and type
     once: false,
+    type: Events.GuildRoleUpdate,
 
     // Handling event
     execute(client) {},

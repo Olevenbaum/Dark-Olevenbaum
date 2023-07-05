@@ -2,7 +2,7 @@
 const { ComponentType, TextInputBuilder } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
+    // Setting message components type and name
     name: "",
     type: ComponentType.TextInput,
 

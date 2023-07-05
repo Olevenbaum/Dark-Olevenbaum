@@ -5,13 +5,13 @@ const { ApplicationCommandType } = require("discord.js");
 const { consoleSpace } = require("../../../../configuration.json");
 
 module.exports = {
-    // Setting interaction type and name
-    name: ApplicationCommandType.ChatInput,
+    // Setting command type
+    type: ApplicationCommandType.ChatInput,
 
     // Handling interaction
     async execute(interaction) {
         const command = interaction.client.commands
-            .filter((command) => command.type === this.name)
+            .filter((command) => command.type === this.type)
             .get(interaction.commandName);
         if (!command) {
             await interaction.reply(

@@ -5,13 +5,13 @@ const { ComponentType } = require("discord.js");
 const { consoleSpace } = require("../../../../configuration.json");
 
 module.exports = {
-    // Setting interaction type and name
-    name: ComponentType.MentionableSelect,
+    // Setting message component type
+    type: ComponentType.MentionableSelect,
 
     // Handling interaction
     async execute(interaction) {
         const messageComponent = interaction.client.messageComponents
-            .filter((messageComponent) => messageComponent.type === this.name)
+            .filter((messageComponent) => messageComponent.type === this.type)
             .get(interaction.customId);
         if (!messageComponent) {
             await interaction.reply(

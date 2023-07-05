@@ -19,13 +19,13 @@ const interactionFiles = fs
     .filter((file) => file.endsWith(".js"));
 for (const file of interactionFiles) {
     const interactionType = require(path.join(interactionsPath, file));
-    interactionTypes.set(interactionType.name, interactionType);
+    interactionTypes.set(interactionType.type, interactionType);
 }
 
 module.exports = {
-    // Setting event name and kind
-    name: Events.InteractionCreate,
+    // Setting event kind and type
     once: false,
+    type: Events.InteractionCreate,
 
     // Handling event
     async execute(interaction) {

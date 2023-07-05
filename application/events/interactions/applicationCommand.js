@@ -20,13 +20,13 @@ for (const file of applicationCommandFiles) {
         file
     ));
     applicationCommandTypes.set(
-        applicationCommandType.name,
+        applicationCommandType.type,
         applicationCommandType
     );
 }
 module.exports = {
-    // Setting interaction type and name
-    name: InteractionType.ApplicationCommand,
+    // Setting interaction type
+    type: InteractionType.ApplicationCommand,
 
     // Handling interaction
     async execute(interaction) {

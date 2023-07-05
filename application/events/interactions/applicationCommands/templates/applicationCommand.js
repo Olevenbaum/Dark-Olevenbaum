@@ -2,14 +2,14 @@
 const { ApplicationCommandType } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
-    name: ApplicationCommandType,
+    // Setting command type
+    type: ApplicationCommandType,
 
     // Handling interaction
     async execute(interaction) {
         const command = interaction.client.commands
             .get(interaction.commandName)
-            .filter((command) => command.type === this.name);
+            .filter((command) => command.type === this.type);
         if (!command) {
             console.error(
                 "[ERROR]".padEnd(consoleSpace),

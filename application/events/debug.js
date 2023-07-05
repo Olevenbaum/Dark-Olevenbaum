@@ -2,9 +2,9 @@
 const { Events } = require("discord.js");
 
 module.exports = {
-    // Setting event name and kind
-    name: Events.Debug,
+    // Setting event kind and type
     once: false,
+    type: Events.Debug,
 
     // Handling event
     execute(client) {},

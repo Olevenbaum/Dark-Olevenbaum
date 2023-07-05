@@ -19,12 +19,12 @@ for (const file of messageComponentFiles) {
         messageComponentsPath,
         file
     ));
-    messageComponentTypes.set(messageComponentType.name, messageComponentType);
+    messageComponentTypes.set(messageComponentType.type, messageComponentType);
 }
 
 module.exports = {
-    // Setting message component type and name
-    name: InteractionType.MessageComponent,
+    // Setting message component type
+    type: InteractionType.MessageComponent,
 
     // Handling interaction
     async execute(interaction) {

@@ -39,6 +39,12 @@ if (database) {
     client.sequelize = new Sequelize(database);
 }
 
+// Creating individual collections
+// sessions collection
+client.sessions = new Collection();
+// players collection
+client.players = new Collection();
+
 // Creating commands collection
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, "../resources/commands");
@@ -97,18 +103,20 @@ for (const eventFile of eventFiles) {
     const event = require(path.join(eventsPath, eventFile));
     if ("execute" in event) {
         if (event.once) {
-            client.once(event.name, (...args) => event.execute(...args));
+            client.once(event.type, (...args) => event.execute(...args));
         } else {
-            client.on(event.name, (...args) => event.execute(...args));
+            client.on(event.type, (...args) => event.execute(...args));
         }
     } else {
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
-            `Missing required 'execute' property of event ${event.name}`
+            `Missing required 'execute' property of event ${event.type}`
         );
     }
 }
+
+// TODO: Fixing multiple token feature
 
 // Reading argument of process to choose token
 const argumentIndex = process.argv.findIndex((argument) =>

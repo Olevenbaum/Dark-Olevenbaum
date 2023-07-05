@@ -2,9 +2,9 @@
 const { Events } = require("discord.js");
 
 module.exports = {
-    // Setting event name and kind
-    name: Events.MessageReactionRemoveAll,
+    // Setting event kind and type
     once: false,
+    type: Events.MessageReactionRemoveAll,
 
     // Handling event
     execute(client) {},

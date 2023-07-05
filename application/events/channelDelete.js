@@ -2,9 +2,9 @@
 const { Events } = require("discord.js");
 
 module.exports = {
-    // Setting event name and kind
-    name: Events.ChannelDelete,
+    // Setting event kind and type
     once: false,
+    type: Events.ChannelDelete,
 
     // Handling event
     execute(client) {},

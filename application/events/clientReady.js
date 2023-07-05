@@ -5,9 +5,9 @@ const { Events } = require("discord.js");
 const { consoleSpace } = require("../../configuration.json");
 
 module.exports = {
-    // Setting event name and kind
-    name: Events.ClientReady,
+    // Setting event kind and type
     once: true,
+    type: Events.ClientReady,
 
     // Handling event
     async execute(client) {

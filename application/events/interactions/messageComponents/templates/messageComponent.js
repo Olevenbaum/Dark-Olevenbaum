@@ -2,13 +2,13 @@
 const { ComponentType } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
-    name: ComponentType,
+    // Setting message component type
+    type: ComponentType,
 
     // Handling interaction
     async execute(interaction) {
         const messageComponent = interaction.client.messageComponents
-            .filter((messageComponent) => messageComponent.type === this.name)
+            .filter((messageComponent) => messageComponent.type === this.type)
             .get(interaction.customId);
         if (!messageComponent) {
             await interaction.reply(
