@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
+    // Setting message components type and name
     name: "todLeaveSession",
     type: ComponentType.Button,
 
@@ -24,16 +24,12 @@ module.exports = {
     // Handling interaction
     async execute(interaction) {
         // Searching for player
-        const player = await interaction.client.sequelize.models.player.findOne(
-            {
-                where: { id: interaction.user.id },
-            }
-        );
+        const player = interaction.client.players.get(interaction.user.id);
 
-        // Checking if user ever played Truth or Dare
+        // Checking if user ever played any game
         if (player) {
             // Searching for session of this player
-            const session = await player.getSession();
+            const session = interaction.client.sessions.get(player.sessionId);
 
             // Checking if user is currently playing Truth or Dare
             if (session) {
@@ -50,34 +46,34 @@ module.exports = {
                 );
 
                 // Checking if user is playing Truth or Dare in this session
-                if (session.id === sessionId) {
-                    // Searing for answerer and questioner
-                    const answerer = await session.getAnswerer();
-                    const questioner = await session.getQuestioner();
-
+                if (player.sessionIds.tod === sessionId) {
                     // Checking if player has to ask or answer a question at the moment
-                    if (session.active && answerer.id === player.id) {
+                    if (
+                        session.active &&
+                        session.answererId === interaction.user.id
+                    ) {
                         // Replying to interaction
                         interaction.reply({
                             content: `Coward, do not run from your responsibilities! Stay in this game and answer your question from ${userMention(
-                                questioner.id
+                                session.questionerId
                             )} before leaving!`,
                             ephemeral: true,
                         });
-                    } else if (session.active && questioner.id === player.id) {
+                    } else if (
+                        session.active &&
+                        session.questionerId === interaction.user.id
+                    ) {
                         // Replying to interaction
                         interaction.reply({
                             content: `You have to ask ${userMention(
-                                answerer.id
+                                session.answererId
                             )} a question before leaving!`,
                             ephemeral: true,
                         });
                     } else {
                         // Removing skips from player and player from session
-                        await Promise.all([
-                            session.removePlayer(player),
-                            player.update({ skips: null }),
-                        ]);
+                        player.todSkips = null;
+                        session.players;
 
                         // Searching for players of session
                         const players = await session.getPlayers();

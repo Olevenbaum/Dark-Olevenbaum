@@ -175,20 +175,22 @@ module.exports = {
                                     }
                                 );
 
-                            components.splice(0, components.length);
-                            interaction.client.messageComponents
-                                .filter(
-                                    (messageComponent) =>
-                                        (messageComponent.type ===
-                                            ComponentType.ActionRow &&
+                            components.splice(
+                                0,
+                                components.length,
+                                ...interaction.client.messageComponents
+                                    .filter(
+                                        (messageComponent) =>
+                                            (messageComponent.type ===
+                                                ComponentType.ActionRow &&
+                                                messageComponent.name ===
+                                                    "todPlayerManagement") ||
                                             messageComponent.name ===
-                                                "todPlayerManagement") ||
-                                        messageComponent.name ===
-                                            "todCustomOrRandom" ||
-                                        messageComponent.name === "todNextRound"
-                                )
-                                .every((messageComponent) => {
-                                    components.push(
+                                                "todCustomOrRandom" ||
+                                            messageComponent.name ===
+                                                "todNextRound"
+                                    )
+                                    .map((messageComponent) =>
                                         messageComponent.create(interaction, {
                                             todRandomTruthOrDare:
                                                 messageComponent.name ===
@@ -200,8 +202,8 @@ module.exports = {
                                                       }
                                                     : null,
                                         })
-                                    );
-                                });
+                                    )
+                            );
 
                             const embeds = [
                                 EmbedBuilder.from(

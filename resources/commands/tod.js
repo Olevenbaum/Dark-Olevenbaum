@@ -40,14 +40,16 @@ module.exports = {
     // Handling command reponse
     async execute(interaction) {
         // Searching for player or creating new one
-        const [player] =
-            await interaction.client.sequelize.models.player.findOrCreate({
-                default: { id: interaction.user.id },
-                where: { id: interaction.user.id },
+        if (!interaction.client.players.has(interaction.user.id)) {
+            interaction.client.players.set(interaction.user.id, {
+                sessionIds: {},
+                todSkips: null,
             });
+        }
+        const player = interaction.client.players.get(interaction.user.id);
 
-        // Checking if player already joined another session
-        if (await player.getSession()) {
+        // Checking if player already joined another session of Truth or Dare
+        if (player.sessionIds.tod) {
             interaction.reply({
                 content:
                     "You already joined another game of Truth or Dare, finish your current game to start another!",
@@ -59,24 +61,45 @@ module.exports = {
             const skips = interaction.options.getInteger("skips") ?? 0;
 
             // Creating new session
-            const session = await player.createSession({
+            const session = {
+                active: false,
+                answererId: null,
+                confirmed: null,
+                initialMessage: {
+                    channelId: interaction.channelId,
+                    messageId: null,
+                },
+                kind: "tod",
+                playerIds: [interaction.user.id],
+                questionerId: null,
                 rating,
                 skips,
-            });
-            player.update({ skips });
+            };
 
-            // Defining reply message content
+            // Finding session ID by searching for first number not being used
+            const sessionId =
+                interaction.client.sessions
+                    .map((session, sessionId) => sessionId)
+                    .sort((a, b) => a - b)
+                    .map((number, index) => (number === index ? null : index))
+                    .find((index) => index) ?? interaction.client.sessions.size;
+
+            // Updating player
+            player.sessionIds.tod = sessionId;
+            player.todSkips = skips;
+
+            // Defining reply message components
             const components = interaction.client.messageComponents
                 .filter(
                     (messageComponent) =>
                         messageComponent.type === ComponentType.ActionRow &&
-                        (messageComponent.name === "todPlayerManagement" ||
-                            messageComponent.name === "todSessionManagement")
+                        messageComponent.name === "todManagement"
                 )
                 .map((messageComponent) =>
                     messageComponent.create(interaction)
                 );
 
+            // Defining reply message embed
             const embeds = [
                 new EmbedBuilder()
                     .setColor(0x0099ff)
@@ -102,14 +125,20 @@ module.exports = {
                             value: `${session.skips}`,
                         }
                     )
-                    .setFooter({ text: `Session ID: ${session.id}` }),
+                    .setFooter({ text: `Session ID: ${sessionId}` }),
             ];
 
             // Replying to interaction
-            const message = await interaction.reply({ components, embeds });
+            await interaction.reply({ components, embeds });
 
             // Updating initial message of session
-            session.update({ lastMessage: message.createdAt });
+            session.initialMessage.messageId = (
+                await interaction.fetchReply()
+            ).id;
+
+            // Updating player and session in client
+            interaction.client.sessions.set(sessionId, session);
+            interaction.client.players.set(interaction.user.id, player);
         }
     },
 };

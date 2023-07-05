@@ -123,22 +123,23 @@ module.exports = {
                             message.edit({ components });
 
                             // Defining reply message content
-                            components.splice(0, components.length);
-                            interaction.client.messageComponents
-                                .filter(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
-                                            ComponentType.ActionRow &&
-                                        (messageComponent.name ===
-                                            "todPlayerManagement" ||
-                                            messageComponent.name ===
-                                                "todChoices")
-                                )
-                                .every((messageComponent) => {
-                                    components.push(
+                            components.splice(
+                                0,
+                                components.length,
+                                ...interaction.client.messageComponents
+                                    .filter(
+                                        (messageComponent) =>
+                                            messageComponent.type ===
+                                                ComponentType.ActionRow &&
+                                            (messageComponent.name ===
+                                                "todPlayerManagement" ||
+                                                messageComponent.name ===
+                                                    "todChoices")
+                                    )
+                                    .map((messageComponent) =>
                                         messageComponent.create(interaction)
-                                    );
-                                });
+                                    )
+                            );
 
                             const embeds = [
                                 EmbedBuilder.from(

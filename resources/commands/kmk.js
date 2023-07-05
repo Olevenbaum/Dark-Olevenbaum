@@ -12,7 +12,11 @@ module.exports = {
                 .setDescription(
                     "Specifies the kind of persons you want to play with"
                 )
-                .addChoices({ name: "Server", value: "server" })
+                .addChoices(
+                    { name: "Celebrities", value: "celebrities" },
+                    { name: "Custom", value: "custom" },
+                    { name: "Server", value: "server" }
+                )
                 .setRequired(true)
         ),
     type: ApplicationCommandType.ChatInput,

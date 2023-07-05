@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
+    // Setting message components name and type
     name: "todEndSession",
     type: ComponentType.Button,
 
@@ -24,20 +24,18 @@ module.exports = {
     // Handling interaction
     async execute(interaction) {
         // Searching for player
-        const player = await interaction.client.sequelize.models.player.findOne(
-            {
-                where: { id: interaction.user.id },
-            }
-        );
+        const player = interaction.client.players.get(interaction.user.id);
 
-        // Checking if user ever played Truth or Dare
+        // Checking if user ever played any game
         if (player) {
-            // Searching for session of this player
-            const session = await player.getSession();
+            // Searching for Truth Or Dare session of this player
+            const session = interaction.client.sessions.get(
+                player.sessionIds.tod
+            );
 
             // Checking if user is currently playing Truth or Dare
             if (session) {
-                // Reading message data
+                // Reading old message
                 const message = interaction.message;
 
                 // Searching embed for session ID
@@ -50,78 +48,144 @@ module.exports = {
                 );
 
                 // Checking if user is playing Truth or Dare in this session
-                if (session.id === sessionId) {
-                    // Searching for players and answerer of session
-                    const players = await session.getPlayers();
-                    const answerer = await session.getAnswerer();
+                if (player.sessionIds.tod === sessionId) {
+                    // Searching for Truth Or Dare this player wants to end
+                    const session = interaction.client.sessions.get(sessionId);
 
                     // Checking if player has to answer a question at the moment
                     if (
                         session.active &&
-                        player.id === answerer.id &&
-                        players.length > 1
+                        interaction.user.id === session.answererId &&
+                        session.playerIds.length > 1
                     ) {
                         // Replying to interaction
                         interaction.reply({
                             content: `Coward, do not run from your responsibilities! Stay in this game and answer your question from ${userMention(
-                                questioner.id
+                                session.questionerId
                             )} before leaving!`,
                             ephemeral: true,
                         });
                     } else {
-                        // Searching for players of session
-                        const players = await session.getPlayers();
-
                         // Removing skips from players and players from session
-                        await Promise.all(
-                            players.map(
-                                (player) => player.update({ skips: null }),
-                                session.removePlayers()
+                        session.playerIds.forEach((playerId) => {
+                            const player =
+                                interaction.client.players.get(playerId);
+                            player.sessionIds.tod = null;
+                            player.todSkips = null;
+                            interaction.client.players.set(playerId, player);
+                        });
+
+                        // Searching for initial message
+                        const initialMessage = await (
+                            await interaction.client.channels.fetch(
+                                session.initialMessage.channelId
                             )
-                        );
+                        ).messages.fetch(session.initialMessage.messageId);
 
                         // Reading old embed of initial message
-                        const initialEmbed = message.embeds.find((embed) =>
-                            embed.fields.some((field) =>
-                                field.name.startsWith("Players")
-                            )
+                        const initialEmbed = initialMessage.embeds.find(
+                            (embed) =>
+                                embed.fields.some((field) =>
+                                    field.name.startsWith("Players")
+                                )
                         );
 
-                        // Editing initial message if the button belongs to it
-                        if (initialEmbed) {
-                            const embed = EmbedBuilder.from(
-                                initialEmbed
-                            ).setFields(
-                                {
-                                    name: `Players [0]:`,
-                                    value: "- none -",
-                                },
-                                {
-                                    inline: true,
-                                    name: "Rating:",
-                                    value: `${session.rating}+`,
-                                },
-                                {
-                                    inline: true,
-                                    name: "Skips:",
-                                    value: `${session.skips}`,
-                                }
-                            );
-                            message.edit({ components: [], embeds: [embed] });
-                        } else {
-                            // Removing buttons from old message
-                            message.edit({ components: [] });
-                        }
+                        // Defining new embed for initial message
+                        initialEmbed.fields.splice(
+                            initialEmbed.fields.findIndex((field) =>
+                                field.name.startsWith("Players")
+                            ),
+                            1,
+                            {
+                                name: "Players [0]",
+                                value: "- none -",
+                            }
+                        );
+                        const embeds = [
+                            EmbedBuilder.from(initialEmbed)
+                                .setFields(initialEmbed.fields)
+                                .setFooter({ text: "Game ended" }),
+                        ];
 
-                        // Deleting session
-                        session.destroy();
+                        // Defining new components for initial message
+                        const components = initialMessage.components.map(
+                            (oldMessageComponent) =>
+                                interaction.client.messageComponents
+                                    .find(
+                                        (messageComponent) =>
+                                            messageComponent.type ===
+                                                ComponentType.ActionRow &&
+                                            messageComponent.messageComponents.every(
+                                                (messageComponent) =>
+                                                    oldMessageComponent.components
+                                                        .map(
+                                                            (
+                                                                messageComponent
+                                                            ) =>
+                                                                messageComponent.customId
+                                                        )
+                                                        .includes(
+                                                            messageComponent
+                                                        )
+                                            )
+                                    )
+                                    .create(interaction, {
+                                        general: { disabled: true },
+                                    })
+                        );
+
+                        // Editing initial message
+                        initialMessage.edit({
+                            components,
+                            embeds,
+                        });
+
+                        // Checking if last message is initial message
+                        if (initialMessage.id !== message.id) {
+                            // Defining new components for last message
+                            components.splice(
+                                0,
+                                components.length,
+                                initialMessage.components.map(
+                                    (oldMessageComponent) =>
+                                        interaction.client.messageComponents
+                                            .find(
+                                                (messageComponent) =>
+                                                    messageComponent.type ===
+                                                        ComponentType.ActionRow &&
+                                                    messageComponent.messageComponents.every(
+                                                        (messageComponent) =>
+                                                            oldMessageComponent.components
+                                                                .map(
+                                                                    (
+                                                                        messageComponent
+                                                                    ) =>
+                                                                        messageComponent.customId
+                                                                )
+                                                                .includes(
+                                                                    messageComponent
+                                                                )
+                                                    )
+                                            )
+                                            .create(interaction, {
+                                                general: { disabled: true },
+                                            })
+                                )
+                            );
+
+                            // Editing last message
+                            message.edit({ components });
+                        }
 
                         // Replying to interaction
                         interaction.reply(
                             `${userMention(
-                                player.id
+                                interaction.user.id
                             )} has ended this game of Truth or Dare!`
                         );
+
+                        // Deleting session
+                        interaction.client.sessions.delete(sessionId);
                     }
                 } else {
                     // Replying to interaction

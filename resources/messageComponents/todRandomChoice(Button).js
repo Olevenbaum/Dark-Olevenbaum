@@ -98,22 +98,23 @@ module.exports = {
                         message.edit({ components });
 
                         // Replying to interaction
-                        components.splice(0, components.length);
-                        interaction.client.messageComponents
-                            .filter(
-                                (messageComponent) =>
-                                    (messageComponent.type ===
-                                        ComponentType.ActionRow &&
+                        components.splice(
+                            0,
+                            components.length,
+                            ...interaction.client.messageComponents
+                                .filter(
+                                    (messageComponent) =>
+                                        (messageComponent.type ===
+                                            ComponentType.ActionRow &&
+                                            messageComponent.name ===
+                                                "todPlayerManagement") ||
                                         messageComponent.name ===
-                                            "todPlayerManagement") ||
-                                    messageComponent.name ===
-                                        "todCustomOrRandom"
-                            )
-                            .every((messageComponent) => {
-                                components.push(
+                                            "todCustomOrRandom"
+                                )
+                                .map((messageComponent) =>
                                     messageComponent.create(interaction)
-                                );
-                            });
+                                )
+                        );
 
                         // Determining Truth or Dare
                         const tod = Math.random() < 0.5;

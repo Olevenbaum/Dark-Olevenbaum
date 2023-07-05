@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
+    // Setting message components type and name
     name: "todJoinSession",
     type: ComponentType.Button,
 
@@ -23,15 +23,14 @@ module.exports = {
 
     // Handling interaction
     async execute(interaction) {
-        // Searching for player or creating new player
-        const [player] =
-            await interaction.client.sequelize.models.player.findOrCreate({
-                default: { id: interaction.user.id },
-                where: { id: interaction.user.id },
+        // Searching for player or creating new one
+        if (!interaction.client.players.has(interaction.user.id)) {
+            interaction.client.players.set(interaction.user.id, {
+                sessionIds: {},
+                skips: null,
             });
-
-        // Searching for session of this player
-        let session = await player.getSession();
+        }
+        const player = interaction.client.players.get(interaction.user.id);
 
         // Reading message data
         const message = interaction.message;
@@ -43,77 +42,85 @@ module.exports = {
                 .footer.text.replace(/^\D+/g, "")
         );
 
+        // Searching for Truth Or Dare session of this player
+        const session = interaction.client.sessions.get(player.sessionIds.tod);
+
         // Checking if user is currently playing Truth or Dare
         if (session) {
-            if (session.id === sessionId) {
-                // Replying to interaction
-                interaction.reply({
-                    content: "You cannot join this game twice!",
-                    ephemeral: true,
-                });
-            } else {
-                // Replying to interaction
-                interaction.reply({
-                    content:
-                        "You cannot join this game since you already joined another one!",
-                    ephemeral: true,
-                });
-            }
+            // Replying to interaction
+            interaction.reply({
+                content: `You cannot join this game ${
+                    player.sessionIds.tod === sessionId
+                        ? "twice"
+                        : "since you already joined another one"
+                }!`,
+                ephemeral: true,
+            });
         } else {
-            // Searching for session
-            session =
-                await interaction.client.sequelize.models.session.findByPk(
-                    sessionId
-                );
-
-            // Adding player to session
-            session.addPlayer(player);
-
-            // Searching for players of session
-            const players = await session.getPlayers();
-
-            // Reading old embed
-            const initialEmbed = message.embeds.find((embed) =>
-                embed.fields.some((field) => field.name.startsWith("Players"))
-            );
-
-            // Editing initial message if the button belongs to it
-            if (initialEmbed) {
-                let playersString = "";
-                players.forEach(
-                    (player) =>
-                        (playersString += `\n- ${userMention(player.id)}`)
-                );
-                const embed = EmbedBuilder.from(initialEmbed).setFields(
-                    {
-                        name: `Players [${players.length}]:`,
-                        value: playersString,
-                    },
-                    {
-                        inline: true,
-                        name: "Rating:",
-                        value: `${session.rating}+`,
-                    },
-                    {
-                        inline: true,
-                        name: "Skips:",
-                        value: `${session.skips}`,
-                    }
-                );
-                message.edit({ embeds: [embed] });
-            }
+            // Searching for Truth Or Dare session this player wants to join
+            const session = interaction.client.sessions.get(sessionId);
 
             // Calculating skips based on average number of skips rounded down
             const skips = session.active
                 ? Math.floor(
-                      players.reduce((sum, player) => sum + player.skips) /
-                          players.length
+                      session.playerIds
+                          .map(
+                              (playerId) =>
+                                  interaction.client.players.get(playerId)
+                                      .todSkips
+                          )
+                          .reduce((partialSum, skips) => partialSum + skips) /
+                          session.playerIds.length
                   )
                 : session.skips;
-            player.update({ skips });
+            player.todSkips = skips;
+
+            // Adding player to session
+            session.playerIds.push(interaction.user.id);
+
+            // Searching for initial message
+            const initialMessage = await (
+                await interaction.client.channels.fetch(
+                    session.initialMessage.channelId
+                )
+            ).messages.fetch(session.initialMessage.messageId);
+
+            // Reading old embed of initial message
+            const initialEmbed = initialMessage.embeds.find((embed) =>
+                embed.fields.some((field) => field.name.startsWith("Players"))
+            );
+
+            // Defining new embed for initial message
+            let playersString = "";
+            session.playerIds.forEach(
+                (playerId) => (playersString += `\n- ${userMention(playerId)}`)
+            );
+            initialEmbed.fields.splice(
+                initialEmbed.fields.findIndex((field) =>
+                    field.name.toLowerCase().startsWith("Players")
+                ),
+                1,
+                {
+                    name: `Players [${session.playerIds.length}]`,
+                    value: playersString,
+                }
+            );
+            const embeds = [
+                EmbedBuilder.from(initialEmbed).setFields(initialEmbed.fields),
+            ];
+
+            initialMessage.edit({
+                embeds,
+            });
 
             // Replying to interaction
-            interaction.reply(`${userMention(player.id)} joined the game!`);
+            interaction.reply(
+                `${userMention(interaction.user.id)} joined the game!`
+            );
+
+            // Updating player and session in client
+            interaction.client.sessions.set(sessionId, session);
+            interaction.client.sessions.set(interaction.user.id, player);
         }
     },
 };

@@ -2,7 +2,8 @@
 const { ActionRowBuilder, ComponentType } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
+    // Setting message components components, type and name
+    messageComponents: ["todCustomTruthOrDare", "todRandomTruthOrDare"],
     name: "todCustomOrRandom",
     type: ComponentType.ActionRow,
 
@@ -13,8 +14,7 @@ module.exports = {
                 .filter(
                     (messageComponent) =>
                         messageComponent.type === ComponentType.Button &&
-                        (messageComponent.name === "todCustomTruthOrDare" ||
-                            messageComponent.name === "todRandomTruthOrDare")
+                        this.messageComponents.includes(messageComponent.name)
                 )
                 .map((messageComponent) =>
                     messageComponent.create(interaction, {

@@ -7,7 +7,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
+    // Setting message components type and name
     name: "todCustomTruthOrDare",
     type: ComponentType.Button,
 
@@ -161,20 +161,21 @@ module.exports = {
                         message.edit({ components });
 
                         // Replying to interaction
-                        components.splice(0, components.length);
-                        interaction.client.messageComponents
-                            .filter(
-                                (messageComponent) =>
-                                    (messageComponent.type ===
-                                        ComponentType.ActionRow &&
+                        components.splice(
+                            0,
+                            components.length,
+                            ...interaction.client.messageComponents
+                                .filter(
+                                    (messageComponent) =>
+                                        (messageComponent.type ===
+                                            ComponentType.ActionRow &&
+                                            messageComponent.name ===
+                                                "todPlayerManagement") ||
                                         messageComponent.name ===
-                                            "todPlayerManagement") ||
-                                    messageComponent.name ===
-                                        "todCustomOrRandom" ||
-                                    messageComponent.name === "todNextRound"
-                            )
-                            .every((messageComponent) => {
-                                components.push(
+                                            "todCustomOrRandom" ||
+                                        messageComponent.name === "todNextRound"
+                                )
+                                .map((messageComponent) =>
                                     messageComponent.create(interaction, {
                                         todRandomTruthOrDare:
                                             messageComponent.name ===
@@ -186,8 +187,8 @@ module.exports = {
                                                   }
                                                 : null,
                                     })
-                                );
-                            });
+                                )
+                        );
 
                         const embeds = [
                             EmbedBuilder.from(
