@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
+    // Setting message component name and type
     name: "todTruthChoice",
     type: ComponentType.Button,
 

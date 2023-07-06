@@ -26,19 +26,19 @@ module.exports = {
         // Searching for player
         const player = interaction.client.players.get(interaction.user.id);
 
-        // Checking if user ever played any game
+        // Checking if player ever played any game
         if (player) {
             // Searching for Truth Or Dare session of this player
             const session = interaction.client.sessions.get(
                 player.sessionIds.tod
             );
 
-            // Checking if user is currently playing Truth or Dare
+            // Checking if player is currently playing Truth or Dare
             if (session) {
-                // Reading old message
-                const message = interaction.message;
+                // Reading last message
+                const { message } = interaction;
 
-                // Searching embed for session ID
+                // Searching embed of last message for session ID
                 const sessionId = parseInt(
                     message.embeds
                         .find((embed) =>
@@ -47,12 +47,12 @@ module.exports = {
                         .footer.text.replace(/^\D+/g, "")
                 );
 
-                // Checking if user is playing Truth or Dare in this session
+                // Checking if player is playing Truth or Dare in this session
                 if (player.sessionIds.tod === sessionId) {
-                    // Searching for Truth Or Dare this player wants to end
+                    // Searching for Truth Or Dare session this player wants to end
                     const session = interaction.client.sessions.get(sessionId);
 
-                    // Checking if player has to answer a question at the moment
+                    // Checking if player is answerer
                     if (
                         session.active &&
                         interaction.user.id === session.answererId &&
@@ -82,107 +82,113 @@ module.exports = {
                             )
                         ).messages.fetch(session.initialMessage.messageId);
 
-                        // Reading old embed of initial message
-                        const initialEmbed = initialMessage.embeds.find(
-                            (embed) =>
-                                embed.fields.some((field) =>
-                                    field.name.startsWith("Players")
-                                )
-                        );
-
                         // Defining new embed for initial message
-                        initialEmbed.fields.splice(
-                            initialEmbed.fields.findIndex((field) =>
+                        const embeds = initialMessage.embeds.map((embed) =>
+                            embed.fields.some((field) =>
                                 field.name.startsWith("Players")
-                            ),
-                            1,
-                            {
-                                name: "Players [0]",
-                                value: "- none -",
-                            }
+                            )
+                                ? EmbedBuilder.from(embed)
+                                      .setFields(
+                                          embed.fields.with(
+                                              embed.fields.findIndex((field) =>
+                                                  field.name.startsWith(
+                                                      "Players"
+                                                  )
+                                              ),
+                                              {
+                                                  name: "Players [0]",
+                                                  value: "- none",
+                                              }
+                                          )
+                                      )
+                                      .setFooter({ text: "Game ended" })
+                                : EmbedBuilder.from(embed)
                         );
-                        const embeds = [
-                            EmbedBuilder.from(initialEmbed)
-                                .setFields(initialEmbed.fields)
-                                .setFooter({ text: "Game ended" }),
-                        ];
-
-                        // Defining new components for initial message
-                        const components = initialMessage.components.map(
-                            (oldMessageComponent) =>
-                                interaction.client.messageComponents
-                                    .find(
-                                        (messageComponent) =>
-                                            messageComponent.type ===
-                                                ComponentType.ActionRow &&
-                                            messageComponent.messageComponents.every(
-                                                (messageComponent) =>
-                                                    oldMessageComponent.components
-                                                        .map(
-                                                            (
-                                                                messageComponent
-                                                            ) =>
-                                                                messageComponent.customId
-                                                        )
-                                                        .includes(
-                                                            messageComponent
-                                                        )
-                                            )
-                                    )
-                                    .create(interaction, {
-                                        general: { disabled: true },
-                                    })
-                        );
-
-                        // Editing initial message
-                        initialMessage.edit({
-                            components,
-                            embeds,
-                        });
 
                         // Checking if last message is initial message
-                        if (initialMessage.id !== message.id) {
-                            // Defining new components for last message
-                            components.splice(
-                                0,
-                                components.length,
-                                initialMessage.components.map(
-                                    (oldMessageComponent) =>
-                                        interaction.client.messageComponents
-                                            .find(
-                                                (messageComponent) =>
-                                                    messageComponent.type ===
-                                                        ComponentType.ActionRow &&
-                                                    messageComponent.messageComponents.every(
-                                                        (messageComponent) =>
-                                                            oldMessageComponent.components
-                                                                .map(
-                                                                    (
-                                                                        messageComponent
-                                                                    ) =>
-                                                                        messageComponent.customId
-                                                                )
-                                                                .includes(
-                                                                    messageComponent
-                                                                )
-                                                    )
+                        if (message.id === initialMessage.id) {
+                            // Defining new components for initial message
+                            const components = initialMessage.components.map(
+                                (actionRow) =>
+                                    interaction.client.messageComponents
+                                        .filter(
+                                            (savedMessageComponent) =>
+                                                savedMessageComponent.type ===
+                                                ComponentType.ActionRow
+                                        )
+                                        .find((savedMessageComponent) =>
+                                            savedMessageComponent.messageComponents.every(
+                                                (savedButton) =>
+                                                    actionRow.components
+                                                        .map(
+                                                            (button) =>
+                                                                button.customId
+                                                        )
+                                                        .includes(savedButton)
                                             )
-                                            .create(interaction, {
-                                                general: { disabled: true },
-                                            })
-                                )
+                                        )
+                                        .create(interaction, {
+                                            general: { disabled: true },
+                                        })
                             );
 
-                            // Editing last message
-                            message.edit({ components });
-                        }
+                            // Updating initial message
+                            await interaction.update({ components, embeds });
 
-                        // Replying to interaction
-                        interaction.reply(
-                            `${userMention(
-                                interaction.user.id
-                            )} has ended this game of Truth or Dare!`
-                        );
+                            // Sending follow up message
+                            interaction.followUp(
+                                `${userMention(
+                                    interaction.user.id
+                                )} has ended this game of Truth or Dare!`
+                            );
+                        } else {
+                            // Defining new components for last message
+                            const components = message.components.map(
+                                (actionRow) =>
+                                    interaction.client.messageComponents
+                                        .filter(
+                                            (savedMessageComponent) =>
+                                                savedMessageComponent.type ===
+                                                ComponentType.ActionRow
+                                        )
+                                        .find((savedMessageComponent) =>
+                                            savedMessageComponent.messageComponents.every(
+                                                (savedButton) =>
+                                                    actionRow.components
+                                                        .map(
+                                                            (button) =>
+                                                                button.customId
+                                                        )
+                                                        .includes(savedButton)
+                                            )
+                                        )
+                                        .create(interaction, {
+                                            general: { disabled: true },
+                                            todStartSession: {
+                                                style: session.active
+                                                    ? ButtonStyle.Success
+                                                    : null,
+                                            },
+                                        })
+                            );
+
+                            // Editing initial message
+                            initialMessage.edit({
+                                embeds,
+                            });
+
+                            // Updating last message
+                            await interaction.update({
+                                components,
+                            });
+
+                            // Replying to interaction
+                            interaction.followUp(
+                                `${userMention(
+                                    interaction.user.id
+                                )} has ended this game of Truth or Dare!`
+                            );
+                        }
 
                         // Deleting session
                         interaction.client.sessions.delete(sessionId);

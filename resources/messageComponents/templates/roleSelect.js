@@ -2,7 +2,7 @@
 const { ComponentType, RoleSelectMenuBuilder } = require("discord.js");
 
 module.exports = {
-    // Setting message components type and name
+    // Setting message components name and type
     name: "",
     type: ComponentType.RoleSelect,
 

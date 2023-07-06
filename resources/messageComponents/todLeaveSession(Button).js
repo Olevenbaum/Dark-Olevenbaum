@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting message components type and name
+    // Setting message components name and type
     name: "todLeaveSession",
     type: ComponentType.Button,
 
@@ -26,17 +26,19 @@ module.exports = {
         // Searching for player
         const player = interaction.client.players.get(interaction.user.id);
 
-        // Checking if user ever played any game
+        // Checking if player ever played any game
         if (player) {
-            // Searching for session of this player
-            const session = interaction.client.sessions.get(player.sessionId);
+            // Searching for Truth or Dare session of this player
+            const session = interaction.client.sessions.get(
+                player.sessionIds.tod
+            );
 
-            // Checking if user is currently playing Truth or Dare
+            // Checking if player is currently playing Truth or Dare
             if (session) {
-                // Reading message data
+                // Reading last message
                 const message = interaction.message;
 
-                // Searching embed for session ID
+                // Searching embed of last message for session ID
                 const sessionId = parseInt(
                     message.embeds
                         .find((embed) =>
@@ -45,9 +47,9 @@ module.exports = {
                         .footer.text.replace(/^\D+/g, "")
                 );
 
-                // Checking if user is playing Truth or Dare in this session
+                // Checking if player is playing Truth or Dare in this session
                 if (player.sessionIds.tod === sessionId) {
-                    // Checking if player has to ask or answer a question at the moment
+                    // Checking if player is answerer or questioner
                     if (
                         session.active &&
                         session.answererId === interaction.user.id
@@ -73,65 +75,193 @@ module.exports = {
                     } else {
                         // Removing skips from player and player from session
                         player.todSkips = null;
-                        session.players;
+                        player.sessionIds.tod = null;
+                        session.playerIds.splice(
+                            session.playerIds.indexOf(interaction.user.id),
+                            1
+                        );
 
-                        // Searching for players of session
-                        const players = await session.getPlayers();
+                        // Searching for initial message
+                        const initialMessage = await (
+                            await interaction.client.channels.fetch(
+                                session.initialMessage.channelId
+                            )
+                        ).messages.fetch(session.initialMessage.messageId);
 
-                        // Reading old embed
-                        const initialEmbed = message.embeds.find((embed) =>
+                        // Defining new embed for initial message
+                        let playersString = "";
+                        session.playerIds.forEach(
+                            (playerId) =>
+                                (playersString += `\n- ${userMention(
+                                    playerId
+                                )}`)
+                        );
+                        const embeds = initialMessage.embeds.map((embed) =>
                             embed.fields.some((field) =>
                                 field.name.startsWith("Players")
                             )
+                                ? EmbedBuilder.from(embed)
+                                      .setFields(
+                                          embed.fields.with(
+                                              embed.fields.findIndex((field) =>
+                                                  field.name.startsWith(
+                                                      "Players"
+                                                  )
+                                              ),
+                                              {
+                                                  name: "Players [0]",
+                                                  value:
+                                                      session.playerIds
+                                                          .length === 0
+                                                          ? "- none"
+                                                          : playersString,
+                                              }
+                                          )
+                                      )
+                                      .setFooter({
+                                          text:
+                                              session.playerIds.length === 0
+                                                  ? "Game ended"
+                                                  : embed.footer.text,
+                                      })
+                                : EmbedBuilder.from(embed)
                         );
 
-                        // Editing initial message if the button belongs to it
-                        if (initialEmbed) {
-                            let playersString = "";
-                            if (players.length === 0) {
-                                playersString = "- none -";
-                            } else {
-                                players.forEach(
-                                    (player) =>
-                                        (playersString += `\n- ${userMention(
-                                            player.id
-                                        )}`)
+                        // Reading components of initial message
+                        const { components } = initialMessage;
+
+                        // Checking if last message is initial message
+                        if (message.id === initialMessage.id) {
+                            // Checking if there are enough players left for playing
+                            if (session.playerIds.length === 0) {
+                                // Defining new components for initial message
+                                components.splice(
+                                    0,
+                                    components.length,
+                                    ...components.map((actionRow) =>
+                                        interaction.client.messageComponents
+                                            .filter(
+                                                (savedMessageComponent) =>
+                                                    savedMessageComponent.type ===
+                                                    ComponentType.ActionRow
+                                            )
+                                            .find((savedMessageComponent) =>
+                                                savedMessageComponent.messageComponents.every(
+                                                    (savedButton) =>
+                                                        actionRow.components
+                                                            .map(
+                                                                (button) =>
+                                                                    button.customId
+                                                            )
+                                                            .includes(
+                                                                savedButton
+                                                            )
+                                                )
+                                            )
+                                            .create(interaction, {
+                                                general: { disabled: true },
+                                            })
+                                    )
                                 );
                             }
-                            const embed = EmbedBuilder.from(
-                                initialEmbed
-                            ).setFields(
-                                {
-                                    name: `Players [${players.length}]:`,
-                                    value: playersString,
-                                },
-                                {
-                                    inline: true,
-                                    name: "Rating:",
-                                    value: `${session.rating}+`,
-                                },
-                                {
-                                    inline: true,
-                                    name: "Skips:",
-                                    value: `${session.skips}`,
-                                }
+
+                            // Updating initial message
+                            await interaction.update({ components, embeds });
+
+                            // Sending follow up message
+                            interaction.followUp(
+                                `${userMention(
+                                    interaction.user.id
+                                )} has left the game${
+                                    session.playerIds.length === 0
+                                        ? " and thereby ended it"
+                                        : ""
+                                }!`
                             );
-                            message.edit({ embeds: [embed] });
+                        } else {
+                            // Checking if there are enough players left for playing
+                            if (session.playerIds.length === 0) {
+                                // Defining new components for last message
+                                components.splice(
+                                    0,
+                                    components.length,
+                                    ...message.components.map((actionRow) =>
+                                        interaction.client.messageComponents
+                                            .filter(
+                                                (savedMessageComponent) =>
+                                                    savedMessageComponent.type ===
+                                                    ComponentType.ActionRow
+                                            )
+                                            .find((savedMessageComponent) =>
+                                                savedMessageComponent.messageComponents.every(
+                                                    (savedButton) =>
+                                                        actionRow.components
+                                                            .map(
+                                                                (button) =>
+                                                                    button.customId
+                                                            )
+                                                            .includes(
+                                                                savedButton
+                                                            )
+                                                )
+                                            )
+                                            .create(interaction, {
+                                                general: { disabled: true },
+                                                todStartSession: {
+                                                    style: session.active
+                                                        ? ButtonStyle.Success
+                                                        : null,
+                                                },
+                                            })
+                                    )
+                                );
+
+                                // Updating last message
+                                await interaction.update({
+                                    components,
+                                });
+
+                                // Sending follow up message
+                                interaction.followUp(
+                                    `${userMention(
+                                        interaction.user.id
+                                    )} has left the game${
+                                        session.playerIds.length === 0
+                                            ? " and thereby ended it"
+                                            : ""
+                                    }!`
+                                );
+                            } else {
+                                interaction.reply(
+                                    `${userMention(
+                                        interaction.user.id
+                                    )} has left the game${
+                                        session.playerIds.length === 0
+                                            ? " and thereby ended it"
+                                            : ""
+                                    }!`
+                                );
+                            }
+
+                            // Editing initial message
+                            initialMessage.edit({
+                                embeds,
+                            });
                         }
 
-                        // Deleting session and removing buttons if there are not enough players left
-                        if (players.length === 0) {
-                            session.destroy();
-                            message.edit({ components: [] });
+                        // Checking if there are enough players left
+                        if (session.playerIds.length === 0) {
+                            // Deleting session
+                            interaction.client.sessions.delete(sessionId);
+                        } else {
+                            // Updating session in client
+                            interaction.client.sessions.set(sessionId, session);
                         }
 
-                        // Replying to interaction
-                        interaction.reply(
-                            `${userMention(player.id)} has left the game${
-                                players.length === 0
-                                    ? " and thereby ended it"
-                                    : ""
-                            }!`
+                        // Updating player in client
+                        interaction.client.players.set(
+                            interaction.user.id,
+                            player
                         );
                     }
                 } else {

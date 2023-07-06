@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
+    // Setting interaction name and type
     name: "todRandomChoice",
     type: ComponentType.Button,
 

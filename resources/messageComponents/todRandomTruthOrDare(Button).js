@@ -8,7 +8,7 @@ const {
 const { Op } = require("sequelize");
 
 module.exports = {
-    // Setting interaction type and name
+    // Setting message component name and type
     name: "todRandomTruthOrDare",
     type: ComponentType.Button,
 

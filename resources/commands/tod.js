@@ -49,13 +49,10 @@ module.exports = {
         const player = interaction.client.players.get(interaction.user.id);
 
         // Checking if player already joined another session of Truth or Dare
-        if (player.sessionIds.tod) {
-            interaction.reply({
-                content:
-                    "You already joined another game of Truth or Dare, finish your current game to start another!",
-                ephemeral: true,
-            });
-        } else {
+        if (
+            player.sessionIds.tod === undefined ||
+            player.sessionIds.tod === null
+        ) {
             // Reading options values
             const rating = interaction.options.getInteger("rating") ?? 0;
             const skips = interaction.options.getInteger("skips") ?? 0;
@@ -91,12 +88,13 @@ module.exports = {
             // Defining reply message components
             const components = interaction.client.messageComponents
                 .filter(
-                    (messageComponent) =>
-                        messageComponent.type === ComponentType.ActionRow &&
-                        messageComponent.name === "todManagement"
+                    (savedMessageComponent) =>
+                        savedMessageComponent.type ===
+                            ComponentType.ActionRow &&
+                        savedMessageComponent.name === "todManagement"
                 )
-                .map((messageComponent) =>
-                    messageComponent.create(interaction)
+                .map((savedMessageComponent) =>
+                    savedMessageComponent.create(interaction)
                 );
 
             // Defining reply message embed
@@ -139,6 +137,12 @@ module.exports = {
             // Updating player and session in client
             interaction.client.sessions.set(sessionId, session);
             interaction.client.players.set(interaction.user.id, player);
+        } else {
+            interaction.reply({
+                content:
+                    "You already joined another game of Truth or Dare, finish your current game to start another!",
+                ephemeral: true,
+            });
         }
     },
 };

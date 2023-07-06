@@ -14,7 +14,7 @@ const {
 } = require("../configuration.json");
 
 // Defining method for rotating arrays
-Array.prototype.rotate = function (counter, reverse) {
+Array.prototype.rotate = function (counter = 1, reverse = false) {
     counter %= this.length;
     if (reverse) {
         this.push(...this.splice(0, this.length - counter));

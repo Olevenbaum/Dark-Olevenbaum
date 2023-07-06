@@ -2,7 +2,7 @@
 const { ActionRowBuilder, ComponentType } = require("discord.js");
 
 module.exports = {
-    // Setting message components components, type and name
+    // Setting message components components, name and type
     messageComponents: ["todCustomTruthOrDare", "todRandomTruthOrDare"],
     name: "todCustomOrRandom",
     type: ComponentType.ActionRow,

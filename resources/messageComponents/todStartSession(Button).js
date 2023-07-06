@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
+    // Setting message components name and type
     name: "todStartSession",
     type: ComponentType.Button,
 
@@ -24,23 +24,21 @@ module.exports = {
     // Handling interaction
     async execute(interaction) {
         // Searching for player
-        const player = await interaction.client.sequelize.models.player.findOne(
-            {
-                where: { id: interaction.user.id },
-            }
-        );
+        const player = interaction.client.players.get(interaction.user.id);
 
-        // Checking if user ever played Truth or Dare
+        // Checking if player ever played any game
         if (player) {
-            // Searching for session of this player
-            const session = await player.getSession();
+            // Searching for Truth or Dare session of this player
+            const session = interaction.client.sessions.get(
+                player.sessionIds.tod
+            );
 
-            // Checking if user is currently playing Truth or Dare
+            // Checking if player is currently playing Truth or Dare
             if (session) {
-                // Reading message data
+                // Reading last message
                 const message = interaction.message;
 
-                // Searching embed for session ID
+                // Searching embed of last message for session ID
                 const sessionId = parseInt(
                     message.embeds
                         .find((embed) =>
@@ -49,119 +47,121 @@ module.exports = {
                         .footer.text.replace(/^\D+/g, "")
                 );
 
-                // Checking if user is playing Truth or Dare in this session
-                if (session.id === sessionId) {
-                    const players = await session.getPlayers();
-
-                    // Checking if session already started
-                    if (session.active) {
+                // Checking if player is playing Truth or Dare in this session
+                if (player.sessionIds.tod === sessionId) {
+                    // Checking if there are enough players to start the game
+                    if (session.playerIds.length <= 1) {
                         // Replying to interaction
                         interaction.reply({
-                            content: "This game already was started!",
+                            content:
+                                "There are not enough players to start a game! You need at least one more player!",
                             ephemeral: true,
                         });
                     } else {
-                        // Checking if there are enough players to start a game
-                        if (players.length <= 1) {
-                            // Replying to interaction
-                            interaction.reply({
-                                content:
-                                    "There are not enough players to start a game! You need at least one more player!",
-                                ephemeral: true,
-                            });
-                        } else {
-                            // Determining questioner and answerer
-                            let questioner =
-                                players[
-                                    Math.floor(Math.random() * players.length)
-                                ];
-                            let answerer = players.filter(
-                                (player) => player.id !== questioner.id
-                            )[Math.floor(Math.random() * (players.length - 1))];
-                            await Promise.all([
-                                session.setQuestioner(questioner),
-                                session.setAnswerer(answerer),
+                        // Determining questioner and answerer
+                        session.answererId =
+                            session.playerIds[
+                                Math.floor(
+                                    Math.random() * session.playerIds.length
+                                )
+                            ];
+                        session.questionerId = session.playerIds.filter(
+                            (playerId) => playerId !== session.answererId
+                        )[
+                            Math.floor(
+                                Math.random() * (session.playerIds.length - 1)
+                            )
+                        ];
 
-                                // Activating session
-                                session.update({ active: true }),
-                            ]);
+                        // Updating session status
+                        session.active = true;
 
-                            // Reading message components
-                            const components = message.components;
+                        // Searching for initial message
+                        const initialMessage = await (
+                            await interaction.client.channels.fetch(
+                                session.initialMessage.channelId
+                            )
+                        ).messages.fetch(session.initialMessage.messageId);
 
-                            // Editing old message
-                            components.splice(
-                                message.components.findIndex(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
-                                            ComponentType.ActionRow &&
-                                        messageComponent.components.some(
-                                            (messageComponent) =>
-                                                messageComponent.type ===
-                                                    ComponentType.Button &&
-                                                messageComponent.customId ===
-                                                    "todStartSession"
-                                        )
-                                ),
-                                1,
+                        // Defining new components for initial message
+                        const components = initialMessage.components.map(
+                            (actionRow) =>
                                 interaction.client.messageComponents
-                                    .find(
-                                        (messageComponent) =>
-                                            messageComponent.type ===
-                                                ComponentType.ActionRow &&
-                                            messageComponent.name ===
-                                                "todSessionManagement"
+                                    .filter(
+                                        (savedMessageComponent) =>
+                                            savedMessageComponent.type ===
+                                            ComponentType.ActionRow
+                                    )
+                                    .find((savedMessageComponent) =>
+                                        savedMessageComponent.messageComponents.every(
+                                            (savedButton) =>
+                                                actionRow.components
+                                                    .map(
+                                                        (button) =>
+                                                            button.customId
+                                                    )
+                                                    .includes(savedButton)
+                                        )
                                     )
                                     .create(interaction, {
+                                        general: { disabled: true },
                                         todStartSession: {
-                                            disabled: true,
                                             style: ButtonStyle.Success,
                                         },
                                     })
-                            );
+                        );
 
-                            message.edit({ components });
+                        // Updating initial message
+                        await interaction.update({ components });
 
-                            // Defining reply message content
-                            components.splice(
-                                0,
-                                components.length,
-                                ...interaction.client.messageComponents
-                                    .filter(
-                                        (messageComponent) =>
-                                            messageComponent.type ===
-                                                ComponentType.ActionRow &&
-                                            (messageComponent.name ===
-                                                "todPlayerManagement" ||
-                                                messageComponent.name ===
-                                                    "todChoices")
-                                    )
-                                    .map((messageComponent) =>
-                                        messageComponent.create(interaction)
-                                    )
-                            );
-
-                            const embeds = [
-                                EmbedBuilder.from(
-                                    message.embeds.find((embed) =>
-                                        embed.footer.text.startsWith(
-                                            "Session ID:"
-                                        )
-                                    )
+                        // Defining components for followup message
+                        components.splice(
+                            0,
+                            components.length,
+                            ...interaction.client.messageComponents
+                                .filter(
+                                    (messageComponent) =>
+                                        messageComponent.type ===
+                                            ComponentType.ActionRow &&
+                                        (messageComponent.name ===
+                                            "todChoices" ||
+                                            messageComponent.name ===
+                                                "todManagement")
                                 )
-                                    .setDescription(
-                                        `${userMention(
-                                            questioner.id
-                                        )} says in a threatening voice: Truth or Dare, ${userMention(
-                                            answerer.id
-                                        )}?`
-                                    )
-                                    .setFields(),
-                            ];
+                                .map((messageComponent) =>
+                                    messageComponent.create(interaction, {
+                                        todStartSession: {
+                                            disabled: true,
+                                            style: session.active
+                                                ? ButtonStyle.Success
+                                                : null,
+                                        },
+                                    })
+                                )
+                        );
 
-                            // Replying to interaction
-                            interaction.reply({ components, embeds });
-                        }
+                        // Defining new embed for follow up message
+                        const embeds = [
+                            EmbedBuilder.from(
+                                message.embeds.find((embed) =>
+                                    embed.footer.text.startsWith("Session ID:")
+                                )
+                            )
+                                .setDescription(
+                                    `${userMention(
+                                        session.questionerId
+                                    )} says in a threatening voice: Truth or Dare, ${userMention(
+                                        session.answererId
+                                    )}?`
+                                )
+                                .setFields(),
+                        ];
+
+                        // Sending follow up message
+                        interaction.followUp({ components, embeds });
+
+                        // Updating session in client
+                        interaction.client.sessions.set(sessionId, session);
                     }
                 } else {
                     // Replying to interaction

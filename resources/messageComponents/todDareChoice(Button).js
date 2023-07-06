@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting message components type and name
+    // Setting message components name and type
     name: "todDareChoice",
     type: ComponentType.Button,
 
@@ -24,23 +24,21 @@ module.exports = {
     // Handling interaction
     async execute(interaction) {
         // Searching for player
-        const player = await interaction.client.sequelize.models.player.findOne(
-            {
-                where: { id: interaction.user.id },
-            }
-        );
+        const player = interaction.client.players.get(interaction.user.id);
 
-        // Checking if user ever played Truth or Dare
+        // Checking if player ever played any game
         if (player) {
-            // Searching for session of this player
-            const session = await player.getSession();
+            // Searching for Truth or Dare session of this player
+            const session = interaction.client.sessions.get(
+                player.sessionIds.tod
+            );
 
-            // Checking if user is currently playing Truth or Dare
+            // Checking if player is currently playing Truth or Dare
             if (session) {
-                // Reading message data
-                const message = interaction.message;
+                // Reading last message
+                const { message } = interaction;
 
-                // Searching embed for session ID
+                // Searching embed of last message for session ID
                 const sessionId = parseInt(
                     message.embeds
                         .find((embed) =>
@@ -49,70 +47,68 @@ module.exports = {
                         .footer.text.replace(/^\D+/g, "")
                 );
 
-                // Checking if user is playing Truth or Dare in this session
-                if (session.id === sessionId) {
-                    // Searching for answerer and questioner
-                    const answerer = await session.getAnswerer();
-                    const questioner = await session.getQuestioner();
-
-                    const user = await interaction.client.users.fetch(
-                        answerer.id
-                    );
-
+                // Checking if player is playing Truth or Dare in this session
+                if (player.sessionIds.tod === sessionId) {
                     // Checking if player is answerer
-                    if (player.id === user.id) {
-                        // Reading message components
-                        const components = message.components;
-
-                        // Editing old message
-                        components.splice(
-                            components.findIndex((messageComponent) =>
-                                messageComponent.components.some(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
-                                            ComponentType.Button &&
-                                        (messageComponent.customId ===
-                                            "todDareChoice" ||
-                                            messageComponent.customId ===
-                                                "todRandomChoice" ||
-                                            messageComponent.customId ===
-                                                "todTruthChoice")
-                                )
-                            ),
-                            1,
-                            interaction.client.messageComponents
-                                .find(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
-                                            ComponentType.ActionRow &&
-                                        messageComponent.name === "todChoices"
-                                )
-                                .create(interaction, {
-                                    general: { disabled: true },
-                                    todDareChoice: {
-                                        style: ButtonStyle.Success,
-                                    },
-                                })
+                    if (interaction.user.id === session.answererId) {
+                        // Defining new components for last message
+                        const components = message.components.map(
+                            (oldMessageComponent) =>
+                                interaction.client.messageComponents
+                                    .find(
+                                        (messageComponent) =>
+                                            messageComponent.type ===
+                                                ComponentType.ActionRow &&
+                                            messageComponent.messageComponents.every(
+                                                (messageComponent) =>
+                                                    oldMessageComponent.components
+                                                        .map(
+                                                            (
+                                                                messageComponent
+                                                            ) =>
+                                                                messageComponent.customId
+                                                        )
+                                                        .includes(
+                                                            messageComponent
+                                                        )
+                                            )
+                                    )
+                                    .create(interaction, {
+                                        general: { disabled: true },
+                                        todEndSession: { disabled: false },
+                                        todJoinSession: { disabled: false },
+                                        todLeaveSession: { disabled: false },
+                                        todStartSession: {
+                                            style: session.active
+                                                ? ButtonStyle.Success
+                                                : null,
+                                        },
+                                    })
                         );
 
-                        message.edit({ components });
+                        // Updating last message
+                        await interaction.update({ components });
 
-                        // Replying to interaction
+                        // Defining new components for follow up message
                         components.splice(
                             0,
                             components.length,
                             ...interaction.client.messageComponents
                                 .filter(
                                     (messageComponent) =>
-                                        (messageComponent.type ===
+                                        messageComponent.type ===
                                             ComponentType.ActionRow &&
+                                        (messageComponent.name ===
+                                            "todCustomOrRandom" ||
                                             messageComponent.name ===
-                                                "todPlayerManagement") ||
-                                        messageComponent.name ===
-                                            "todCustomOrRandom"
+                                                "todManagement")
                                 )
                                 .map((messageComponent) =>
-                                    messageComponent.create(interaction)
+                                    messageComponent.create(interaction, {
+                                        todStartSession: {
+                                            style: ButtonStyle.Success,
+                                        },
+                                    })
                                 )
                         );
 
@@ -125,19 +121,26 @@ module.exports = {
                                 .setTitle("Dare")
                                 .setDescription(
                                     `${userMention(
-                                        questioner.id
+                                        session.questionerId
                                     )}, do you want to dare ${userMention(
-                                        user.id
+                                        session.answererId
                                     )} to do a custom or a random task?`
-                                ),
+                                )
+                                .setFields(),
                         ];
 
-                        interaction.reply({ components, embeds });
+                        interaction.followUp({ components, embeds });
                     } else {
                         // Replying to interaction
                         interaction.reply({
-                            content: `It is ${userMention(user.id)}'${
-                                user.username.toLowerCase().endsWith("s")
+                            content: `It is ${userMention(answererId)}'${
+                                (
+                                    await interaction.guild.members.fetch(
+                                        answererId
+                                    )
+                                ).nickname
+                                    .toLowerCase()
+                                    .endsWith("s")
                                     ? ""
                                     : "s"
                             } turn, be patient and wait for your turn!`,
