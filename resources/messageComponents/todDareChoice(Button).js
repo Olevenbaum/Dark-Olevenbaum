@@ -73,7 +73,7 @@ module.exports = {
                                     )
                             )
                             .with(
-                                message.components.find((actionRow) =>
+                                message.components.findIndex((actionRow) =>
                                     interaction.client.messageComponents
                                         .filter(
                                             (savedMessageComponent) =>
@@ -155,8 +155,7 @@ module.exports = {
                                         session.answererId
                                     )} to do a custom or a random task?`
                                 )
-                                .setFields()
-                                .setAuthor(null),
+                                .setFields(),
                         ];
 
                         // Sending follow up message

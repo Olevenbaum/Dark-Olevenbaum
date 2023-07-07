@@ -59,12 +59,9 @@ module.exports = {
                         });
                     } else {
                         // Determining questioner and answerer
-                        session.answererId =
-                            session.playerIds[
-                                Math.floor(
-                                    Math.random() * session.playerIds.length
-                                )
-                            ];
+                        session.answererId = session.playerIds.at(
+                            Math.floor(Math.random() * session.playerIds.length)
+                        );
                         session.questionerId = session.playerIds.filter(
                             (playerId) => playerId !== session.answererId
                         )[
@@ -116,7 +113,7 @@ module.exports = {
                         // Updating initial message
                         await interaction.update({ components });
 
-                        // Defining components for followup message
+                        // Defining components for follow up message
                         components.splice(
                             0,
                             components.length,

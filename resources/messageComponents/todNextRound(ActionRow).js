@@ -3,7 +3,7 @@ const { ActionRowBuilder, ComponentType } = require("discord.js");
 
 module.exports = {
     // Setting message components components, name and type
-    messageComponents: [],
+    messageComponents: ["todConfirm", "todSkip"],
     name: "todNextRound",
     type: ComponentType.ActionRow,
 

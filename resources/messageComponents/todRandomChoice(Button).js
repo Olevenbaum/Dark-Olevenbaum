@@ -73,7 +73,7 @@ module.exports = {
                                     )
                             )
                             .with(
-                                message.components.find((actionRow) =>
+                                message.components.findIndex((actionRow) =>
                                     interaction.client.messageComponents
                                         .filter(
                                             (savedMessageComponent) =>
@@ -166,8 +166,7 @@ module.exports = {
                                         tod ? "task" : "question"
                                     }?`
                                 )
-                                .setFields()
-                                .setAuthor(null),
+                                .setFields(),
                         ];
 
                         // Sending follow up message

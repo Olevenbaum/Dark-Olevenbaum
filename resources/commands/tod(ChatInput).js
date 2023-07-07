@@ -61,7 +61,6 @@ module.exports = {
             const session = {
                 active: false,
                 answererId: null,
-                confirmed: null,
                 initialMessage: {
                     channelId: interaction.channelId,
                     messageId: null,

@@ -1,5 +1,5 @@
 // Importing classes and methods
-const { ButtonBuilder, ComponentType, ButtonStyle } = require("discord.js");
+const { ButtonBuilder, ButtonStyle, ComponentType } = require("discord.js");
 
 module.exports = {
     // Setting message components name and type

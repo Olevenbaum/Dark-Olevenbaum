@@ -70,7 +70,7 @@ module.exports = {
                                 )
                             )
                             .with(
-                                message.components.find((actionRow) =>
+                                message.components.findIndex((actionRow) =>
                                     interaction.client.messageComponents
                                         .filter(
                                             (savedMessageComponent) =>
@@ -152,8 +152,7 @@ module.exports = {
                                         interaction.user.id
                                     )} a custom or a random question?`
                                 )
-                                .setFields()
-                                .setAuthor(null),
+                                .setFields(),
                         ];
 
                         interaction.followUp({ components, embeds });
