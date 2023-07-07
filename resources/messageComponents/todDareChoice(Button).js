@@ -51,67 +51,96 @@ module.exports = {
                 if (player.sessionIds.tod === sessionId) {
                     // Checking if player is answerer
                     if (interaction.user.id === session.answererId) {
-                        // Defining new components for last message
-                        const components = message.components.map(
-                            (oldMessageComponent) =>
+                        // Defining components for last message
+                        const components = message.components
+                            .map((actionRow) =>
                                 interaction.client.messageComponents
-                                    .find(
-                                        (messageComponent) =>
-                                            messageComponent.type ===
-                                                ComponentType.ActionRow &&
-                                            messageComponent.messageComponents.every(
-                                                (messageComponent) =>
-                                                    oldMessageComponent.components
-                                                        .map(
-                                                            (
-                                                                messageComponent
-                                                            ) =>
-                                                                messageComponent.customId
-                                                        )
-                                                        .includes(
-                                                            messageComponent
-                                                        )
-                                            )
+                                    .filter(
+                                        (savedMessageComponent) =>
+                                            savedMessageComponent.type ===
+                                            ComponentType.ActionRow
                                     )
-                                    .create(interaction, {
-                                        general: { disabled: true },
-                                        todEndSession: { disabled: false },
-                                        todJoinSession: { disabled: false },
-                                        todLeaveSession: { disabled: false },
-                                        todStartSession: {
-                                            style: session.active
-                                                ? ButtonStyle.Success
-                                                : null,
-                                        },
-                                    })
-                        );
+                                    .find((savedActionRow) =>
+                                        savedActionRow.messageComponents.every(
+                                            (savedButton) =>
+                                                actionRow.components
+                                                    .map(
+                                                        (button) =>
+                                                            button.customId
+                                                    )
+                                                    .includes(savedButton)
+                                        )
+                                    )
+                            )
+                            .with(
+                                message.components.find((actionRow) =>
+                                    interaction.client.messageComponents
+                                        .filter(
+                                            (savedMessageComponent) =>
+                                                savedMessageComponent.type ===
+                                                ComponentType.ActionRow
+                                        )
+                                        .find(
+                                            (savedActionRow) =>
+                                                savedActionRow.name ===
+                                                "todManagement"
+                                        )
+                                        .messageComponents.every(
+                                            (savedButton) =>
+                                                actionRow.components
+                                                    .map(
+                                                        (button) =>
+                                                            button.customId
+                                                    )
+                                                    .includes(savedButton)
+                                        )
+                                ),
+                                null
+                            )
+                            .filter(Boolean)
+                            .map((savedActionRow) =>
+                                savedActionRow.create(interaction, {
+                                    general: { disabled: true },
+                                    todDareChoice: {
+                                        style: ButtonStyle.Success,
+                                    },
+                                })
+                            );
 
                         // Updating last message
                         await interaction.update({ components });
 
-                        // Defining new components for follow up message
+                        // Defining components for follow up message
                         components.splice(
                             0,
                             components.length,
                             ...interaction.client.messageComponents
                                 .filter(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
+                                    (savedMessageComponent) =>
+                                        savedMessageComponent.type ===
                                             ComponentType.ActionRow &&
-                                        (messageComponent.name ===
+                                        (savedMessageComponent.name ===
                                             "todCustomOrRandom" ||
-                                            messageComponent.name ===
+                                            savedMessageComponent.name ===
                                                 "todManagement")
                                 )
-                                .map((messageComponent) =>
-                                    messageComponent.create(interaction, {
+                                .map((savedActionRow) =>
+                                    savedActionRow.create(interaction, {
+                                        todCustomTruthOrDare: {
+                                            label: "Custom Dare",
+                                        },
+                                        todRandomTruthOrDare: {
+                                            label: "Random Dare [3/3]",
+                                        },
                                         todStartSession: {
+                                            disabled: true,
                                             style: ButtonStyle.Success,
                                         },
                                     })
                                 )
                         );
 
+                        // Defining embed for follow up message
                         const embeds = [
                             EmbedBuilder.from(
                                 message.embeds.find((embed) =>
@@ -126,24 +155,28 @@ module.exports = {
                                         session.answererId
                                     )} to do a custom or a random task?`
                                 )
-                                .setFields(),
+                                .setFields()
+                                .setAuthor(null),
                         ];
 
+                        // Sending follow up message
                         interaction.followUp({ components, embeds });
                     } else {
                         // Replying to interaction
                         interaction.reply({
-                            content: `It is ${userMention(answererId)}'${
+                            content: `It is ${userMention(
+                                session.answererId
+                            )}'${
                                 (
                                     await interaction.guild.members.fetch(
-                                        answererId
+                                        session.answererId
                                     )
                                 ).nickname
                                     .toLowerCase()
                                     .endsWith("s")
                                     ? ""
                                     : "s"
-                            } turn, be patient and wait for your turn!`,
+                            } turn to choose Truth or Dare, be patient and wait for your turn!`,
                             ephemeral: true,
                         });
                     }

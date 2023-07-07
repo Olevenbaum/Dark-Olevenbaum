@@ -89,7 +89,31 @@ messageComponentFiles.forEach((messageComponentFile) => {
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
-            `Missing required 'data' or 'execute' property of message component ${messageComponent.name}`
+            `Missing required 'create', 'execute', 'name' or 'type' property of message component ${messageComponent.name}`
+        );
+    }
+});
+
+// Creating modals collection
+client.modals = new Collection();
+const modalsPath = path.join(__dirname, "../resources/modals");
+const modalFiles = fs
+    .readdirSync(modalsPath)
+    .filter((modalFile) => modalFile.endsWith(".js"));
+modalFiles.forEach((modalFile) => {
+    const modal = require(path.join(modalsPath, modalFile));
+    if (
+        "create" in modal &&
+        "execute" in modal &&
+        "messageComponents" in modal &&
+        "name" in modal
+    ) {
+        client.modals.set(modal.name, modal);
+    } else {
+        console.warn(
+            "[WARNING]".padEnd(consoleSpace),
+            ":",
+            `Missing required 'creat', 'execute', 'messageComponents' or 'name' property of message component ${messageComponent.name}`
         );
     }
 });

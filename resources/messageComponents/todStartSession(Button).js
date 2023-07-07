@@ -83,17 +83,17 @@ module.exports = {
                             )
                         ).messages.fetch(session.initialMessage.messageId);
 
-                        // Defining new components for initial message
-                        const components = initialMessage.components.map(
-                            (actionRow) =>
+                        // Defining components for initial message
+                        const components = initialMessage.components
+                            .map((actionRow) =>
                                 interaction.client.messageComponents
                                     .filter(
                                         (savedMessageComponent) =>
                                             savedMessageComponent.type ===
                                             ComponentType.ActionRow
                                     )
-                                    .find((savedMessageComponent) =>
-                                        savedMessageComponent.messageComponents.every(
+                                    .find((savedActionRow) =>
+                                        savedActionRow.messageComponents.every(
                                             (savedButton) =>
                                                 actionRow.components
                                                     .map(
@@ -103,13 +103,15 @@ module.exports = {
                                                     .includes(savedButton)
                                         )
                                     )
-                                    .create(interaction, {
-                                        general: { disabled: true },
-                                        todStartSession: {
-                                            style: ButtonStyle.Success,
-                                        },
-                                    })
-                        );
+                            )
+                            .map((savedActionRow) =>
+                                savedActionRow.create(interaction, {
+                                    general: { disabled: true },
+                                    todStartSession: {
+                                        style: ButtonStyle.Success,
+                                    },
+                                })
+                            );
 
                         // Updating initial message
                         await interaction.update({ components });
@@ -120,16 +122,16 @@ module.exports = {
                             components.length,
                             ...interaction.client.messageComponents
                                 .filter(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
+                                    (savedMessageComponent) =>
+                                        savedMessageComponent.type ===
                                             ComponentType.ActionRow &&
-                                        (messageComponent.name ===
+                                        (savedMessageComponent.name ===
                                             "todChoices" ||
-                                            messageComponent.name ===
+                                            savedMessageComponent.name ===
                                                 "todManagement")
                                 )
-                                .map((messageComponent) =>
-                                    messageComponent.create(interaction, {
+                                .map((savedActionRow) =>
+                                    savedActionRow.create(interaction, {
                                         todStartSession: {
                                             disabled: true,
                                             style: session.active
@@ -140,7 +142,7 @@ module.exports = {
                                 )
                         );
 
-                        // Defining new embed for follow up message
+                        // Defining embed for follow up message
                         const embeds = [
                             EmbedBuilder.from(
                                 message.embeds.find((embed) =>

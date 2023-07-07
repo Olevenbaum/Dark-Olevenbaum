@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 
 module.exports = {
-    // Setting interaction name and type
+    // Setting message components name and type
     name: "todRandomChoice",
     type: ComponentType.Button,
 
@@ -24,23 +24,21 @@ module.exports = {
     // Handling interaction
     async execute(interaction) {
         // Searching for player
-        const player = await interaction.client.sequelize.models.player.findOne(
-            {
-                where: { id: interaction.user.id },
-            }
-        );
+        const player = interaction.client.players.get(interaction.user.id);
 
-        // Checking if user ever played Truth or Dare
+        // Checking if player ever played any game
         if (player) {
-            // Searching for session of this player
-            const session = await player.getSession();
+            // Searching for Truth or Dare session of this player
+            const session = interaction.client.sessions.get(
+                player.sessionIds.tod
+            );
 
-            // Checking if user is currently playing Truth or Dare
+            // Checking if player is currently playing Truth or Dare
             if (session) {
-                // Reading message data
-                const message = interaction.message;
+                // Reading last message
+                const { message } = interaction;
 
-                // Searching embed for session ID
+                // Searching embed of last message for session ID
                 const sessionId = parseInt(
                     message.embeds
                         .find((embed) =>
@@ -49,76 +47,107 @@ module.exports = {
                         .footer.text.replace(/^\D+/g, "")
                 );
 
-                // Checking if user is playing Truth or Dare in this session
-                if (session.id === sessionId) {
-                    // Searching for answerer and questioner
-                    const answerer = await session.getAnswerer();
-                    const questioner = await session.getQuestioner();
-
-                    const user = await interaction.client.users.fetch(
-                        answerer.id
-                    );
-
+                // Checking if player is playing Truth or Dare in this session
+                if (player.sessionIds.tod === sessionId) {
                     // Checking if player is answerer
-                    if (player.id === user.id) {
-                        // Reading message components
-                        const components = message.components;
-
-                        // Editing old message
-                        components.splice(
-                            components.findIndex((messageComponent) =>
-                                messageComponent.components.some(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
-                                            ComponentType.Button &&
-                                        (messageComponent.customId ===
-                                            "todDareChoice" ||
-                                            messageComponent.customId ===
-                                                "todRandomChoice" ||
-                                            messageComponent.customId ===
-                                                "todTruthChoice")
-                                )
-                            ),
-                            1,
-                            interaction.client.messageComponents
-                                .find(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
-                                            ComponentType.ActionRow &&
-                                        messageComponent.name === "todChoices"
-                                )
-                                .create(interaction, {
+                    if (interaction.user.id === session.answererId) {
+                        // Defining components for last message
+                        const components = message.components
+                            .map((actionRow) =>
+                                interaction.client.messageComponents
+                                    .filter(
+                                        (savedMessageComponent) =>
+                                            savedMessageComponent.type ===
+                                            ComponentType.ActionRow
+                                    )
+                                    .find((savedActionRow) =>
+                                        savedActionRow.messageComponents.every(
+                                            (savedButton) =>
+                                                actionRow.components
+                                                    .map(
+                                                        (button) =>
+                                                            button.customId
+                                                    )
+                                                    .includes(savedButton)
+                                        )
+                                    )
+                            )
+                            .with(
+                                message.components.find((actionRow) =>
+                                    interaction.client.messageComponents
+                                        .filter(
+                                            (savedMessageComponent) =>
+                                                savedMessageComponent.type ===
+                                                ComponentType.ActionRow
+                                        )
+                                        .find(
+                                            (savedActionRow) =>
+                                                savedActionRow.name ===
+                                                "todManagement"
+                                        )
+                                        .messageComponents.every(
+                                            (savedButton) =>
+                                                actionRow.components
+                                                    .map(
+                                                        (button) =>
+                                                            button.customId
+                                                    )
+                                                    .includes(savedButton)
+                                        )
+                                ),
+                                null
+                            )
+                            .filter(Boolean)
+                            .map((savedActionRow) =>
+                                savedActionRow.create(interaction, {
                                     general: { disabled: true },
                                     todRandomChoice: {
                                         style: ButtonStyle.Success,
                                     },
                                 })
-                        );
+                            );
 
-                        message.edit({ components });
+                        // Updating last message
+                        await interaction.update({ components });
 
-                        // Replying to interaction
+                        // Determining Truth or Dare
+                        const tod = Math.random() < 0.5;
+
+                        // Defining components for follow up message
                         components.splice(
                             0,
                             components.length,
                             ...interaction.client.messageComponents
                                 .filter(
-                                    (messageComponent) =>
-                                        (messageComponent.type ===
+                                    (savedMessageComponent) =>
+                                        savedMessageComponent.type ===
                                             ComponentType.ActionRow &&
-                                            messageComponent.name ===
-                                                "todPlayerManagement") ||
-                                        messageComponent.name ===
-                                            "todCustomOrRandom"
+                                        (savedMessageComponent.name ===
+                                            "todCustomOrRandom" ||
+                                            savedMessageComponent.name ===
+                                                "todManagement")
                                 )
-                                .map((messageComponent) =>
-                                    messageComponent.create(interaction)
+                                .map((savedActionRow) =>
+                                    savedActionRow.create(interaction, {
+                                        todCustomTruthOrDare: {
+                                            label: `Custom ${
+                                                tod ? "Dare" : "Truth"
+                                            }`,
+                                        },
+                                        todRandomTruthOrDare: {
+                                            label: `Random ${
+                                                tod ? "Dare" : "Truth"
+                                            } [3/3]`,
+                                        },
+                                        todStartSession: {
+                                            disabled: true,
+                                            style: ButtonStyle.Success,
+                                        },
+                                    })
                                 )
                         );
 
-                        // Determining Truth or Dare
-                        const tod = Math.random() < 0.5;
-
+                        // Defining embed for follow up message
                         const embeds = [
                             EmbedBuilder.from(
                                 message.embeds.find((embed) =>
@@ -128,26 +157,37 @@ module.exports = {
                                 .setTitle(tod ? "Dare" : "Truth")
                                 .setDescription(
                                     `${userMention(
-                                        questioner.id
+                                        session.questionerId
                                     )}, do you want to ${
                                         tod ? "dare" : "ask"
-                                    } ${userMention(user.id)} ${
+                                    } ${userMention(interaction.user.id)} ${
                                         tod ? "to do" : ""
                                     } a custom or a random ${
                                         tod ? "task" : "question"
                                     }?`
-                                ),
+                                )
+                                .setFields()
+                                .setAuthor(null),
                         ];
 
-                        interaction.reply({ components, embeds });
+                        // Sending follow up message
+                        interaction.followUp({ components, embeds });
                     } else {
                         // Replying to interaction
                         interaction.reply({
-                            content: `It is ${userMention(user.id)}'${
-                                user.username.toLowerCase().endsWith("s")
+                            content: `It is ${userMention(
+                                session.answererId
+                            )}'${
+                                (
+                                    await interaction.guild.members.fetch(
+                                        session.answererId
+                                    )
+                                ).nickname
+                                    .toLowerCase()
+                                    .endsWith("s")
                                     ? ""
                                     : "s"
-                            } turn, be patient and wait for your turn!`,
+                            } turn to choose Truth or Dare, be patient and wait for your turn!`,
                             ephemeral: true,
                         });
                     }

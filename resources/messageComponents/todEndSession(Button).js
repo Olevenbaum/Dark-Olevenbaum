@@ -82,7 +82,7 @@ module.exports = {
                             )
                         ).messages.fetch(session.initialMessage.messageId);
 
-                        // Defining new embed for initial message
+                        // Defining embed for initial message
                         const embeds = initialMessage.embeds.map((embed) =>
                             embed.fields.some((field) =>
                                 field.name.startsWith("Players")
@@ -102,22 +102,22 @@ module.exports = {
                                           )
                                       )
                                       .setFooter({ text: "Game ended" })
-                                : EmbedBuilder.from(embed)
+                                : embed
                         );
 
                         // Checking if last message is initial message
                         if (message.id === initialMessage.id) {
-                            // Defining new components for initial message
-                            const components = initialMessage.components.map(
-                                (actionRow) =>
+                            // Defining components for initial message
+                            const components = initialMessage.components
+                                .map((actionRow) =>
                                     interaction.client.messageComponents
                                         .filter(
                                             (savedMessageComponent) =>
                                                 savedMessageComponent.type ===
                                                 ComponentType.ActionRow
                                         )
-                                        .find((savedMessageComponent) =>
-                                            savedMessageComponent.messageComponents.every(
+                                        .find((savedActionRow) =>
+                                            savedActionRow.messageComponents.every(
                                                 (savedButton) =>
                                                     actionRow.components
                                                         .map(
@@ -127,10 +127,12 @@ module.exports = {
                                                         .includes(savedButton)
                                             )
                                         )
-                                        .create(interaction, {
-                                            general: { disabled: true },
-                                        })
-                            );
+                                )
+                                .map((savedActionRow) =>
+                                    savedActionRow.create(interaction, {
+                                        general: { disabled: true },
+                                    })
+                                );
 
                             // Updating initial message
                             await interaction.update({ components, embeds });
@@ -142,17 +144,17 @@ module.exports = {
                                 )} has ended this game of Truth or Dare!`
                             );
                         } else {
-                            // Defining new components for last message
-                            const components = message.components.map(
-                                (actionRow) =>
+                            // Defining components for last message
+                            const components = message.components
+                                .map((actionRow) =>
                                     interaction.client.messageComponents
                                         .filter(
                                             (savedMessageComponent) =>
                                                 savedMessageComponent.type ===
                                                 ComponentType.ActionRow
                                         )
-                                        .find((savedMessageComponent) =>
-                                            savedMessageComponent.messageComponents.every(
+                                        .find((savedActionRow) =>
+                                            savedActionRow.messageComponents.every(
                                                 (savedButton) =>
                                                     actionRow.components
                                                         .map(
@@ -162,15 +164,38 @@ module.exports = {
                                                         .includes(savedButton)
                                             )
                                         )
-                                        .create(interaction, {
-                                            general: { disabled: true },
-                                            todStartSession: {
-                                                style: session.active
-                                                    ? ButtonStyle.Success
-                                                    : null,
-                                            },
-                                        })
-                            );
+                                )
+                                .with(
+                                    message.components.find((actionRow) =>
+                                        interaction.client.messageComponents
+                                            .filter(
+                                                (savedMessageComponent) =>
+                                                    savedMessageComponent.type ===
+                                                    ComponentType.ActionRow
+                                            )
+                                            .find(
+                                                (savedActionRow) =>
+                                                    savedActionRow.name ===
+                                                    "todManagement"
+                                            )
+                                            .messageComponents.every(
+                                                (savedButton) =>
+                                                    actionRow.components
+                                                        .map(
+                                                            (button) =>
+                                                                button.customId
+                                                        )
+                                                        .includes(savedButton)
+                                            )
+                                    ),
+                                    null
+                                )
+                                .filter(Boolean)
+                                .map((savedActionRow) =>
+                                    savedActionRow.create(interaction, {
+                                        general: { disabled: true },
+                                    })
+                                );
 
                             // Editing initial message
                             initialMessage.edit({

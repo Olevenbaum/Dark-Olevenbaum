@@ -3,6 +3,7 @@ const {
     ButtonBuilder,
     ComponentType,
     ButtonStyle,
+    EmbedBuilder,
     userMention,
 } = require("discord.js");
 
@@ -23,23 +24,21 @@ module.exports = {
     // Handling interaction
     async execute(interaction) {
         // Searching for player
-        const player = await interaction.client.sequelize.models.player.findOne(
-            {
-                where: { id: interaction.user.id },
-            }
-        );
+        const player = interaction.client.players.get(interaction.user.id);
 
-        // Checking if user ever played Truth or Dare
+        // Checking if player ever played any game
         if (player) {
-            // Searching for session of this player
-            const session = await player.getSession();
+            // Searching for Truth or Dare session of this player
+            const session = interaction.client.sessions.get(
+                player.sessionIds.tod
+            );
 
-            // Checking if user is currently playing Truth or Dare
+            // Checking if player is currently playing Truth or Dare
             if (session) {
-                // Reading message data
-                const message = interaction.message;
+                // Reading last message
+                const { message } = interaction;
 
-                // Searching embed for session ID
+                // Searching embed of last message for session ID
                 const sessionId = parseInt(
                     message.embeds
                         .find((embed) =>
@@ -48,156 +47,173 @@ module.exports = {
                         .footer.text.replace(/^\D+/g, "")
                 );
 
-                // Checking if user is playing Truth or Dare in this session
-                if (session.id === sessionId) {
-                    // Searching for answerer and questioner
-                    const answerer = await session.getAnswerer();
-                    const questioner = await session.getQuestioner();
-
-                    const user = await interaction.client.users.fetch(
-                        questioner.id
-                    );
-
+                // Checking if player is playing Truth or Dare in this session
+                if (player.sessionIds.tod === sessionId) {
                     // Checking if player is questioner
-                    if (player.id === user.id) {
-                        // Reading message components
-                        const components = message.components;
-
+                    if (interaction.user.id === session.questionerId) {
+                        // Reading Truth or Dare from embed of last message
                         const tod = message.embeds.find((embed) =>
                             embed.footer.text.startsWith("Session ID:")
                         ).title;
 
                         // Reading number of already used random Truths or Dares
                         const counter = parseInt(
-                            components
-                                .find(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
-                                            ComponentType.ActionRow &&
-                                        messageComponent.some(
-                                            (messageComponent) =>
-                                                messageComponent.type ===
-                                                    ComponentType.Button &&
-                                                (messageComponent.customId ===
-                                                    "todCustomTruthOrDare" ||
-                                                    messageComponent.customId ===
-                                                        "todRandomTruthOrDare")
+                            message.components
+                                .find((actionRow) =>
+                                    interaction.client.messageComponents
+                                        .filter(
+                                            (savedMessageComponent) =>
+                                                savedMessageComponent.type ===
+                                                ComponentType.ActionRow
+                                        )
+                                        .find(
+                                            (savedActionRow) =>
+                                                savedActionRow.name ===
+                                                "todCustomOrRandom"
+                                        )
+                                        .messageComponents.every(
+                                            (savedButton) =>
+                                                actionRow.components
+                                                    .map(
+                                                        (button) =>
+                                                            button.customId
+                                                    )
+                                                    .includes(savedButton)
                                         )
                                 )
-                                .find(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
-                                            ComponentType.Button &&
-                                        (messageComponent.customId ===
-                                            "todCustomTruthOrDare" ||
-                                            messageComponent.customId ===
-                                                "todRandomTruthOrDare")
+                                .components.find(
+                                    (button) =>
+                                        button.customId ===
+                                        "todRandomTruthOrDare"
                                 )
-                                .replace(/^\D+/g, "")[0]
+                                .label.replace(/^\D+/g, "")
+                                .charAt(0)
                         );
 
-                        // Reading style of custom truth or dare button
-                        const style = components
-                            .find(
-                                (messageComponent) =>
-                                    messageComponent.type ===
-                                        ComponentType.ActionRow &&
-                                    messageComponent.some(
-                                        (messageComponent) =>
-                                            messageComponent.type ===
-                                                ComponentType.Button &&
-                                            (messageComponent.customId ===
-                                                "todCustomTruthOrDare" ||
-                                                messageComponent.customId ===
-                                                    "todRandomTruthOrDare")
+                        // Reading style of custom Truth or Dare button
+                        const style = message.components
+                            .find((actionRow) =>
+                                interaction.client.messageComponents
+                                    .filter(
+                                        (savedMessageComponent) =>
+                                            savedMessageComponent.type ===
+                                            ComponentType.ActionRow
+                                    )
+                                    .find(
+                                        (savedActionRow) =>
+                                            savedActionRow.name ===
+                                            "todCustomOrRandom"
+                                    )
+                                    .messageComponents.every((savedButton) =>
+                                        actionRow.components
+                                            .map((button) => button.customId)
+                                            .includes(savedButton)
                                     )
                             )
-                            .find(
-                                (messageComponent) =>
-                                    messageComponent.type ===
-                                        ComponentType.Button &&
-                                    messageComponent.customId ===
-                                        "todCustomTruthOrDare"
+                            .components.find(
+                                (button) =>
+                                    button.customId === "todCustomTruthOrDare"
                             ).style;
 
-                        // Editing old message
-                        components.splice(
-                            components.findIndex((messageComponent) =>
-                                messageComponent.components.some(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
-                                            ComponentType.Button &&
-                                        (messageComponent.customId ===
-                                            "todCustomTruthOrDare" ||
-                                            messageComponent.customId ===
-                                                "todRandomTruthOrDare")
-                                )
-                            ),
-                            1,
+                        // Defining components for last message
+                        const components = message.components.map((actionRow) =>
                             interaction.client.messageComponents
-                                .find(
-                                    (messageComponent) =>
-                                        messageComponent.type ===
-                                            ComponentType.ActionRow &&
-                                        messageComponent.name ===
-                                            "todCustomOrRandom"
-                                )
-                                .create(interaction, {
-                                    todCustomTruthOrDare: {
-                                        disabled: style === ButtonStyle.Success,
-                                        style,
-                                    },
-                                    todRandomTruthOrDare: {
-                                        disabled: counter === 1,
-                                        label: `Random [${counter}/3]`,
-                                        style:
-                                            counter === 3
-                                                ? ButtonStyle.Primary
-                                                : ButtonStyle.Success,
-                                    },
-                                })
-                        );
-
-                        message.edit({ components });
-
-                        // Replying to interaction
-                        components.splice(
-                            0,
-                            components.length,
-                            ...interaction.client.messageComponents
                                 .filter(
-                                    (messageComponent) =>
-                                        (messageComponent.type ===
-                                            ComponentType.ActionRow &&
-                                            messageComponent.name ===
-                                                "todPlayerManagement") ||
-                                        messageComponent.name ===
-                                            "todCustomOrRandom" ||
-                                        messageComponent.name === "todNextRound"
+                                    (savedMessageComponent) =>
+                                        savedMessageComponent.type ===
+                                        ComponentType.ActionRow
                                 )
-                                .map((messageComponent) =>
-                                    messageComponent.create(interaction, {
-                                        todRandomTruthOrDare:
-                                            messageComponent.name ===
-                                            "todCustomOrRandom"
-                                                ? {
-                                                      label: `New random [${
-                                                          counter - 1
-                                                      }/3]`,
-                                                  }
+                                .find((savedActionRow) =>
+                                    savedActionRow.messageComponents.every(
+                                        (savedButton) =>
+                                            actionRow.components
+                                                .map(
+                                                    (button) => button.customId
+                                                )
+                                                .includes(savedButton)
+                                    )
+                                )
+                                .toSpliced(
+                                    message.components.findIndex((actionRow) =>
+                                        interaction.client.messageComponents
+                                            .filter(
+                                                (savedMessageComponent) =>
+                                                    savedMessageComponent.type ===
+                                                    ComponentType.ActionRow
+                                            )
+                                            .find(
+                                                (savedActionRow) =>
+                                                    savedActionRow.name ===
+                                                    "todCustomOrRandom"
+                                            )
+                                            .messageComponents.every(
+                                                (savedButton) =>
+                                                    actionRow.components
+                                                        .map(
+                                                            (button) =>
+                                                                button.customId
+                                                        )
+                                                        .includes(savedButton)
+                                            )
+                                    ),
+                                    0,
+                                    counter !== 3 ||
+                                        style === ButtonStyle.Success
+                                        ? interaction.client.messageComponents
+                                              .filter(
+                                                  (savedMessageComponent) =>
+                                                      savedMessageComponent.type ===
+                                                      ComponentType.ActionRow
+                                              )
+                                              .find(
+                                                  (savedActionRow) =>
+                                                      savedActionRow.name ===
+                                                      "todNextRound"
+                                              )
+                                        : null
+                                )
+                                .filter(Boolean)
+                                .map((savedActionRow) =>
+                                    savedActionRow.create(interaction, {
+                                        todCustomTruthOrDare: {
+                                            disabled:
+                                                style === ButtonStyle.Success,
+                                            label: `Custom ${tod}`,
+                                            style,
+                                        },
+                                        todRandomTruthOrDare: {
+                                            disabled: counter === 0,
+                                            label: `Random ${tod} [${counter}/3]`,
+                                            style:
+                                                counter === 3
+                                                    ? null
+                                                    : ButtonStyle.Success,
+                                        },
+                                        todStartSession: {
+                                            disabled: true,
+                                            style: session.active
+                                                ? ButtonStyle.Success
                                                 : null,
+                                        },
                                     })
                                 )
                         );
 
+                        // Defining embed for last message
                         const embeds = [
                             EmbedBuilder.from(
                                 message.embeds.find((embed) =>
                                     embed.footer.text.startsWith("Session ID:")
                                 )
                             )
-                                .setTitle(`Random ${tod}`)
-                                .setDescription()
+                                .setTitle(`Custom ${tod}`)
+                                .setDescription(
+                                    `${userMention(
+                                        session.questionerId
+                                    )} is currently determining a custom ${tod} for ${userMention(
+                                        session.answererId
+                                    )}! Wait for them to finish!`
+                                )
                                 .setAuthor({
                                     name: interaction.client.user.username,
                                     iconURL:
@@ -205,8 +221,12 @@ module.exports = {
                                 }),
                         ];
 
-                        interaction.reply({ components, embeds });
-                    } else if (player.id === answerer.id) {
+                        // Showing modal to player
+                        interaction.showModal();
+
+                        // Editing last message
+                        message.edit({ components, embeds });
+                    } else if (interaction.user.id === session.answererId) {
                         // Replying to interaction
                         interaction.reply({
                             content: `You do not get to decide for yourself!`,
@@ -215,8 +235,16 @@ module.exports = {
                     } else {
                         // Replying to interaction
                         interaction.reply({
-                            content: `It is ${userMention(user.id)}'${
-                                user.username.toLowerCase().endsWith("s")
+                            content: `It is ${userMention(
+                                session.questionerId
+                            )}'${
+                                (
+                                    await interaction.guild.members.fetch(
+                                        session.questionerId
+                                    )
+                                ).nickname
+                                    .toLowerCase()
+                                    .endsWith("s")
                                     ? ""
                                     : "s"
                             } turn to decide whether to choose Truth or Dare, be patient and wait for your turn!`,

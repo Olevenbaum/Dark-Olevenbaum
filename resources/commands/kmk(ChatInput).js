@@ -1,5 +1,9 @@
 // Importing classes and methods
-const { ApplicationCommandType, SlashCommandBuilder } = require("discord.js");
+const {
+    ApplicationCommandType,
+    SlashCommandBuilder,
+    ComponentType,
+} = require("discord.js");
 
 module.exports = {
     // Setting command information, kind and options
@@ -25,5 +29,18 @@ module.exports = {
     async autocomplete(interaction) {},
 
     // Handling command reponse
-    async execute(interaction) {},
+    async execute(interaction) {
+        const components = interaction.client.messageComponents
+            .filter(
+                (savedMessageComponent) =>
+                    savedMessageComponent.type === ComponentType.ActionRow
+            )
+            .map((savedActionRow) => savedActionRow.create(interaction));
+
+        components.splice(0, 0, null);
+
+        console.log(components);
+
+        interaction.reply({ content: "Test", components });
+    },
 };

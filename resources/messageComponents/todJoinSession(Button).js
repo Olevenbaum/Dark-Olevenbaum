@@ -86,7 +86,7 @@ module.exports = {
                 )
             ).messages.fetch(session.initialMessage.messageId);
 
-            // Defining new embed for initial message
+            // Defining embed for initial message
             let playersString = "";
             session.playerIds.forEach(
                 (playerId) => (playersString += `\n- ${userMention(playerId)}`)
@@ -104,7 +104,7 @@ module.exports = {
                               }
                           )
                       )
-                    : EmbedBuilder.from(embed)
+                    : embed
             );
 
             // Checking if last message is initial message

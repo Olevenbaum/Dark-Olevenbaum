@@ -126,12 +126,13 @@ module.exports = {
                     .setFooter({ text: `Session ID: ${sessionId}` }),
             ];
 
-            // Replying to interaction
-            await interaction.reply({ components, embeds });
-
-            // Updating initial message of session
+            // Replying to interaction and saving initial message
             session.initialMessage.messageId = (
-                await interaction.fetchReply()
+                await interaction.reply({
+                    components,
+                    embeds,
+                    fetchReply: true,
+                })
             ).id;
 
             // Updating player and session in client

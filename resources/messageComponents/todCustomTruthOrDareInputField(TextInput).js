@@ -7,18 +7,20 @@ const {
 
 module.exports = {
     // Setting message components name and type
-    name: "",
+    name: "todCustomTruthOrDareInputField",
     type: ComponentType.TextInput,
 
     // Creating message component
     create(interaction, options) {
         return new TextInputBuilder()
             .setCustomId(this.name)
-            .setLabel(options.label ?? this.name)
+            .setLabel(options.label ?? "Custom")
             .setMaxLength(options.maximalLength ?? null)
             .setMinLength(options.minimalLength ?? null)
-            .setPlaceholder(options.setPlaceholder ?? null)
-            .setRequired(options.required ?? false)
+            .setPlaceholder(
+                options.setPlaceholder ?? "Insert your custom here!"
+            )
+            .setRequired(options.required ?? true)
             .setStyle(options.style ?? TextInputStyle.Short)
             .setValue(options.value ?? null);
     },

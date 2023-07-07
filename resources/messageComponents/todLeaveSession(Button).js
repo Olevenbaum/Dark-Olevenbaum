@@ -88,7 +88,7 @@ module.exports = {
                             )
                         ).messages.fetch(session.initialMessage.messageId);
 
-                        // Defining new embed for initial message
+                        // Defining embed for initial message
                         let playersString = "";
                         session.playerIds.forEach(
                             (playerId) =>
@@ -124,7 +124,7 @@ module.exports = {
                                                   ? "Game ended"
                                                   : embed.footer.text,
                                       })
-                                : EmbedBuilder.from(embed)
+                                : embed
                         );
 
                         // Reading components of initial message
@@ -134,34 +134,37 @@ module.exports = {
                         if (message.id === initialMessage.id) {
                             // Checking if there are enough players left for playing
                             if (session.playerIds.length === 0) {
-                                // Defining new components for initial message
+                                // Defining components for initial message
                                 components.splice(
                                     0,
                                     components.length,
-                                    ...components.map((actionRow) =>
-                                        interaction.client.messageComponents
-                                            .filter(
-                                                (savedMessageComponent) =>
-                                                    savedMessageComponent.type ===
-                                                    ComponentType.ActionRow
-                                            )
-                                            .find((savedMessageComponent) =>
-                                                savedMessageComponent.messageComponents.every(
-                                                    (savedButton) =>
-                                                        actionRow.components
-                                                            .map(
-                                                                (button) =>
-                                                                    button.customId
-                                                            )
-                                                            .includes(
-                                                                savedButton
-                                                            )
+                                    ...components
+                                        .map((actionRow) =>
+                                            interaction.client.messageComponents
+                                                .filter(
+                                                    (savedMessageComponent) =>
+                                                        savedMessageComponent.type ===
+                                                        ComponentType.ActionRow
                                                 )
-                                            )
-                                            .create(interaction, {
+                                                .find((savedActionRow) =>
+                                                    savedActionRow.messageComponents.every(
+                                                        (savedButton) =>
+                                                            actionRow.components
+                                                                .map(
+                                                                    (button) =>
+                                                                        button.customId
+                                                                )
+                                                                .includes(
+                                                                    savedButton
+                                                                )
+                                                    )
+                                                )
+                                        )
+                                        .map((savedActionRow) =>
+                                            savedActionRow.create(interaction, {
                                                 general: { disabled: true },
                                             })
-                                    )
+                                        )
                                 );
                             }
 
@@ -181,39 +184,72 @@ module.exports = {
                         } else {
                             // Checking if there are enough players left for playing
                             if (session.playerIds.length === 0) {
-                                // Defining new components for last message
+                                // Defining components for last message
                                 components.splice(
                                     0,
                                     components.length,
-                                    ...message.components.map((actionRow) =>
-                                        interaction.client.messageComponents
-                                            .filter(
-                                                (savedMessageComponent) =>
-                                                    savedMessageComponent.type ===
-                                                    ComponentType.ActionRow
-                                            )
-                                            .find((savedMessageComponent) =>
-                                                savedMessageComponent.messageComponents.every(
-                                                    (savedButton) =>
-                                                        actionRow.components
-                                                            .map(
-                                                                (button) =>
-                                                                    button.customId
-                                                            )
-                                                            .includes(
-                                                                savedButton
-                                                            )
+                                    ...message.components
+                                        .map((actionRow) =>
+                                            interaction.client.messageComponents
+                                                .filter(
+                                                    (savedMessageComponent) =>
+                                                        savedMessageComponent.type ===
+                                                        ComponentType.ActionRow
                                                 )
-                                            )
-                                            .create(interaction, {
-                                                general: { disabled: true },
-                                                todStartSession: {
-                                                    style: session.active
-                                                        ? ButtonStyle.Success
-                                                        : null,
+                                                .find((savedActionRow) =>
+                                                    savedActionRow.messageComponents.every(
+                                                        (savedButton) =>
+                                                            actionRow.components
+                                                                .map(
+                                                                    (button) =>
+                                                                        button.customId
+                                                                )
+                                                                .includes(
+                                                                    savedButton
+                                                                )
+                                                    )
+                                                )
+                                        )
+                                        .with(
+                                            message.components.find(
+                                                (actionRow) =>
+                                                    interaction.client.messageComponents
+                                                        .filter(
+                                                            (
+                                                                savedMessageComponent
+                                                            ) =>
+                                                                savedMessageComponent.type ===
+                                                                ComponentType.ActionRow
+                                                        )
+                                                        .find(
+                                                            (savedActionRow) =>
+                                                                savedActionRow.name ===
+                                                                "todManagement"
+                                                        )
+                                                        .messageComponents.every(
+                                                            (savedButton) =>
+                                                                actionRow.components
+                                                                    .map(
+                                                                        (
+                                                                            button
+                                                                        ) =>
+                                                                            button.customId
+                                                                    )
+                                                                    .includes(
+                                                                        savedButton
+                                                                    )
+                                                        )
+                                            ),
+                                            null
+                                        )
+                                        .filter(Boolean)
+                                        .map((savedActionRow) =>
+                                            savedActionRow.create(interaction, {
+                                                general: {
+                                                    disabled: true,
                                                 },
                                             })
-                                    )
+                                        )
                                 );
 
                                 // Updating last message
