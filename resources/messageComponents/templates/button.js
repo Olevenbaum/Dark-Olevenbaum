@@ -10,9 +10,11 @@ module.exports = {
     create(interaction, options = {}) {
         return new ButtonBuilder()
             .setCustomId(this.name)
-            .setDisabled(options.disabled ?? false)
+            .setDisabled(options.disabled)
+            .setEmoji(options.emoji)
             .setLabel(options.label ?? this.name)
-            .setStyle(options.style ?? ButtonStyle);
+            .setStyle(options.style ?? ButtonStyle)
+            .setURL(options.url);
     },
 
     // Handling interaction

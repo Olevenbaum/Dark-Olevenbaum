@@ -8,7 +8,13 @@ module.exports = {
 
     // Creating message component
     create(interaction, options = {}) {
-        return new ChannelSelectMenuBuilder().setCustomId(this.name);
+        return new ChannelSelectMenuBuilder()
+            .setCustomId(this.name)
+            .setDisabled(options.disabled)
+            .setMaxValues(options.maximalValues ?? options.options.length)
+            .setMinValues(options.minimalValues ?? 1)
+            .setPlaceholder(options.placeholder)
+            .setChannelTypes(options.channelTypes);
     },
 
     // Handling interaction

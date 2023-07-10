@@ -10,8 +10,7 @@ module.exports = {
     create(interaction, options = {}) {
         return new ModalBuilder()
             .setCustomId(this.name)
-            .setTitle(options.titel ?? this.name)
-            .addComponents(
+            .setComponents(
                 interaction.client.messageComponents
                     .filter(
                         (messageComponent) =>
@@ -21,12 +20,10 @@ module.exports = {
                             )
                     )
                     .map((messageComponent) =>
-                        messageComponent.create(interaction, {
-                            ...options.general,
-                            ...options[messageComponent.name],
-                        })
+                        messageComponent.create(interaction, options)
                     )
-            );
+            )
+            .setTitle(options.titel ?? this.name);
     },
 
     // Handling interaction

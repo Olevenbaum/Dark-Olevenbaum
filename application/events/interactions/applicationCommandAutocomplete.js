@@ -1,5 +1,5 @@
 // Importing classes and methods
-const { InteractionType } = require("discord.js");
+const { ApplicationCommandType, InteractionType } = require("discord.js");
 
 // Importing configuration data
 const { consoleSpace } = require("../../../configuration.json");
@@ -10,13 +10,30 @@ module.exports = {
 
     // Handling interaction
     async execute(interaction) {
-        const slashCommand = interaction.client.slashCommands.get(
-            interaction.commandName
-        );
-        await slashCommand
-            .autocomplete(interaction)
-            .catch((error) =>
-                console.error("[ERROR]".padEnd(consoleSpace), ":", error)
+        // Searching for chat input command
+        const chatInputCommand = interaction.client.applicationCommands
+            .filter(
+                (applicationCommand) =>
+                    applicationCommand.type === ApplicationCommandType.ChatInput
+            )
+            .get(interaction.commandName);
+
+        // Checking if chat input command was found
+        if (chatInputCommand) {
+            // Trying to execute chat input command specific script
+            await chatInputCommand
+                .autocomplete(interaction)
+                .catch(async (error) => {
+                    // Printing error
+                    console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+                });
+        } else {
+            // Printing error
+            console.error(
+                "[ERROR]".padEnd(consoleSpace),
+                ":",
+                `No chat input command matching ${interaction.commandName} was found`
             );
+        }
     },
 };

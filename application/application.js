@@ -13,14 +13,38 @@ const {
     database,
 } = require("../configuration.json");
 
-// Defining method for rotating arrays
+// Defining prototype functions
 Array.prototype.rotate = function (counter = 1, reverse = false) {
+    // Reducing counter
     counter %= this.length;
+
+    // Checking if direction is reversed
     if (reverse) {
+        // Rotating array clockwise
         this.push(...this.splice(0, this.length - counter));
     } else {
+        // Rotating array counterclockwise
         this.unshift(...this.splice(counter, this.length));
     }
+
+    // Returning array
+    return this;
+};
+
+Array.prototype.shuffle = function () {
+    // Loop for each index of array
+    for (let currentIndex = this.length - 1; currentIndex > 0; currentIndex--) {
+        // Determining random index
+
+        const randomIndex = Math.floor(Math.random() * (currentIndex + 1));
+        // Swapping array element
+        [this[currentIndex], this[randomIndex]] = [
+            this[randomIndex],
+            this[currentIndex],
+        ];
+    }
+
+    // Returning array
     return this;
 };
 
@@ -28,64 +52,95 @@ Array.prototype.rotate = function (counter = 1, reverse = false) {
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.DirectMessages,
     ],
 });
 
-// Initializing database
+// Checking if database is enabled
 if (database) {
+    // Initializing database
     client.sequelize = new Sequelize(database);
 }
 
 // Creating individual collections
-// sessions collection
-client.sessions = new Collection();
-// players collection
 client.players = new Collection();
+client.sessions = new Collection();
 
 // Creating commands collection
-client.commands = new Collection();
-const commandsPath = path.join(__dirname, "../resources/commands");
-const commandFiles = fs
-    .readdirSync(commandsPath)
-    .filter((commandFile) => commandFile.endsWith(".js"));
-commandFiles.forEach((commandFile) => {
-    const command = require(path.join(commandsPath, commandFile));
-    if ("data" in command && "execute" in command) {
-        client.commands.set(command.data.name, command);
+client.applicationCommands = new Collection();
+
+// Defining application commands path
+const applicationCommandsPath = path.join(
+    __dirname,
+    "../resources/applicationCommands"
+);
+
+// Reading application command filenames
+const applicationCommandFiles = fs
+    .readdirSync(applicationCommandsPath)
+    .filter((applicationCommandFile) => applicationCommandFile.endsWith(".js"));
+
+// Iterate over all application command files
+applicationCommandFiles.forEach((applicationCommandFile) => {
+    // Reading application command
+    const applicationCommand = require(path.join(
+        applicationCommandsPath,
+        applicationCommandFile
+    ));
+
+    // Checking for necessary parts of application command
+    if ("data" in applicationCommand && "execute" in applicationCommand) {
+        // Adding application command to its collection
+        client.applicationCommands.set(
+            applicationCommand.data.name,
+            applicationCommand
+        );
     } else {
+        // Printing warning
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
-            `Missing required 'data' or 'execute' property of command ${command.data.name}`
+            `Missing required 'data' or 'execute' property of command ${applicationCommand.data.name}`
         );
     }
 });
 
 // Creating message components collections
 client.messageComponents = new Collection();
+
+// Defining message components path
 const messageComponentsPath = path.join(
     __dirname,
     "../resources/messageComponents"
 );
+
+// Reading message component filenames
 const messageComponentFiles = fs
     .readdirSync(messageComponentsPath)
     .filter((messageComponentFile) => messageComponentFile.endsWith(".js"));
+
+// Iterating over all message component files
 messageComponentFiles.forEach((messageComponentFile) => {
+    // Reading message component
     const messageComponent = require(path.join(
         messageComponentsPath,
         messageComponentFile
     ));
+
+    // Checking for necessary parts of message component
     if (
         "create" in messageComponent &&
         "execute" in messageComponent &&
         "name" in messageComponent &&
         "type" in messageComponent
     ) {
+        // Adding message component to its collection
         client.messageComponents.set(messageComponent.name, messageComponent);
     } else {
+        // Printing warning
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
@@ -96,20 +151,31 @@ messageComponentFiles.forEach((messageComponentFile) => {
 
 // Creating modals collection
 client.modals = new Collection();
+
+// Defining modals path
 const modalsPath = path.join(__dirname, "../resources/modals");
+
+// Reading modal filenames
 const modalFiles = fs
     .readdirSync(modalsPath)
     .filter((modalFile) => modalFile.endsWith(".js"));
+
+// Iterating over modal files
 modalFiles.forEach((modalFile) => {
+    // Reading modal
     const modal = require(path.join(modalsPath, modalFile));
+
+    // Checking for necessary parts of modal
     if (
         "create" in modal &&
         "execute" in modal &&
         "messageComponents" in modal &&
         "name" in modal
     ) {
+        // Adding modal to its collection
         client.modals.set(modal.name, modal);
     } else {
+        // Printing warning
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
@@ -118,27 +184,38 @@ modalFiles.forEach((modalFile) => {
     }
 });
 
-// Creating event listener
+// Defining events path
 const eventsPath = path.join(__dirname, "./events");
+
+// Reading event filenames
 const eventFiles = fs
     .readdirSync(eventsPath)
     .filter((eventFile) => eventFile.endsWith(".js"));
-for (const eventFile of eventFiles) {
+
+// Iterate over event files
+eventFiles.forEach((eventFile) => {
+    // Reading event
     const event = require(path.join(eventsPath, eventFile));
+
+    // Checking for necessary parts of event
     if ("execute" in event) {
+        // Checking wheter event is called once
         if (event.once) {
+            // Adding once eventlistener
             client.once(event.type, (...args) => event.execute(...args));
         } else {
+            // Adding eventlistener
             client.on(event.type, (...args) => event.execute(...args));
         }
     } else {
+        // Printing warning
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
             `Missing required 'execute' property of event ${event.type}`
         );
     }
-}
+});
 
 // TODO: Fixing multiple token feature
 

@@ -3,7 +3,7 @@ const { ComponentType, StringSelectMenuBuilder } = require("discord.js");
 
 module.exports = {
     // Setting message components name, options and type
-    name: "",
+    name: "kmkKillChoiceInput",
     options: [],
     type: ComponentType.StringSelect,
 
@@ -12,7 +12,7 @@ module.exports = {
         return new StringSelectMenuBuilder()
             .setCustomId(this.name)
             .setDisabled(options.disabled)
-            .setMaxValues(options.maximalValues ?? options.options.length)
+            .setMaxValues(options.maximalValues ?? 1)
             .setMinValues(options.minimalValues ?? 1)
             .setPlaceholder(options.placeholder)
             .addOptions(options.options);

@@ -17,14 +17,16 @@ module.exports = {
         return new ActionRowBuilder().addComponents(
             interaction.client.messageComponents
                 .filter(
-                    (messageComponent) =>
-                        messageComponent.type === ComponentType.Button &&
-                        this.messageComponents.includes(messageComponent.name)
+                    (savedMessageComponent) =>
+                        savedMessageComponent.type === ComponentType.Button &&
+                        this.messageComponents.includes(
+                            savedMessageComponent.name
+                        )
                 )
-                .map((messageComponent) =>
-                    messageComponent.create(interaction, {
+                .map((savedMessageComponent) =>
+                    savedMessageComponent.create(interaction, {
                         ...options.general,
-                        ...options[messageComponent.name],
+                        ...options[savedMessageComponent.name],
                     })
                 )
         );

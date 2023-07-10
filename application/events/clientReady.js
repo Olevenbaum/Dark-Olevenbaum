@@ -14,11 +14,12 @@ module.exports = {
         // Creating array for promises to be executed to start the application
         const promises = [];
 
-        // Adding update of new or deleted commands to promises
+        // Adding update of new or deleted application commands to promises
         promises.push(require("../refreshCommands.js")(client));
 
-        // Adding update of new or deleted models in database to promises
+        // Checking if database is enabled
         if (client.sequelize) {
+            // Adding update of new or deleted models in database to promises
             promises.push(
                 require("../../database/initializeDatabase.js")(
                     client.sequelize
@@ -28,9 +29,11 @@ module.exports = {
 
         // Executing promises
         await Promise.all(promises).catch((error) =>
+            // Printing error
             console.error("[ERROR]".padEnd(consoleSpace), ":", error)
         );
 
+        // Printing info
         console.info(
             "[INFORMATION]".padEnd(consoleSpace),
             ":",

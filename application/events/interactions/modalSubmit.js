@@ -10,12 +10,23 @@ module.exports = {
 
     // Handling interaction
     async execute(interaction) {
-        // Executing interaction type specific script
-        interaction.client.modals
-            .get(interaction.customId)
-            .execute(interaction)
-            .catch((error) =>
-                console.error("[ERROR]".padEnd(consoleSpace), ":", error)
+        // Searching for modal
+        const modal = interaction.client.modals.get(interaction.customId);
+
+        // Checking if modal was found
+        if (modal) {
+            // Trying to execute modal specific script
+            await modal.execute(interaction).catch((error) => {
+                // Printing error
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+            });
+        } else {
+            // Printing error
+            console.error(
+                "[ERROR]".padEnd(consoleSpace),
+                ":",
+                `No modal matching ${interaction.customId} was found`
             );
+        }
     },
 };

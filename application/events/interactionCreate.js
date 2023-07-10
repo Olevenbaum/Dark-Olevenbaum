@@ -13,14 +13,17 @@ const blockedUsers = require("../../resources/blockedUsers.json");
 
 // Reading interaction types
 const interactionTypes = new Collection();
-const interactionsPath = path.join(__dirname, "./interactions");
-const interactionFiles = fs
-    .readdirSync(interactionsPath)
+const interactionTypesPath = path.join(__dirname, "./interactions");
+const interactionTypeFiles = fs
+    .readdirSync(interactionTypesPath)
     .filter((file) => file.endsWith(".js"));
-for (const file of interactionFiles) {
-    const interactionType = require(path.join(interactionsPath, file));
+interactionTypeFiles.forEach((interactionTypeFile) => {
+    const interactionType = require(path.join(
+        interactionTypesPath,
+        interactionTypeFile
+    ));
     interactionTypes.set(interactionType.type, interactionType);
-}
+});
 
 module.exports = {
     // Setting event kind and type
@@ -29,33 +32,44 @@ module.exports = {
 
     // Handling event
     async execute(interaction) {
-        // Checking for bot interaction
+        // Checking if interaction was from bot user
         if (interaction.user.bot) {
+            // Replying to interaction
             interaction.reply(
-                `Bots are not allowed to use any commands of ${userMention(
+                `Bots are not allowed to use any features of ${userMention(
                     interaction.client.user.id
                 )}`
             );
-            return;
-        }
+        } else {
+            // Checking for blocked users
+            if (blockedUsers.includes(interaction.user.id)) {
+                // Replying to interaction
+                interaction.reply({
+                    content: `You are currently blocked and cannot use any features of ${userMention(
+                        interaction.client.user.id
+                    )}`,
+                    ephemeral: true,
+                });
+            } else {
+                // Searching interaction type
+                const interactionType = interactionTypes.get(interaction.type);
 
-        // Checking for blocked users
-        if (blockedUsers.includes(interaction.user.id)) {
-            interaction.reply({
-                content: `You are currently blocked and cannot use any features of ${userMention(
-                    interaction.client.user.id
-                )}`,
-                ephemeral: true,
-            });
-            return;
+                // Checking if interaction type was found
+                if (interactionType) {
+                    // Trying to execute interaction type specific script
+                    await interactionType.execute(interaction).catch((error) =>
+                        // Printing error
+                        console.error(
+                            "[ERROR]".padEnd(consoleSpace),
+                            ":",
+                            error
+                        )
+                    );
+                } else {
+                    // Printing error
+                    console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+                }
+            }
         }
-
-        // Executing interaction type specific script
-        await interactionTypes
-            .get(interaction.type)
-            .execute(interaction)
-            .catch((error) =>
-                console.error("[ERROR]".padEnd(consoleSpace), ":", error)
-            );
     },
 };
