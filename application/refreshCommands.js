@@ -3,7 +3,6 @@ const { Collection, Routes } = require("discord.js");
 
 // Importing configuration data
 const { consoleSpace } = require("../configuration.json");
-const { type } = require("./events/interactionCreate");
 
 // Defining function for comparison of registered and saved application commands
 const compareApplicationCommands = function (
