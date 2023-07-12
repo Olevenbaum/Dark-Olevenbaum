@@ -10,14 +10,8 @@ const {
 module.exports = {
     // Setting command information, kind and options
     data: new SlashCommandBuilder()
-        .setName("kmk")
-        .setDescription("Starts a new game of Kiss Marry Kill")
         .addSubcommand((subcommand) =>
             subcommand
-                .setName("celebrities")
-                .setDescription(
-                    "Starts a new game of Kiss Marry Kill with celebrities"
-                )
                 .addBooleanOption((option) =>
                     option
                         .setName("custom")
@@ -27,18 +21,19 @@ module.exports = {
                 )
                 .addStringOption((option) =>
                     option
+                        .setAutocomplete(true)
                         .setName("category")
                         .setDescription(
                             "Specifies the category the celebrities should be chosen from (ignored for custom)"
                         )
                 )
+                .setDescription(
+                    "Starts a new game of Kiss Marry Kill with celebrities"
+                )
+                .setName("celebrities")
         )
         .addSubcommand((subcommand) =>
             subcommand
-                .setName("server")
-                .setDescription(
-                    "Starts a new game of Kiss Marry Kill with server members"
-                )
                 .addBooleanOption((option) =>
                     option
                         .setName("custom")
@@ -60,7 +55,14 @@ module.exports = {
                             "Specifies the role the server members should to be chosen from (ignored for custom)"
                         )
                 )
-        ),
+                .setDescription(
+                    "Starts a new game of Kiss Marry Kill with server members"
+                )
+                .setName("server")
+        )
+        .setDescription("Starts a new game of Kiss Marry Kill")
+        .setDMPermission(false)
+        .setName("kmk"),
     type: ApplicationCommandType.ChatInput,
 
     // Handling command autocomplete
@@ -72,7 +74,7 @@ module.exports = {
         const categories = [];
 
         // Adding categories
-        celebrities.every((celebritie) =>
+        celebrities.forEach((celebritie) =>
             categories.push(...celebritie.categories)
         );
 

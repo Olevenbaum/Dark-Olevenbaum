@@ -169,7 +169,7 @@ module.exports = {
                 }
 
                 // Iteracting over players
-                players.every((playerId, index) =>
+                players.forEach((playerId, index) =>
                     playersOptions.push({
                         id: playerId,
                         kill: kill.at(index),

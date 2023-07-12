@@ -2,157 +2,172 @@
 const { Collection, Routes } = require("discord.js");
 
 // Importing configuration data
-const { application, consoleSpace } = require("../configuration.json");
+const { consoleSpace } = require("../configuration.json");
+const { type } = require("./events/interactionCreate");
 
-// Creating arrays for unregistered and changed commands
-const unregisteredApplicationCommands = [];
-const updatedApplicationCommands = new Collection();
+// Defining function for comparison of registered and saved application commands
+const compareApplicationCommands = function (
+    registeredApplicationCommand,
+    savedApplicationCommand
+) {
+    // Defining default values
+    const defaultValues = {
+        default_member_permissions: null,
+        dm_permission: true,
+        nsfw: false,
+    };
+    const defaultOptionValues = { required: false };
 
-// Defining method for replacing undefined with false
-function replaceUndefined(command) {
-    for (const [key, value] of Object.entries(command)) {
-        if (typeof value === "undefined") {
-            command[key] = false;
-        }
-    }
-}
+    // Adding application command type to saved application command data
+    savedApplicationCommand.data["type"] = savedApplicationCommand.type;
 
-// Defining method for comparing command objects
-function compareCommands(registeredCommand, command) {
-    // Creating copy of unregistered command
-    const commandCopy = Object.assign({}, command);
-    // Creating copy of registered command
-    const registeredCommandCopy = {};
-    for (const key in commandCopy) {
-        registeredCommandCopy[key] = registeredCommand[key];
-    }
+    // Searching for common keys
+    const commonKeys = Object.keys(savedApplicationCommand.data)
+        .filter((key) => key in registeredApplicationCommand)
+        .sort();
 
-    // Replacing undefined values with false
-    replaceUndefined(commandCopy);
-    replaceUndefined(registeredCommandCopy);
+    // Overwriting registered application command
+    registeredApplicationCommand = Object.fromEntries(
+        commonKeys.map((key) => {
+            if (
+                key === "name_localizations" ||
+                key === "description_localizations"
+            ) {
+            } else if (key === "option") {
+                registeredApplicationCommand[key].map(
+                    (option) => registeredApplicationCommand[key][option]
+                );
+            } else {
+                return [
+                    key,
+                    registeredApplicationCommand[key] ?? defaultValues[key],
+                ];
+            }
+        })
+    );
 
-    // Comparing JSONs of commands
-    const commandJSON = JSON.stringify(commandCopy);
-    const registeredCommandJSON = JSON.stringify(registeredCommandCopy);
-    return commandJSON == registeredCommandJSON;
-}
+    // Overwriting saved application command
+    savedApplicationCommand = Object.fromEntries(
+        commonKeys.map((key) => {
+            return [
+                key,
+                savedApplicationCommand.data[key] ?? defaultValues[key],
+            ];
+        })
+    );
+
+    console.log(JSON.stringify(registeredApplicationCommand));
+    console.log(JSON.stringify(savedApplicationCommand));
+
+    // Returning comparison
+    return (
+        JSON.stringify(registeredApplicationCommand) ===
+        JSON.stringify(savedApplicationCommand)
+    );
+};
 
 module.exports = async (client) => {
-    // Reading registered commands
-    const registeredCommands = await client.application.commands.fetch();
+    // Defining registered application commands collection
+    const registeredApplicationCommands = new Collection();
 
-    console.log(registeredCommands);
-    console.log(client.applicationCommands);
+    // Inserting registered application commands into their collection
+    (
+        await client.rest.get(Routes.applicationCommands(client.application.id))
+    ).forEach((registeredApplicationCommand) =>
+        registeredApplicationCommands.set(
+            registeredApplicationCommand.name,
+            registeredApplicationCommand
+        )
+    );
 
-    // Checking for new or changed commands to be registered or updated
-    client.applicationCommands.forEach(
-        (applicationCommand, applicationCommandName) => {
-            const registeredCommand = registeredCommands.find(
-                (registeredCommand) =>
-                    registeredCommand.name === applicationCommandName
-            );
-            if (!registeredCommand) {
-                unregisteredApplicationCommands.push(
-                    applicationCommand.data.toJSON()
+    // Creating array for requests to be sent to Discord
+    const promises = [];
+
+    // Iterating over application commands
+    client.applicationCommands.each(
+        (savedApplicationCommand, savedApplicationCommandName) => {
+            // Searching for applicaiton command in registered application commands
+            const registeredApplicationCommand =
+                registeredApplicationCommands.get(savedApplicationCommandName);
+
+            // Checking if application command is not registered
+            if (!registeredApplicationCommand) {
+                // Adding request for registration to promises
+                promises.push(
+                    client.rest
+                        .post(
+                            Routes.applicationCommands(client.application.id),
+                            {
+                                body: savedApplicationCommand,
+                            }
+                        )
+                        .then(
+                            console.info(
+                                "[INFORMATION]".padEnd(consoleSpace),
+                                ":",
+                                `Successfully registered new application command ${savedApplicationCommandName}`
+                            )
+                        )
+                        .catch((error) => {
+                            console.error(
+                                "[ERROR]".padEnd(consoleSpace),
+                                ":",
+                                error
+                            );
+                        })
                 );
+                // TODO: compare commands
             } else if (
-                !compareCommands(registeredCommand, applicationCommand.data)
+                compareApplicationCommands(
+                    registeredApplicationCommand,
+                    savedApplicationCommand
+                )
             ) {
-                updatedApplicationCommands.set(
-                    registeredCommand.id,
-                    applicationCommand.data.toJSON()
-                );
+                console.log("SUCCESS");
+                // Adding request for application command update to promises
+                promises.push();
             }
         }
     );
 
-    // Creating array for promises to be sent to Discord
-    const promises = [];
-
-    // Adding registration of new commands to promises
-    unregisteredApplicationCommands.forEach(async (unregisteredCommand) => {
-        promises.push(
-            client.rest
-                .post(Routes.applicationCommands(application.applicationId), {
-                    body: unregisteredCommand,
-                })
-                .then(
-                    console.info(
-                        "[INFORMATION]".padEnd(consoleSpace),
-                        ":",
-                        `Successfully registered new application command ${unregisteredCommand.name}`
-                    )
+    // Iterating over registered application commands
+    registeredApplicationCommands.each(
+        (registeredApplicationCommand, registeredApplicationCommandName) => {
+            // Checking if application commmand still exists
+            if (
+                !client.applicationCommands.has(
+                    registeredApplicationCommandName
                 )
-                .catch((error) => {
-                    console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-                })
-        );
-    });
-
-    // Adding update of changed commands to promises
-    updatedApplicationCommands.forEach(
-        async (changedCommand, changedCommandId) => {
-            promises.push(
-                client.rest
-                    .patch(
-                        Routes.applicationCommand(
-                            application.applicationId,
-                            changedCommandId
-                        ),
-                        {
-                            body: changedCommand,
-                        }
-                    )
-                    .then(
-                        console.info(
-                            "[INFORMATION]".padEnd(consoleSpace),
-                            ":",
-                            `Successfully updated application command ${changedCommand.name}`
+            ) {
+                // Adding request for deletion of application command to promises
+                promises.push(
+                    client.rest
+                        .delete(
+                            Routes.applicationCommand(
+                                client.application.id,
+                                registeredApplicationCommand.id
+                            )
                         )
-                    )
-                    .catch((error) => {
-                        console.error(
-                            "[ERROR]".padEnd(consoleSpace),
-                            ":",
-                            error
-                        );
-                    })
-            );
+                        .then(
+                            // Printing information
+                            console.info(
+                                "[INFORMATION]".padEnd(consoleSpace),
+                                ":",
+                                `Successfully deleted application command ${registeredApplicationCommandName}`
+                            )
+                        )
+                        .catch((error) => {
+                            // Printing error
+                            console.error(
+                                "[ERROR]".padEnd(consoleSpace),
+                                ":",
+                                error
+                            );
+                        })
+                );
+            }
         }
     );
-
-    // Iteratingover all at Discord registered application commands
-    registeredCommands.forEach(async (command, commandId) => {
-        // Checking if application commmand still exists
-        if (!client.applicationCommands.has(command.name)) {
-            // Adding request for deletion of application command to promises
-            promises.push(
-                client.rest
-                    .delete(
-                        Routes.applicationCommand(
-                            application.applicationId,
-                            commandId
-                        )
-                    )
-                    .then(
-                        // Printing information
-                        console.info(
-                            "[INFORMATION]".padEnd(consoleSpace),
-                            ":",
-                            `Successfully deleted application command ${command.name}`
-                        )
-                    )
-                    .catch((error) => {
-                        // Printing error
-                        console.error(
-                            "[ERROR]".padEnd(consoleSpace),
-                            ":",
-                            error
-                        );
-                    })
-            );
-        }
-    });
 
     // Executing promises
     await Promise.all(promises).catch((error) =>
@@ -160,7 +175,7 @@ module.exports = async (client) => {
         console.error("[ERROR]".padEnd(consoleSpace), ":", error)
     );
 
-    // Checking if any new commands were added or old commands deleted
+    // Checking if any application commands were added, deleted or updated
     if (promises.length > 0) {
         // Printing information
         console.info(

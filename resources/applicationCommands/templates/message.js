@@ -6,7 +6,10 @@ const {
 
 module.exports = {
     // Setting command information, kind and options
-    data: new ContextMenuCommandBuilder().setName("").setDescription(""),
+    data: new ContextMenuCommandBuilder()
+        .setDescription("")
+        .setName("")
+        .setType(this.type),
     type: ApplicationCommandType.Message,
 
     // Handling command autocomplete

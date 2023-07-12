@@ -8,12 +8,29 @@ const { Sequelize } = require("sequelize");
 
 // Importing configuration data
 const {
-    application,
+    applications,
     consoleSpace,
     database,
 } = require("../configuration.json");
 
 // Defining prototype functions
+Array.prototype.asynchronousFind = async function (predicate, thisArg = null) {
+    // Binding second argument to callback function
+    const boundPredicate = predicate.bind(thisArg);
+
+    // Iteracting over keys of array
+    for (const key of this.keys()) {
+        // Checking if callback function returns true for element
+        if (await boundPredicate(this.at(key), key, this)) {
+            // Return element
+            return this.at(key);
+        }
+    }
+
+    // Return undefined
+    return undefined;
+};
+
 Array.prototype.rotate = function (counter = 1, reverse = false) {
     // Reducing counter
     counter %= this.length;
@@ -219,31 +236,26 @@ eventFiles.forEach((eventFile) => {
 
 // Searching for argument of process
 const tokenArgument = process.argv.findIndex((argument) =>
-    argument.startsWith("-token")
+    argument.startsWith("-application")
 );
+
+// Defining tokens array
+const tokens = applications.map((application) => application.token);
 
 // Checking if argument for different token was provided
 if (tokenArgument && !isNaN(process.argv.at(tokenArgument + 1))) {
-    application.tokens.rotate(process.argv.at(tokenArgument + 1));
+    tokens.rotate(process.argv.at(tokenArgument + 1));
 }
 
 // Iterating over application tokens
-application.tokens.find(async (token) => {
-    // Defining success indicator
-    let success = true;
-
+tokens.asynchronousFind(async (token) => {
     // Checking if token could be valid
-    if (token && isNaN(token) && token.length !== 0) {
+    if (token && typeof token === "string" && token.length > 0) {
         // Trying to login application
-        const returnToken = await client.login(token).catch((error) => {
+        return await client.login(token).catch((error) => {
             // Printing error
             console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-
-            // Updating success indicator
-            success = false;
         });
-
-        console.log(returnToken);
     } else {
         // Printing warning
         console.warn(
@@ -252,10 +264,7 @@ application.tokens.find(async (token) => {
             "Token does not fit a valid form"
         );
 
-        // Updating success indicator
-        success = false;
+        // Returning false
+        return false;
     }
-
-    // Returning success indicator
-    return success;
 });

@@ -11,8 +11,6 @@ const {
 module.exports = {
     // Setting command information, kind and options
     data: new SlashCommandBuilder()
-        .setName("tod")
-        .setDescription("Starts a new Truth or Dare game")
         .addIntegerOption((option) =>
             option
                 .setName("skips")
@@ -31,7 +29,9 @@ module.exports = {
                     { name: "16+", value: 16 },
                     { name: "18+", value: 18 }
                 )
-        ),
+        )
+        .setDescription("Starts a new game of Truth or Dare")
+        .setName("tod"),
     type: ApplicationCommandType.ChatInput,
 
     // Handling command autocomplete

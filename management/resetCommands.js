@@ -9,6 +9,23 @@ const { REST, Routes } = require("discord.js");
 const { application, consoleSpace } = require("../configuration.json");
 
 // Defining prototype functions
+Array.prototype.asynchronousFind = async function (predicate, thisArg = null) {
+    // Binding second argument to callback function
+    const boundPredicate = predicate.bind(thisArg);
+
+    // Iteracting over keys of array
+    for (const key of this.keys()) {
+        // Checking if callback function returns true for element
+        if (await boundPredicate(this.at(key), key, this)) {
+            // Return element
+            return this.at(key);
+        }
+    }
+
+    // Return undefined
+    return undefined;
+};
+
 Array.prototype.rotate = function (counter = 1, reverse = false) {
     // Reducing counter
     counter %= this.length;
@@ -51,50 +68,45 @@ applicationCommandFiles.forEach((applicationCommandFile) => {
     );
 });
 
-// TODO: Fixing multiple token feature
-
-// Reading argument of process to choose token
-const argumentIndex = process.argv.findIndex(
-    (argument) => argument.startsWith("-") && !isNaN(argument.substring(1))
+// Searching for argument of process
+const tokenArgument = process.argv.findIndex((argument) =>
+    argument.startsWith("-token")
 );
-const argument = process.argv[argumentIndex];
-let tokenIndex = argument ? parseInt(argument.substring(1)) : 0;
-if (tokenIndex < 0 || tokenIndex >= application.tokens.length) {
-    console.warn(
-        "[WARNING]".padEnd(consoleSpace),
-        ":",
-        `Index ${tokenIndex} cannot be found in array with length ${application.tokens.length}`
-    );
-    tokenIndex = 0;
+
+// Defining tokens array
+const tokens = applications.map((application) => application.token);
+
+// Checking if argument for different token was provided
+if (tokenArgument && !isNaN(process.argv.at(tokenArgument + 1))) {
+    tokens.rotate(process.argv.at(tokenArgument + 1));
 }
 
-// Reloading all commands
-for (let i = 0; i < application.tokens.length; i++) {
-    let success = true;
-    const token =
-        tokenIndex + i >= application.tokens.length
-            ? application.tokens[tokenIndex + i - application.tokens.length]
-            : application.tokens[tokenIndex + i];
-    const rest = new REST().setToken(token);
-    rest.put(Routes.applicationCommands(application.applicationId), {
-        body: applicationCommands,
-    }).catch((error) => {
-        console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-        if (error.code === "TokenInvalid") {
-            if (i != application.tokens.length - 1) {
-                console.warn(
-                    "[WARNING]".padEnd(consoleSpace),
-                    ":",
-                    `Invalid provided, trying again with next token`
-                );
-            }
-            success = false;
-        }
-    });
-    if (success) {
-        break;
+// Iterating over application tokens
+tokens.asynchronousFind(async (token) => {
+    // Checking if token could be valid
+    if (token && typeof token === "string" && token.length > 0) {
+        // Trying to login rest application
+        const rest = new REST().setToken(token);
+        return await rest
+            .put(Routes.applicationCommands(application.applicationId), {
+                body: applicationCommands,
+            })
+            .catch((error) => {
+                // Printing error
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+            });
+    } else {
+        // Printing warning
+        console.warn(
+            "[WARNING]".padEnd(consoleSpace),
+            ":",
+            "Token does not fit a valid form"
+        );
+
+        // Returning false
+        return false;
     }
-}
+});
 
 // Printing information
 console.info(
