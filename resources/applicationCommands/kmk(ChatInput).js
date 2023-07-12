@@ -64,7 +64,32 @@ module.exports = {
     type: ApplicationCommandType.ChatInput,
 
     // Handling command autocomplete
-    async autocomplete(interaction) {},
+    async autocomplete(interaction) {
+        // Importing celebrities
+        const celebrities = require("../../database/constantData/celebrities.json");
+
+        // Defining categories
+        const categories = [];
+
+        // Adding categories
+        celebrities.every((celebritie) =>
+            categories.push(...celebritie.categories)
+        );
+
+        // Removing dupilicates from categories
+        categories.splice(0, categories.length, [
+            ...new Set(categories.sort()),
+        ]);
+
+        // Responding to interaction
+        interaction.respond(
+            categories
+                .filter((category) =>
+                    category.startsWith(interaction.options.getFocused())
+                )
+                .map((category) => ({ name: category, value: category }))
+        );
+    },
 
     // Handling command reponse
     async execute(interaction) {
