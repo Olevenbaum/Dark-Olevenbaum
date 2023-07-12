@@ -9,12 +9,11 @@ const {
 module.exports = {
     // Setting modals message components and name
     messageComponents: ["todCustomTruthOrDareInput"],
-    name: "todCustomTruthOrDareInput",
+    name: "todCustomTruthOrDare",
 
     // Creating modal
     create(interaction, options = {}) {
         return new ModalBuilder()
-            .setCustomId(this.name)
             .setComponents(
                 interaction.client.messageComponents
                     .filter(
@@ -28,6 +27,7 @@ module.exports = {
                         messageComponent.create(interaction, options)
                     )
             )
+            .setCustomId(this.name)
             .setTitle(options.titel ?? "Truth or Dare");
     },
 
@@ -75,29 +75,6 @@ module.exports = {
                 .label.replace(/^\D+/g, "")
                 .charAt(0)
         );
-
-        // Reading style of custom Truth or Dare button
-        const style = message.components
-            .find((actionRow) =>
-                interaction.client.messageComponents
-                    .filter(
-                        (savedMessageComponent) =>
-                            savedMessageComponent.type ===
-                            ComponentType.ActionRow
-                    )
-                    .find(
-                        (savedActionRow) =>
-                            savedActionRow.name === "todCustomOrRandom"
-                    )
-                    .messageComponents.every((savedButton) =>
-                        actionRow.components
-                            .map((button) => button.customId)
-                            .includes(savedButton)
-                    )
-            )
-            .components.find(
-                (button) => button.customId === "todCustomTruthOrDare"
-            ).style;
 
         // Searching for Truth or Dare session of this player
         const session = interaction.client.sessions.get(sessionId);

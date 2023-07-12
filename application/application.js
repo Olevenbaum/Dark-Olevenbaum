@@ -217,38 +217,45 @@ eventFiles.forEach((eventFile) => {
     }
 });
 
-// TODO: Fixing multiple token feature
-
-// Reading argument of process to choose token
-const argumentIndex = process.argv.findIndex((argument) =>
+// Searching for argument of process
+const tokenArgument = process.argv.findIndex((argument) =>
     argument.startsWith("-token")
 );
-console.log(process.argv);
-let tokenIndex;
-if (argumentIndex >= 0) {
-    const arguments = process.argv.splice(argumentIndex, 2);
-    const argument = arguments[1];
-    let tokenIndex = argument ? parseInt(argument) : 0;
-    if (tokenIndex < 0 || tokenIndex >= application.tokens.length) {
-        console.warn(
-            "[WARNING]".padEnd(consoleSpace),
-            ":",
-            `Index ${tokenIndex} cannot be found in array with length ${application.tokens.length}`
-        );
-        tokenIndex = undefined;
-    }
+
+// Checking if argument for different token was provided
+if (tokenArgument && !isNaN(process.argv.at(tokenArgument + 1))) {
+    application.tokens.rotate(process.argv.at(tokenArgument + 1));
 }
 
-// Logging in application with valid token
-application.tokens.rotate(tokenIndex ?? 0).every(async (token) => {
+// Iterating over application tokens
+application.tokens.find(async (token) => {
+    // Defining success indicator
     let success = true;
-    await client.login(token).catch(() => {
+
+    // Checking if token could be valid
+    if (token && isNaN(token) && token.length !== 0) {
+        // Trying to login application
+        const returnToken = await client.login(token).catch((error) => {
+            // Printing error
+            console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+
+            // Updating success indicator
+            success = false;
+        });
+
+        console.log(returnToken);
+    } else {
+        // Printing warning
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
-            `Invalid token provided, trying again with next token`
+            "Token does not fit a valid form"
         );
+
+        // Updating success indicator
         success = false;
-    });
+    }
+
+    // Returning success indicator
     return success;
 });

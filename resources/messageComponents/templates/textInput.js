@@ -15,12 +15,12 @@ module.exports = {
         return new TextInputBuilder()
             .setCustomId(this.name)
             .setLabel(options.label ?? this.name)
-            .setMaxLength(options.maximalLength)
-            .setMinLength(options.minimalLength)
-            .setPlaceholder(options.setPlaceholder)
-            .setRequired(options.required)
-            .setStyle(options.style ?? TextInputStyle.Short)
-            .setValue(options.value);
+            .setMaxLength(options.maximalLength ?? null)
+            .setMinLength(options.minimalLength ?? 1)
+            .setPlaceholder(options.setPlaceholder ?? null)
+            .setRequired(options.required ?? false)
+            .setStyle(options.style ?? TextInputStyle)
+            .setValue(options.value ?? null);
     },
 
     // Handling interaction

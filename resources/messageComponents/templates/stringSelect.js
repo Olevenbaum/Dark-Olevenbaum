@@ -11,11 +11,15 @@ module.exports = {
     create(interaction, options) {
         return new StringSelectMenuBuilder()
             .setCustomId(this.name)
-            .setDisabled(options.disabled)
-            .setMaxValues(options.maximalValues ?? options.options.length)
+            .setDisabled(options.disabled ?? false)
+            .setMaxValues(
+                options.maximalValues ??
+                    options.options.length ??
+                    this.options.length
+            )
             .setMinValues(options.minimalValues ?? 1)
-            .setPlaceholder(options.placeholder)
-            .addOptions(options.options);
+            .setOptions(options.options ?? this.options)
+            .setPlaceholder(options.placeholder ?? null);
     },
 
     // Handling interaction

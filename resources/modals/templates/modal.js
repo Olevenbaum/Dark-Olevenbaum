@@ -9,7 +9,6 @@ module.exports = {
     // Creating modal
     create(interaction, options = {}) {
         return new ModalBuilder()
-            .setCustomId(this.name)
             .setComponents(
                 interaction.client.messageComponents
                     .filter(
@@ -23,6 +22,7 @@ module.exports = {
                         messageComponent.create(interaction, options)
                     )
             )
+            .setCustomId(this.name)
             .setTitle(options.titel ?? this.name);
     },
 

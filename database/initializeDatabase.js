@@ -67,7 +67,7 @@ module.exports = async (sequelize) => {
     const promises = [];
 
     // Searching process arguments for force argument
-    const force = process.argv.includes("-reset_database");
+    const force = process.argv.includes("-resetDatabase");
 
     // Synchronising database
     await sequelize

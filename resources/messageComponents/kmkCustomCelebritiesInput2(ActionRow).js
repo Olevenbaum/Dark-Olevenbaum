@@ -3,8 +3,8 @@ const { ActionRowBuilder, ComponentType } = require("discord.js");
 
 module.exports = {
     // Setting message components components, name and type
-    messageComponents: ["kmkCustomCelebritiesInput"],
-    name: "kmkCustomCelebrities",
+    messageComponents: ["kmkCustomCelebritiesInputField2"],
+    name: "kmkCustomCelebritiesInput2",
     type: ComponentType.ActionRow,
 
     // Creating message component
@@ -14,7 +14,7 @@ module.exports = {
                 .filter(
                     (savedMessageComponent) =>
                         savedMessageComponent.type ===
-                            ComponentType.UserSelect &&
+                            ComponentType.TextInput &&
                         this.messageComponents.includes(
                             savedMessageComponent.name
                         )

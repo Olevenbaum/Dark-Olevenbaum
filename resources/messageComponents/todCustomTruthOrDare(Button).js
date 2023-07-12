@@ -16,11 +16,9 @@ module.exports = {
     create(interaction, options = {}) {
         return new ButtonBuilder()
             .setCustomId(this.name)
-            .setDisabled(options.disabled)
-            .setEmoji(options.emoji)
+            .setDisabled(options.disabled ?? false)
             .setLabel(options.label ?? "Custom")
-            .setStyle(options.style ?? ButtonStyle.Secondary)
-            .setURL(options.url);
+            .setStyle(options.style ?? ButtonStyle.Secondary);
     },
 
     // Handling interaction
@@ -89,7 +87,7 @@ module.exports = {
                         // Showing modal to player
                         interaction.showModal(
                             interaction.client.modals
-                                .get("todCustomTruthOrDareInput")
+                                .get("todCustomTruthOrDare")
                                 .create(interaction, {
                                     titel: `Custom ${tod}`,
                                     todCustomTruthOrDareInputField: {

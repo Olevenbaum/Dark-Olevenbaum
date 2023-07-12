@@ -16,11 +16,9 @@ module.exports = {
     create(interaction, options = {}) {
         return new ButtonBuilder()
             .setCustomId(this.name)
-            .setDisabled(options.disabled)
-            .setEmoji(options.emoji)
+            .setDisabled(options.disabled ?? false)
             .setLabel(options.label ?? "Join")
-            .setStyle(options.style ?? ButtonStyle.Primary)
-            .setURL(options.url);
+            .setStyle(options.style ?? ButtonStyle.Primary);
     },
 
     // Handling interaction

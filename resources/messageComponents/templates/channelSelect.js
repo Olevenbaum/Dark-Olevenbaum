@@ -9,12 +9,12 @@ module.exports = {
     // Creating message component
     create(interaction, options = {}) {
         return new ChannelSelectMenuBuilder()
+            .setChannelTypes(options.channelTypes ?? null)
             .setCustomId(this.name)
-            .setDisabled(options.disabled)
-            .setMaxValues(options.maximalValues ?? options.options.length)
+            .setDisabled(options.disabled ?? false)
+            .setMaxValues(options.maximalValues ?? null)
             .setMinValues(options.minimalValues ?? 1)
-            .setPlaceholder(options.placeholder)
-            .setChannelTypes(options.channelTypes);
+            .setPlaceholder(options.placeholder ?? null);
     },
 
     // Handling interaction

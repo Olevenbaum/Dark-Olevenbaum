@@ -22,7 +22,7 @@ module.exports = {
                     option
                         .setName("custom")
                         .setDescription(
-                            "Specifies wheter you want to give three _s or let the bot choose at random"
+                            "Specifies wheter you want to give three options or let the bot choose at random"
                         )
                 )
                 .addStringOption((option) =>
@@ -43,7 +43,7 @@ module.exports = {
                     option
                         .setName("custom")
                         .setDescription(
-                            "Specifies wheter you want to give three _s or let the bot choose at random"
+                            "Specifies wheter you want to give three options or let the bot choose at random"
                         )
                 )
                 .addChannelOption((option) =>
@@ -79,23 +79,17 @@ module.exports = {
 
         // Checking if command option custom is true
         if (custom) {
-            // Editing subcommand specific reply
-            switch (interaction.options.getSubcommand()) {
-                case "celebrities":
-                    // Adding components
-                    messageComponentNames.push("kmkCustomCelebrities");
-                    break;
-                case "server":
-                    // Adding components
-                    messageComponentNames.push("kmkCustomServer");
-                    break;
-            }
+            // Checking subcommand
+            if (interaction.options.getSubcommand() === "server") {
+                // Adding components
+                messageComponentNames.push("kmkCustomServer");
 
-            // Setting reply to ephemeral
-            reply.ephemeral = true;
+                // Setting reply to ephemeral
+                reply.ephemeral = true;
+            }
         } else {
-            // Defining _s
-            const _s = [];
+            // Defining options
+            const options = [];
 
             // Editing subcommand specific reply
             switch (interaction.options.getSubcommand()) {
@@ -103,14 +97,15 @@ module.exports = {
                     // Reading option value
                     const category = interaction.options.getString("category");
 
-                    // Adding _s
-                    _s.push(
-                        require("../../database/constantTables/kmkCelebrities.json").filter(
-                            (celebrity) =>
+                    // Adding options
+                    options.push(
+                        require("../../database/constantTables/kmkCelebrities.json")
+                            .filter((celebrity) =>
                                 category
-                                    ? celebrity.category === category
+                                    ? celebrity.categories.includes(category)
                                     : true
-                        )
+                            )
+                            .map((celebrity) => `"${celebrity.name}"`)
                     );
                     break;
                 case "server":
@@ -118,8 +113,8 @@ module.exports = {
                     const channel = interaction.options.getChannel("channel");
                     const role = interaction.options.getRole("role");
 
-                    // Adding _s
-                    _s.push(
+                    // Adding options
+                    options.push(
                         ...(await interaction.guild.members.fetch())
                             .filter((member) => !member.user.bot)
                             .filter((member) =>
@@ -133,27 +128,25 @@ module.exports = {
                     break;
             }
 
-            // Picking three random _s
-            _s.shuffle();
-            _s.splice(3);
+            // Picking three random options
+            options.shuffle();
+            options.splice(3);
 
             // Defining embed for reply message
             reply.embeds = [
                 new EmbedBuilder()
                     .setTitle("Kiss Marry Kill")
                     .setDescription(
-                        `The three _ are: ${_s.reduce(
-                            (_sString, _, index) =>
-                                (_sString +=
-                                    index === 0
-                                        ? `${_},`
-                                        : index === _s.length - 1
-                                        ? `and ${_}`
-                                        : _)
+                        `You have to choose between: ${options.reduce(
+                            (optionsString, option, index) =>
+                                (optionsString +=
+                                    index === options.length - 1
+                                        ? ` and ${option}`
+                                        : `, ${option}`)
                         )}`
                     )
                     .setFooter({
-                        text: `_ chosen among ${
+                        text: `Options chosen among ${
                             interaction.options.getSubcommand() ===
                             "celebrities"
                                 ? `famous ${interaction.options.getString(
@@ -169,22 +162,25 @@ module.exports = {
         }
 
         // Defining components for reply message
-        reply.components = [
-            interaction.client.messageComponents
-                .filter(
-                    (savedMessageComponent) =>
-                        savedMessageComponent.type ===
-                            ComponentType.ActionRow &&
-                        messageComponentNames.includes(
-                            savedMessageComponent.name
-                        )
-                )
-                .map((savedActionRow) =>
-                    savedActionRow.create(interaction, {})
-                ),
-        ];
+        reply.components = interaction.client.messageComponents
+            .filter(
+                (savedMessageComponent) =>
+                    savedMessageComponent.type === ComponentType.ActionRow &&
+                    messageComponentNames.includes(savedMessageComponent.name)
+            )
+            .map((savedActionRow) => savedActionRow.create(interaction, {}));
 
-        // Sending reply message
-        interaction.reply(reply);
+        // Checking if modal is necessary
+        if (interaction.options.getSubcommand() === "celebrities" && custom) {
+            // Showing modal to user
+            interaction.showModal(
+                interaction.client.modals
+                    .find((modal) => modal.name === "kmkCustomCelebrities")
+                    .create(interaction)
+            );
+        } else {
+            // Sending reply message
+            interaction.reply(reply);
+        }
     },
 };

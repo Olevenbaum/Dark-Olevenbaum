@@ -8,7 +8,7 @@ const {
 
 module.exports = {
     // Setting message components name, options and type
-    name: "kmkKillChoiceInput",
+    name: "kmkKissChoiceInput",
     options: [],
     type: ComponentType.StringSelect,
 
@@ -19,7 +19,7 @@ module.exports = {
             .setDisabled(options.disabled ?? false)
             .setMaxValues(options.maximalValues ?? 1)
             .setMinValues(options.minimalValues ?? 1)
-            .setPlaceholder(options.placeholder ?? "Kill")
+            .setPlaceholder(options.placeholder ?? "Kiss")
             .addOptions(options.options ?? this.options);
     },
 
@@ -110,11 +110,11 @@ module.exports = {
                 players.push(interaction.user.id);
 
                 // Adding options
-                kill.push(interaction.values.at(0));
+                kiss.push(interaction.values.at(0));
             } else {
                 // Checking for duplicates
                 if (
-                    kiss.at(playersPosition) === interaction.values.at(0) ||
+                    kill.at(playersPosition) === interaction.values.at(0) ||
                     marry.at(playersPosition) === interaction.values.at(0)
                 ) {
                     // Updating dupilicate indicator
@@ -172,11 +172,11 @@ module.exports = {
                 players.every((playerId, index) =>
                     playersOptions.push({
                         id: playerId,
-                        kill:
+                        kill: kill.at(index),
+                        kiss:
                             interaction.user.id === playerId
                                 ? interaction.values.at(0)
-                                : kill.at(index),
-                        kiss: kiss.at(index),
+                                : kiss.at(index),
                         marry: marry.at(index),
                     })
                 );
