@@ -2,9 +2,9 @@
 const { Events } = require("discord.js");
 
 module.exports = {
-    // Setting event name and kind
-    name: Events.GuildMemberRemove,
+    // Setting event kind and type
     once: false,
+    type: Events.GuildMemberRemove,
 
     // Handling event
     execute(client) {},

@@ -2,8 +2,8 @@
 const { InteractionType } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
-    name: InteractionType.Ping,
+    // Setting interaction type
+    type: InteractionType.Ping,
 
     // Handling interaction
     async execute(interaction) {},

@@ -14,26 +14,39 @@ const messageComponentsPath = path.join(__dirname, "./messageComponents");
 const messageComponentFiles = fs
     .readdirSync(messageComponentsPath)
     .filter((file) => file.endsWith(".js"));
-for (const file of messageComponentFiles) {
+messageComponentFiles.forEach((messageComponentFile) => {
     const messageComponentType = require(path.join(
         messageComponentsPath,
-        file
+        messageComponentFile
     ));
-    messageComponentTypes.set(messageComponentType.name, messageComponentType);
-}
+    messageComponentTypes.set(messageComponentType.type, messageComponentType);
+});
 
 module.exports = {
-    // Setting message component type and name
-    name: InteractionType.MessageComponent,
+    // Setting message component type
+    type: InteractionType.MessageComponent,
 
     // Handling interaction
     async execute(interaction) {
-        // Executing interaction type specific script
-        await messageComponentTypes
-            .get(interaction.componentType)
-            .execute(interaction)
-            .catch((error) =>
-                console.error("[ERROR]".padEnd(consoleSpace), ":", error)
+        // Searching for application command type
+        const messageComponentType = messageComponentTypes.get(
+            interaction.componentType
+        );
+
+        // Checking if application command type was found
+        if (messageComponentType) {
+            // Trying to execute message component type specific script
+            await messageComponentType.execute(interaction).catch((error) => {
+                // Printing error
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+            });
+        } else {
+            // Printing error
+            console.error(
+                "[ERROR]".padEnd(consoleSpace),
+                ":",
+                `No message component type matching ${interaction.componentType} was found`
             );
+        }
     },
 };

@@ -1,149 +1,411 @@
 // Importing classes and methods
-const { Collection, Routes } = require("discord.js");
-
-// Creating array for unregistered and changed commands
-const unregisteredCommands = [];
-const changedCommands = new Collection();
+const {
+    ApplicationCommandOptionType,
+    Collection,
+    Routes,
+} = require("discord.js");
 
 // Importing configuration data
-const { application, consoleSpace } = require("../configuration.json");
+const { consoleSpace } = require("../configuration.json");
 
-// Defining method for replacing undefined with false
-function replaceUndefined(command) {
-    for (const [key, value] of Object.entries(command)) {
-        if (typeof value === "undefined") {
-            command[key] = false;
-        }
-    }
-}
+// Defining function for comparison of registered and saved application commands
+const compareApplicationCommands = function (
+    registeredApplicationCommand,
+    savedApplicationCommand
+) {
+    // Defining default values
+    const defaultValues = {
+        default_member_permissions: null,
+        dm_permission: true,
+        nsfw: false,
+    };
 
-// Defining method for comparing command objects
-function compareCommands(registeredCommand, command) {
-    // Creating copy of unregistered command
-    const commandCopy = Object.assign({}, command);
-    // Creating copy of registered command
-    const registeredCommandCopy = {};
-    for (const key in commandCopy) {
-        registeredCommandCopy[key] = registeredCommand[key];
-    }
+    // Adding application command type to saved application command data
+    savedApplicationCommand.data["type"] = savedApplicationCommand.type;
 
-    // Replacing undefined values with false
-    replaceUndefined(commandCopy);
-    replaceUndefined(registeredCommandCopy);
+    // Searching and sorting common keys
+    const commonKeys = Object.keys(savedApplicationCommand.data)
+        .filter((key) => key in registeredApplicationCommand)
+        .sort();
 
-    // Comparing JSONs of commands
-    const commandJSON = JSON.stringify(commandCopy);
-    const registeredCommandJSON = JSON.stringify(registeredCommandCopy);
-    return commandJSON == registeredCommandJSON;
-}
+    // Overwriting registered application command
+    registeredApplicationCommand = Object.fromEntries(
+        commonKeys.map((key) => {
+            // Checking for specific keys
+            switch (key) {
+                case "description_localizations" || "name_localizations":
+                    // Defining entry
+                    const entry = registeredApplicationCommand[key];
+
+                    // Searching and sorting keys of entry
+                    const keys = Object.keys(entry).sort();
+
+                    // Returning sorted entry
+                    return [
+                        key,
+                        Object.fromEntries(
+                            keys.map((key) => [key, entry[key]])
+                        ),
+                    ];
+
+                case "options":
+                    // Transforming application command options
+                    return transformApplicationCommandOptions(
+                        registeredApplicationCommand[key],
+                        true
+                    );
+
+                default:
+                    // Returning entry
+                    return [key, registeredApplicationCommand[key]];
+            }
+        })
+    );
+
+    // Overwriting saved application command
+    savedApplicationCommand = Object.fromEntries(
+        commonKeys.map((key) => {
+            // Checking for specific keys
+            switch (key) {
+                case "description_localizations" || "name_localizations":
+                    // Defining entry
+                    const entry = savedApplicationCommand.data[key];
+
+                    // Searching and sorting keys of entry
+                    const keys = Object.keys(entry).sort();
+
+                    // Returning sorted entry
+                    return [
+                        key,
+                        Object.fromEntries(
+                            keys.map((key) => [key, entry[key]])
+                        ),
+                    ];
+
+                case "options":
+                    // Transforming application command options
+                    return transformApplicationCommandOptions(
+                        savedApplicationCommand.data[key]
+                    );
+
+                default:
+                    // Returning entry
+                    return [
+                        key,
+                        savedApplicationCommand.data[key] ?? defaultValues[key],
+                    ];
+            }
+        })
+    );
+
+    // Returning comparison
+    return (
+        JSON.stringify(registeredApplicationCommand) ===
+        JSON.stringify(savedApplicationCommand)
+    );
+};
+
+// Defining function for transforming application command options
+const transformApplicationCommandOptions = function (
+    applicationCommandOptions,
+    registered = false
+) {
+    // Defining default option values
+    const defaultOptionValues = { required: false };
+
+    // Returning edited options
+    return [
+        "options",
+        applicationCommandOptions.map((option) => {
+            // Searching keys of option
+            const keys = Object.keys(option).filter(
+                (key) => typeof option[key] !== "undefined"
+            );
+
+            // Checking for option type
+            if (option.type > 2) {
+                // Iterating over keys of default option values
+                Object.keys(defaultOptionValues).forEach((key) => {
+                    // Checking for key in keys
+                    if (!keys.includes(key)) {
+                        // Adding default option value to keys
+                        keys.push(key);
+                    }
+                });
+            }
+
+            // Checking if option contains type
+            if (!keys.includes("type")) {
+                // Adding type to keys
+                keys.push("type");
+            }
+
+            // Sorting keys
+            keys.sort();
+
+            // Returning sorted option
+            return Object.fromEntries(
+                keys.map((key) => {
+                    // Checking for specific keys
+                    switch (key) {
+                        case "channel_types":
+                            // Returning sorted entry
+                            return [key, option[key].sort()];
+
+                        case "choices":
+                            // Returning edited entry
+                            return [
+                                key,
+                                option[key].map((choice) => {
+                                    // Searching and sorting keys of choice
+                                    const keys = Object.keys(choice).sort();
+
+                                    // Returning sorted choices
+                                    return Object.fromEntries(
+                                        keys.map((key) => {
+                                            // Checking for specific key
+                                            switch (key) {
+                                                case "name_localization":
+                                                    // Defining entry
+                                                    const entry = choice[key];
+
+                                                    // Searching and sorting keys of entry
+                                                    const keys =
+                                                        Object.keys(
+                                                            entry
+                                                        ).sort();
+
+                                                    // Returning sorted entry
+                                                    return [
+                                                        key,
+                                                        Object.fromEntries(
+                                                            keys.map((key) => [
+                                                                key,
+                                                                entry[key],
+                                                            ])
+                                                        ),
+                                                    ];
+
+                                                default:
+                                                    // Returning entry
+                                                    return [key, choice[key]];
+                                            }
+                                        })
+                                    );
+                                }),
+                            ];
+
+                        case "description_localizations" ||
+                            "name_localizations":
+                            // Defining entry
+                            const entry = option[key];
+
+                            // Searching and sorting keys of entry
+                            const keys = Object.keys(entry).sort();
+
+                            // Returning sorted entry
+                            return [
+                                key,
+                                Object.fromEntries(
+                                    keys.map((key) => [key, entry[key]])
+                                ),
+                            ];
+
+                        case "options":
+                            // Transform options
+                            return transformApplicationCommandOptions(
+                                option[key],
+                                registered
+                            );
+
+                        case "type":
+                            // Checking for value of type
+                            if (option[key]) {
+                                return [key, option[key]];
+                            } else {
+                                // Checking if any option has options
+                                if (Object.keys(option).includes("options")) {
+                                    // Checking if any option has type
+                                    if (
+                                        option["options"].some((option) =>
+                                            Object.keys(option).includes(key)
+                                        )
+                                    ) {
+                                        return [
+                                            key,
+                                            ApplicationCommandOptionType.Subcommand,
+                                        ];
+                                    } else {
+                                        return [
+                                            key,
+                                            ApplicationCommandOptionType.SubcommandGroup,
+                                        ];
+                                    }
+                                } else {
+                                    return [
+                                        key,
+                                        ApplicationCommandOptionType.Subcommand,
+                                    ];
+                                }
+                            }
+
+                        default:
+                            // Returning entry
+                            return [
+                                key,
+                                option[key] ?? defaultOptionValues[key],
+                            ];
+                    }
+                })
+            );
+        }),
+    ];
+};
 
 module.exports = async (client) => {
-    // Reading registered commands
-    const registeredCommands = await client.application.commands.fetch();
+    // Defining registered application commands collection
+    const registeredApplicationCommands = new Collection();
 
-    // Checking for new or changed commands to be registered or updated
-    client.commands.forEach((command, commandName) => {
-        const registeredCommand = registeredCommands.find(
-            (registeredCommand) => registeredCommand.name === commandName
-        );
-        if (!registeredCommand) {
-            unregisteredCommands.push(command.data.toJSON());
-        } else if (!compareCommands(registeredCommand, command.data)) {
-            changedCommands.set(registeredCommand.id, command.data.toJSON());
-        }
-    });
+    // Inserting registered application commands into their collection
+    (
+        await client.rest.get(Routes.applicationCommands(client.application.id))
+    ).forEach((registeredApplicationCommand) =>
+        registeredApplicationCommands.set(
+            registeredApplicationCommand.name,
+            registeredApplicationCommand
+        )
+    );
 
-    // Creating array for promises to be sent to Discord
+    // Creating array for requests to be sent to Discord
     const promises = [];
 
-    // Adding registration of new commands to promises
-    unregisteredCommands.forEach(async (unregisteredCommand) => {
-        promises.push(
-            client.rest
-                .post(Routes.applicationCommands(application.applicationId), {
-                    body: unregisteredCommand,
-                })
-                .then(
-                    console.info(
-                        "[INFORMATION]".padEnd(consoleSpace),
-                        ":",
-                        `Successfully registered new application command ${unregisteredCommand.name}`
-                    )
-                )
-                .catch((error) => {
-                    console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-                })
-        );
-    });
+    // Iterating over application commands
+    client.applicationCommands.each(
+        (savedApplicationCommand, savedApplicationCommandName) => {
+            // Searching for applicaiton command in registered application commands
+            const registeredApplicationCommand =
+                registeredApplicationCommands.get(savedApplicationCommandName);
 
-    // Adding update of changed commands to promises
-    changedCommands.forEach(async (changedCommand, changedCommandId) => {
-        promises.push(
-            client.rest
-                .patch(
-                    Routes.applicationCommand(
-                        application.applicationId,
-                        changedCommandId
-                    ),
-                    {
-                        body: changedCommand,
-                    }
-                )
-                .then(
-                    console.info(
-                        "[INFORMATION]".padEnd(consoleSpace),
-                        ":",
-                        `Successfully updated application command ${changedCommand.name}`
-                    )
-                )
-                .catch((error) => {
-                    console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-                })
-        );
-    });
-
-    // Added unregistering old commands that have been deleted tp promises
-    registeredCommands.forEach(async (command, commandId) => {
-        if (!client.commands.has(command.name)) {
-            const commandName = command.name;
-            promises.push(
-                client.rest
-                    .delete(
-                        Routes.applicationCommand(
-                            application.applicationId,
-                            commandId
+            // Checking if application command is not registered
+            if (!registeredApplicationCommand) {
+                // Adding request for registration to promises
+                promises.push(
+                    client.rest
+                        .post(
+                            Routes.applicationCommands(client.application.id),
+                            {
+                                body: savedApplicationCommand,
+                            }
                         )
-                    )
-                    .then(
-                        console.info(
-                            "[INFORMATION]".padEnd(consoleSpace),
-                            ":",
-                            `Successfully deleted application command ${commandName}`
+                        .then(
+                            console.info(
+                                "[INFORMATION]".padEnd(consoleSpace),
+                                ":",
+                                `Successfully registered new application command ${savedApplicationCommandName}`
+                            )
                         )
-                    )
-                    .catch((error) => {
-                        console.error(
-                            "[ERROR]".padEnd(consoleSpace),
-                            ":",
-                            error
-                        );
-                    })
-            );
+                        .catch((error) => {
+                            console.error(
+                                "[ERROR]".padEnd(consoleSpace),
+                                ":",
+                                error
+                            );
+                        })
+                );
+            } else if (
+                !compareApplicationCommands(
+                    registeredApplicationCommand,
+                    savedApplicationCommand
+                )
+            ) {
+                // Adding request for application command update to promises
+                promises.push(
+                    client.rest
+                        .patch(
+                            Routes.applicationCommand(
+                                client.application.id,
+                                registeredApplicationCommand.id
+                            ),
+                            {
+                                body: savedApplicationCommand,
+                            }
+                        )
+                        .then(
+                            // Printing information
+                            console.info(
+                                "[INFORMATION]".padEnd(consoleSpace),
+                                ":",
+                                `Successfully updated application command ${savedApplicationCommandName}`
+                            )
+                        )
+                        .catch((error) => {
+                            // Printing error
+                            console.error(
+                                "[ERROR]".padEnd(consoleSpace),
+                                ":",
+                                error
+                            );
+                        })
+                );
+            }
         }
-    });
+    );
+
+    // Iterating over registered application commands
+    registeredApplicationCommands.each(
+        (registeredApplicationCommand, registeredApplicationCommandName) => {
+            // Checking if application commmand still exists
+            if (
+                !client.applicationCommands.has(
+                    registeredApplicationCommandName
+                )
+            ) {
+                // Adding request for deletion of application command to promises
+                promises.push(
+                    client.rest
+                        .delete(
+                            Routes.applicationCommand(
+                                client.application.id,
+                                registeredApplicationCommand.id
+                            )
+                        )
+                        .then(
+                            // Printing information
+                            console.info(
+                                "[INFORMATION]".padEnd(consoleSpace),
+                                ":",
+                                `Successfully deleted application command ${registeredApplicationCommandName}`
+                            )
+                        )
+                        .catch((error) => {
+                            // Printing error
+                            console.error(
+                                "[ERROR]".padEnd(consoleSpace),
+                                ":",
+                                error
+                            );
+                        })
+                );
+            }
+        }
+    );
 
     // Executing promises
     await Promise.all(promises).catch((error) =>
+        // Printing error
         console.error("[ERROR]".padEnd(consoleSpace), ":", error)
     );
 
+    // Checking if any application commands were added, deleted or updated
     if (promises.length > 0) {
+        // Printing information
         console.info(
             "[INFORMATION]".padEnd(consoleSpace),
             ":",
             `Successfully refreshed all application commands`
         );
     } else {
+        // Printing information
         console.info(
             "[INFORMATION]".padEnd(consoleSpace),
             ":",

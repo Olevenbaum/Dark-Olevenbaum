@@ -2,27 +2,48 @@
 const { ComponentType } = require("discord.js");
 
 // Importing configuration data
-const { consoleSpace } = require("../configuration.json");
+const { consoleSpace } = require("../../../../configuration.json");
 
 module.exports = {
-    // Setting interaction type and name
-    name: ComponentType.UserSelect,
+    // Setting message component type
+    type: ComponentType.UserSelect,
 
     // Handling interaction
     async execute(interaction) {
-        const messageComponent = interaction.client.messageComponents
-            .filter((messageComponent) => messageComponent.type === this.name)
+        // Searching for user select component
+        const userSelectComponent = interaction.client.messageComponents
+            .filter((messageComponent) => messageComponent.type === this.type)
             .get(interaction.customId);
-        if (!messageComponent) {
-            await interaction.reply(
-                `The message component ${interaction.customId} could not be found.`
+
+        // Checking if user select component was found
+        if (userSelectComponent) {
+            // Trying to execute user select component specific script
+            await userSelectComponent.execute(interaction).catch((error) => {
+                // Printing error
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+
+                // Checking if user select component interaction was acknowledged
+                if (interaction.replied || interaction.deferred) {
+                    // Sending follow up message
+                    interaction.followUp({
+                        content:
+                            "There was an error while executing this user select interaction!",
+                        ephemeral: true,
+                    });
+                }
+            });
+        } else {
+            // Replying to interaction
+            interaction.reply(
+                `The user select component ${interaction.customId} could not be found!`
             );
+
+            // Printing error
             console.error(
                 "[ERROR]".padEnd(consoleSpace),
                 ":",
-                `No message component matching ${interaction.customId} was found`
+                `No user select component matching ${interaction.customId} was found`
             );
-            return;
         }
     },
 };

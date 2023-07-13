@@ -2,9 +2,9 @@
 const { Events } = require("discord.js");
 
 module.exports = {
-    // Setting event name and kind
-    name: Events.GuildUnavailable,
+    // Setting event kind and type
     once: false,
+    type: Events.GuildUnavailable,
 
     // Handling event
     execute(client) {},

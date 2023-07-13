@@ -2,9 +2,9 @@
 const { Events } = require("discord.js");
 
 module.exports = {
-    // Setting event name and kind
-    name: Events.GuildEmojiDelete,
+    // Setting event kind and type
     once: false,
+    type: Events.GuildEmojiDelete,
 
     // Handling event
     execute(client) {},

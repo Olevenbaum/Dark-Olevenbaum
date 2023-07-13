@@ -2,9 +2,9 @@
 const { Events } = require("discord.js");
 
 module.exports = {
-    // Setting event name and kind
-    name: Events.ShardReady,
+    // Setting event kind and type
     once: false,
+    type: Events.ShardReady,
 
     // Handling event
     execute(client) {},

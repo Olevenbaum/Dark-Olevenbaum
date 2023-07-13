@@ -6,72 +6,120 @@ const path = require("node:path");
 const { REST, Routes } = require("discord.js");
 
 // Importing configuration data
-const { application, consoleSpace } = require("../configuration.json");
+const { applications, consoleSpace } = require("../configuration.json");
 
-// Defining method for rotating arrays
-Array.prototype.rotate = function (counter, reverse) {
+// Defining prototype functions
+Array.prototype.asynchronousFind = async function (predicate, thisArg = null) {
+    // Binding second argument to callback function
+    const boundPredicate = predicate.bind(thisArg);
+
+    // Iteracting over keys of array
+    for (const key of this.keys()) {
+        // Checking if callback function returns true for element
+        if (await boundPredicate(this.at(key), key, this)) {
+            // Return element
+            return this.at(key);
+        }
+    }
+
+    // Return undefined
+    return undefined;
+};
+Array.prototype.rotate = function (counter = 1, reverse = false) {
+    // Reducing counter
     counter %= this.length;
+
+    // Checking if direction is reversed
     if (reverse) {
+        // Rotating array clockwise
         this.push(...this.splice(0, this.length - counter));
     } else {
+        // Rotating array counterclockwise
         this.unshift(...this.splice(counter, this.length));
     }
+
+    // Returning array
     return this;
 };
 
-// Creating array with all commands
-const commands = [];
-const commandsPath = path.join(__dirname, "../resources/commands");
-const commandFiles = fs
-    .readdirSync(commandsPath)
-    .filter((file) => file.endsWith(".js"));
-for (const file of commandFiles) {
-    commands.push(require(path.join(commandsPath, file)).data.toJSON());
-}
+// Creating array for application commands
+const applicationCommands = [];
 
-// Reading argument of process to choose token
-const argumentIndex = process.argv.findIndex(
-    (argument) => argument.startsWith("-") && !isNaN(argument.substring(1))
+// Defining application commands path
+const applicationCommandsPath = path.join(
+    __dirname,
+    "../resources/applicationCommands"
 );
-const argument = process.argv[argumentIndex];
-let tokenIndex = argument ? parseInt(argument.substring(1)) : 0;
-if (tokenIndex < 0 || tokenIndex >= application.tokens.length) {
-    console.warn(
-        "[WARNING]".padEnd(consoleSpace),
-        ":",
-        `Index ${tokenIndex} cannot be found in array with length ${application.tokens.length}`
+
+// Reading application command filenames
+const applicationCommandFiles = fs
+    .readdirSync(applicationCommandsPath)
+    .filter((file) => file.endsWith(".js"));
+
+// Iteracting over application command files
+applicationCommandFiles.forEach((applicationCommandFile) => {
+    // Adding application command to its collection
+    applicationCommands.push(
+        require(path.join(
+            applicationCommandsPath,
+            applicationCommandFile
+        )).data.toJSON()
     );
-    tokenIndex = 0;
+});
+
+// Searching for argument of process
+const tokenArgument = process.argv.findIndex((argument) =>
+    argument.startsWith("-token")
+);
+
+// Defining tokens array
+const tokens = applications.map((application) => application.token);
+
+// Checking if argument for different token was provided
+if (tokenArgument && !isNaN(process.argv.at(tokenArgument + 1))) {
+    tokens.rotate(process.argv.at(tokenArgument + 1));
 }
 
-// Reloading all commands
-for (let i = 0; i < application.tokens.length; i++) {
-    let success = true;
-    const token =
-        tokenIndex + i >= application.tokens.length
-            ? application.tokens[tokenIndex + i - application.tokens.length]
-            : application.tokens[tokenIndex + i];
-    const rest = new REST().setToken(token);
-    rest.put(Routes.applicationCommands(application.applicationId), {
-        body: commands,
-    }).catch((error) => {
-        console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-        if (error.code === "TokenInvalid") {
-            if (i != application.tokens.length - 1) {
-                console.warn(
-                    "[WARNING]".padEnd(consoleSpace),
-                    ":",
-                    `Invalid provided, trying again with next token`
-                );
-            }
-            success = false;
-        }
-    });
-    if (success) {
-        break;
+// Iterating over application tokens
+tokens.asynchronousFind(async (token) => {
+    // Checking if token could be valid
+    if (token && typeof token === "string" && token.length > 0) {
+        // Trying to login rest application
+        const rest = new REST().setToken(token);
+        await rest
+            .put(
+                Routes.applicationCommands(
+                    applications[
+                        tokenArgument === -1
+                            ? 0
+                            : process.argv.at(tokenArgument + 1)
+                    ].applicationId
+                ),
+                {
+                    body: applicationCommands,
+                }
+            )
+            .catch((error) => {
+                // Printing error
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+
+                // Returning false
+                return false;
+            });
+    } else {
+        // Printing warning
+        console.warn(
+            "[WARNING]".padEnd(consoleSpace),
+            ":",
+            "Token does not fit a valid form"
+        );
+
+        // Returning false
+        return false;
     }
-}
+});
 
+// Printing information
 console.info(
     "[INFORMATION]".padEnd(consoleSpace),
     ":",

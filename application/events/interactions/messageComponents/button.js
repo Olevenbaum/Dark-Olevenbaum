@@ -2,37 +2,48 @@
 const { ComponentType } = require("discord.js");
 
 // Importing configuration data
-const { consoleSpace } = require("../configuration.json");
+const { consoleSpace } = require("../../../../configuration.json");
 
 module.exports = {
-    // Setting interaction type and name
-    name: ComponentType.Button,
+    // Setting message component type
+    type: ComponentType.Button,
 
     // Handling interaction
     async execute(interaction) {
-        const messageComponent = interaction.client.messageComponents
-            .filter((messageComponent) => messageComponent.type === this.name)
+        // Searching for button component
+        const buttonComponent = interaction.client.messageComponents
+            .filter((messageComponent) => messageComponent.type === this.type)
             .get(interaction.customId);
-        if (!messageComponent) {
-            await interaction.reply(
-                `The message component ${interaction.customId} could not be found.`
+
+        // Checking if button component was found
+        if (buttonComponent) {
+            // Trying to execute button component specific script
+            await buttonComponent.execute(interaction).catch((error) => {
+                // Printing error
+                console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+
+                // Checking if button component interaction was acknowledged
+                if (interaction.replied || interaction.deferred) {
+                    // Sending follow up message
+                    interaction.followUp({
+                        content:
+                            "There was an error while executing this button component interaction!",
+                        ephemeral: true,
+                    });
+                }
+            });
+        } else {
+            // Replying to interaction
+            interaction.reply(
+                `The button component ${interaction.customId} could not be found!`
             );
+
+            // Printing error message
             console.error(
                 "[ERROR]".padEnd(consoleSpace),
                 ":",
-                `No message component matching ${interaction.customId} was found`
+                `No button component matching ${interaction.customId} was found`
             );
-            return;
         }
-        await messageComponent.execute(interaction).catch(async (error) => {
-            console.error("[ERROR]".padEnd(consoleSpace), ":", error);
-            if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({
-                    content:
-                        "There was an error while executing this button interaction!",
-                    ephemeral: true,
-                });
-            }
-        });
     },
 };

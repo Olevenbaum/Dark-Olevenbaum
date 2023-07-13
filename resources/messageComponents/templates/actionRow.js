@@ -2,7 +2,8 @@
 const { ActionRowBuilder, ComponentType } = require("discord.js");
 
 module.exports = {
-    // Setting interaction type and name
+    // Setting message components components, name and type
+    messageComponents: [],
     name: "",
     type: ComponentType.ActionRow,
 
@@ -11,14 +12,16 @@ module.exports = {
         return new ActionRowBuilder().addComponents(
             interaction.client.messageComponents
                 .filter(
-                    (messageComponent) =>
-                        messageComponent.type === ComponentType &&
-                        messageComponent.name === ""
+                    (savedMessageComponent) =>
+                        savedMessageComponent.type === ComponentType &&
+                        this.messageComponents.includes(
+                            savedMessageComponent.name
+                        )
                 )
-                .map((messageComponent) =>
-                    messageComponent.create(interaction, {
+                .map((savedMessageComponent) =>
+                    savedMessageComponent.create(interaction, {
                         ...options.general,
-                        ...options[messageComponent.name],
+                        ...options[savedMessageComponent.name],
                     })
                 )
         );
