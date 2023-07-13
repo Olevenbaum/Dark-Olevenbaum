@@ -1,5 +1,9 @@
 // Importing classes and methods
-const { Collection, Routes } = require("discord.js");
+const {
+    ApplicationCommandOptionType,
+    Collection,
+    Routes,
+} = require("discord.js");
 
 // Importing configuration data
 const { consoleSpace } = require("../configuration.json");
@@ -15,12 +19,11 @@ const compareApplicationCommands = function (
         dm_permission: true,
         nsfw: false,
     };
-    const defaultOptionValues = { required: false };
 
     // Adding application command type to saved application command data
     savedApplicationCommand.data["type"] = savedApplicationCommand.type;
 
-    // Searching for common keys
+    // Searching and sorting common keys
     const commonKeys = Object.keys(savedApplicationCommand.data)
         .filter((key) => key in registeredApplicationCommand)
         .sort();
@@ -28,19 +31,33 @@ const compareApplicationCommands = function (
     // Overwriting registered application command
     registeredApplicationCommand = Object.fromEntries(
         commonKeys.map((key) => {
-            if (
-                key === "name_localizations" ||
-                key === "description_localizations"
-            ) {
-            } else if (key === "option") {
-                registeredApplicationCommand[key].map(
-                    (option) => registeredApplicationCommand[key][option]
-                );
-            } else {
-                return [
-                    key,
-                    registeredApplicationCommand[key] ?? defaultValues[key],
-                ];
+            // Checking for specific keys
+            switch (key) {
+                case "description_localizations" || "name_localizations":
+                    // Defining entry
+                    const entry = registeredApplicationCommand[key];
+
+                    // Searching and sorting keys of entry
+                    const keys = Object.keys(entry).sort();
+
+                    // Returning sorted entry
+                    return [
+                        key,
+                        Object.fromEntries(
+                            keys.map((key) => [key, entry[key]])
+                        ),
+                    ];
+
+                case "options":
+                    // Transforming application command options
+                    return transformApplicationCommandOptions(
+                        registeredApplicationCommand[key],
+                        true
+                    );
+
+                default:
+                    // Returning entry
+                    return [key, registeredApplicationCommand[key]];
             }
         })
     );
@@ -48,21 +65,201 @@ const compareApplicationCommands = function (
     // Overwriting saved application command
     savedApplicationCommand = Object.fromEntries(
         commonKeys.map((key) => {
-            return [
-                key,
-                savedApplicationCommand.data[key] ?? defaultValues[key],
-            ];
+            // Checking for specific keys
+            switch (key) {
+                case "description_localizations" || "name_localizations":
+                    // Defining entry
+                    const entry = savedApplicationCommand.data[key];
+
+                    // Searching and sorting keys of entry
+                    const keys = Object.keys(entry).sort();
+
+                    // Returning sorted entry
+                    return [
+                        key,
+                        Object.fromEntries(
+                            keys.map((key) => [key, entry[key]])
+                        ),
+                    ];
+
+                case "options":
+                    // Transforming application command options
+                    return transformApplicationCommandOptions(
+                        savedApplicationCommand.data[key]
+                    );
+
+                default:
+                    // Returning entry
+                    return [
+                        key,
+                        savedApplicationCommand.data[key] ?? defaultValues[key],
+                    ];
+            }
         })
     );
-
-    console.log(JSON.stringify(registeredApplicationCommand));
-    console.log(JSON.stringify(savedApplicationCommand));
 
     // Returning comparison
     return (
         JSON.stringify(registeredApplicationCommand) ===
         JSON.stringify(savedApplicationCommand)
     );
+};
+
+// Defining function for transforming application command options
+const transformApplicationCommandOptions = function (
+    applicationCommandOptions,
+    registered = false
+) {
+    // Defining default option values
+    const defaultOptionValues = { required: false };
+
+    // Returning edited options
+    return [
+        "options",
+        applicationCommandOptions.map((option) => {
+            // Searching keys of option
+            const keys = Object.keys(option).filter(
+                (key) => typeof option[key] !== "undefined"
+            );
+
+            // Checking for option type
+            if (option.type > 2) {
+                // Iterating over keys of default option values
+                Object.keys(defaultOptionValues).forEach((key) => {
+                    // Checking for key in keys
+                    if (!keys.includes(key)) {
+                        // Adding default option value to keys
+                        keys.push(key);
+                    }
+                });
+            }
+
+            // Checking if option contains type
+            if (!keys.includes("type")) {
+                // Adding type to keys
+                keys.push("type");
+            }
+
+            // Sorting keys
+            keys.sort();
+
+            // Returning sorted option
+            return Object.fromEntries(
+                keys.map((key) => {
+                    // Checking for specific keys
+                    switch (key) {
+                        case "channel_types":
+                            // Returning sorted entry
+                            return [key, option[key].sort()];
+
+                        case "choices":
+                            // Returning edited entry
+                            return [
+                                key,
+                                option[key].map((choice) => {
+                                    // Searching and sorting keys of choice
+                                    const keys = Object.keys(choice).sort();
+
+                                    // Returning sorted choices
+                                    return Object.fromEntries(
+                                        keys.map((key) => {
+                                            // Checking for specific key
+                                            switch (key) {
+                                                case "name_localization":
+                                                    // Defining entry
+                                                    const entry = choice[key];
+
+                                                    // Searching and sorting keys of entry
+                                                    const keys =
+                                                        Object.keys(
+                                                            entry
+                                                        ).sort();
+
+                                                    // Returning sorted entry
+                                                    return [
+                                                        key,
+                                                        Object.fromEntries(
+                                                            keys.map((key) => [
+                                                                key,
+                                                                entry[key],
+                                                            ])
+                                                        ),
+                                                    ];
+
+                                                default:
+                                                    // Returning entry
+                                                    return [key, choice[key]];
+                                            }
+                                        })
+                                    );
+                                }),
+                            ];
+
+                        case "description_localizations" ||
+                            "name_localizations":
+                            // Defining entry
+                            const entry = option[key];
+
+                            // Searching and sorting keys of entry
+                            const keys = Object.keys(entry).sort();
+
+                            // Returning sorted entry
+                            return [
+                                key,
+                                Object.fromEntries(
+                                    keys.map((key) => [key, entry[key]])
+                                ),
+                            ];
+
+                        case "options":
+                            // Transform options
+                            return transformApplicationCommandOptions(
+                                option[key],
+                                registered
+                            );
+
+                        case "type":
+                            // Checking for value of type
+                            if (option[key]) {
+                                return [key, option[key]];
+                            } else {
+                                // Checking if any option has options
+                                if (Object.keys(option).includes("options")) {
+                                    // Checking if any option has type
+                                    if (
+                                        option["options"].some((option) =>
+                                            Object.keys(option).includes(key)
+                                        )
+                                    ) {
+                                        return [
+                                            key,
+                                            ApplicationCommandOptionType.Subcommand,
+                                        ];
+                                    } else {
+                                        return [
+                                            key,
+                                            ApplicationCommandOptionType.SubcommandGroup,
+                                        ];
+                                    }
+                                } else {
+                                    return [
+                                        key,
+                                        ApplicationCommandOptionType.Subcommand,
+                                    ];
+                                }
+                            }
+
+                        default:
+                            // Returning entry
+                            return [
+                                key,
+                                option[key] ?? defaultOptionValues[key],
+                            ];
+                    }
+                })
+            );
+        }),
+    ];
 };
 
 module.exports = async (client) => {
@@ -115,16 +312,41 @@ module.exports = async (client) => {
                             );
                         })
                 );
-                // TODO: compare commands
             } else if (
-                compareApplicationCommands(
+                !compareApplicationCommands(
                     registeredApplicationCommand,
                     savedApplicationCommand
                 )
             ) {
-                console.log("SUCCESS");
                 // Adding request for application command update to promises
-                promises.push();
+                promises.push(
+                    client.rest
+                        .patch(
+                            Routes.applicationCommand(
+                                client.application.id,
+                                registeredApplicationCommand.id
+                            ),
+                            {
+                                body: savedApplicationCommand,
+                            }
+                        )
+                        .then(
+                            // Printing information
+                            console.info(
+                                "[INFORMATION]".padEnd(consoleSpace),
+                                ":",
+                                `Successfully updated application command ${savedApplicationCommandName}`
+                            )
+                        )
+                        .catch((error) => {
+                            // Printing error
+                            console.error(
+                                "[ERROR]".padEnd(consoleSpace),
+                                ":",
+                                error
+                            );
+                        })
+                );
             }
         }
     );

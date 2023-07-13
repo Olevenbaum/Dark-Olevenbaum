@@ -6,7 +6,7 @@ const path = require("node:path");
 const { REST, Routes } = require("discord.js");
 
 // Importing configuration data
-const { application, consoleSpace } = require("../configuration.json");
+const { applications, consoleSpace } = require("../configuration.json");
 
 // Defining prototype functions
 Array.prototype.asynchronousFind = async function (predicate, thisArg = null) {
@@ -25,7 +25,6 @@ Array.prototype.asynchronousFind = async function (predicate, thisArg = null) {
     // Return undefined
     return undefined;
 };
-
 Array.prototype.rotate = function (counter = 1, reverse = false) {
     // Reducing counter
     counter %= this.length;
@@ -87,13 +86,25 @@ tokens.asynchronousFind(async (token) => {
     if (token && typeof token === "string" && token.length > 0) {
         // Trying to login rest application
         const rest = new REST().setToken(token);
-        return await rest
-            .put(Routes.applicationCommands(application.applicationId), {
-                body: applicationCommands,
-            })
+        await rest
+            .put(
+                Routes.applicationCommands(
+                    applications[
+                        tokenArgument === -1
+                            ? 0
+                            : process.argv.at(tokenArgument + 1)
+                    ].applicationId
+                ),
+                {
+                    body: applicationCommands,
+                }
+            )
             .catch((error) => {
                 // Printing error
                 console.error("[ERROR]".padEnd(consoleSpace), ":", error);
+
+                // Returning false
+                return false;
             });
     } else {
         // Printing warning
