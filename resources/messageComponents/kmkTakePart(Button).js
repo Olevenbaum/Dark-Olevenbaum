@@ -58,7 +58,7 @@ module.exports = {
                 options.length,
                 ...options.map((option) =>
                     new StringSelectMenuOptionBuilder()
-                        .setLabel(option.nickname)
+                        .setLabel(option.nickname ?? option.user.username)
                         .setValue(option.id)
                 )
             );

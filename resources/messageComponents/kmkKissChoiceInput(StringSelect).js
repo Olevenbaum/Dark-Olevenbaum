@@ -51,7 +51,7 @@ module.exports = {
             // Adding player
             playersOptions.push({
                 id: userMention(interaction.user.id),
-                kill:
+                kiss:
                     subcommand === "server"
                         ? userMention(interaction.values.at(0))
                         : interaction.values.at(0),
