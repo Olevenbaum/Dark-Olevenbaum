@@ -14,18 +14,26 @@ module.exports = {
             subcommand
                 .addBooleanOption((option) =>
                     option
-                        .setName("custom")
                         .setDescription(
                             "Specifies wheter you want to give three options or let the bot choose at random"
                         )
+                        .setName("custom")
                 )
                 .addStringOption((option) =>
                     option
                         .setAutocomplete(true)
-                        .setName("category")
                         .setDescription(
                             "Specifies the category the celebrities should be chosen from (ignored for custom)"
                         )
+                        .setName("category")
+                )
+                .addStringOption((option) =>
+                    option
+                        .setAutocomplete(true)
+                        .setDescription(
+                            "Specifies the gender the celebrities should be chosen from (ignored for custom)"
+                        )
+                        .setName("gender")
                 )
                 .setDescription(
                     "Starts a new game of Kiss Marry Kill with celebrities"
@@ -36,24 +44,54 @@ module.exports = {
             subcommand
                 .addBooleanOption((option) =>
                     option
-                        .setName("custom")
                         .setDescription(
                             "Specifies wheter you want to give three options or let the bot choose at random"
                         )
+                        .setName("custom")
+                )
+                .addStringOption((option) =>
+                    option
+                        .setAutocomplete(true)
+                        .setDescription(
+                            "Specifies the gender the fictional characters should be chosen from (ignored for custom)"
+                        )
+                        .setName("gender")
+                )
+                .addStringOption((option) =>
+                    option
+                        .setAutocomplete(true)
+                        .setDescription(
+                            "Specifies the fandom the fictional characters should be chosen from (ignored for custom)"
+                        )
+                        .setName("fandom")
+                )
+                .setDescription(
+                    "Starts a new game of Kiss Marry Kill with fictional characters"
+                )
+                .setName("fictional_characters")
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .addBooleanOption((option) =>
+                    option
+                        .setDescription(
+                            "Specifies wheter you want to give three options or let the bot choose at random"
+                        )
+                        .setName("custom")
                 )
                 .addChannelOption((option) =>
                     option
-                        .setName("channel")
                         .setDescription(
                             "Specifies the channel the server members should to be chosen from (ignored for custom)"
                         )
+                        .setName("channel")
                 )
                 .addRoleOption((option) =>
                     option
-                        .setName("role")
                         .setDescription(
                             "Specifies the role the server members should to be chosen from (ignored for custom)"
                         )
+                        .setName("role")
                 )
                 .setDescription(
                     "Starts a new game of Kiss Marry Kill with server members"
@@ -61,40 +99,81 @@ module.exports = {
                 .setName("server")
         )
         .setDescription("Starts a new game of Kiss Marry Kill")
-        .setDMPermission(false)
         .setName("kmk"),
     type: ApplicationCommandType.ChatInput,
 
     // Handling command autocomplete
     async autocomplete(interaction) {
-        // Importing celebrities
-        const celebrities = require("../../database/constantData/celebrities.json");
+        // Reading subcommand name
+        const subcommand = interaction.options.getSubcommand();
 
-        // Defining categories
-        const categories = [];
+        // Reading focused option
+        const option = interaction.options.getFocused(true);
 
-        // Adding categories
-        celebrities.forEach((celebritie) =>
-            categories.push(...celebritie.categories)
-        );
+        // Importing data
+        const data = require(`../../database/constantData/kmk${
+            subcommand.at(0).toUpperCase() +
+            subcommand
+                .slice(1)
+                .replace(/(_\w)/g, (name) => name[1].toUpperCase())
+        }.json`);
 
-        // Removing dupilicates from categories
-        categories.splice(0, categories.length, [
-            ...new Set(categories.sort()),
-        ]);
+        // Defining key
+        const key = option.name === "category" ? "categories" : option.name;
+
+        // Defining choices counter
+        const choicesCounter = {};
+
+        // Iterating over data
+        data.forEach((option) => {
+            if (typeof option[key] === "string") {
+                // Checking if key already exists
+                if (choicesCounter[option[key]]) {
+                    // Increasing counter
+                    choicesCounter[option[key]]++;
+                } else {
+                    // Initializing counter
+                    choicesCounter[option[key]] = 1;
+                }
+            } else {
+                option[key].forEach((option) => {
+                    // Checking if key already exists
+                    if (choicesCounter[option]) {
+                        // Increasing counter
+                        choicesCounter[option]++;
+                    } else {
+                        // Initializing counter
+                        choicesCounter[option] = 1;
+                    }
+                });
+            }
+        });
+
+        // Sorting and filtering choices
+        const choices = Object.keys(choicesCounter)
+            .sort()
+            .filter((key) => choicesCounter[key] >= 3);
+
+        // Checking for option name
+        if (option.name === "gender" && !choices.includes("Non-binary")) {
+            // Adding non-binary option
+            choices.push("Non-binary");
+        }
 
         // Responding to interaction
         interaction.respond(
-            categories
-                .filter((category) =>
-                    category.startsWith(interaction.options.getFocused())
-                )
-                .map((category) => ({ name: category, value: category }))
+            choices
+                .filter((choice) => choice.startsWith(option.value))
+                .map((choice) => ({ name: choice, value: choice }))
+                .splice(0, 25)
         );
     },
 
     // Handling command reponse
     async execute(interaction) {
+        // Reading subcommand
+        const subcommand = interaction.options.getSubcommand();
+
         // Reading shared option
         const custom = interaction.options.getBoolean("custom") ?? false;
 
@@ -119,22 +198,62 @@ module.exports = {
             const options = [];
 
             // Editing subcommand specific reply
-            switch (interaction.options.getSubcommand()) {
+            switch (subcommand) {
                 case "celebrities":
-                    // Reading option value
+                    // Reading option values
                     const category = interaction.options.getString("category");
+                    let gender = interaction.options.getString("gender");
 
                     // Adding options
                     options.push(
-                        require("../../database/constantTables/kmkCelebrities.json")
+                        ...require("../../database/constantData/kmkCelebrities.json")
                             .filter((celebrity) =>
                                 category
                                     ? celebrity.categories.includes(category)
                                     : true
                             )
-                            .map((celebrity) => `"${celebrity.name}"`)
+                            .filter((celebrity) =>
+                                gender
+                                    ? gender === "Non-binary"
+                                        ? celebrity.gender !== "Female" &&
+                                          celebrity.gender !== "Male"
+                                        : celebrity.gender === gender
+                                    : true
+                            )
+                            .map((celebrity) => celebrity.name)
                     );
                     break;
+
+                case "fictional_characters":
+                    // Reading option values
+                    const fandom = interaction.options.getString("fandom");
+                    gender = interaction.options.getString("gender");
+
+                    // Adding options
+                    options.push(
+                        ...require("../../database/constantData/kmkFictionalCharacters.json")
+                            .filter((fictionalCharacter) =>
+                                fandom
+                                    ? fictionalCharacter.categories.includes(
+                                          fandom
+                                      )
+                                    : true
+                            )
+                            .filter((fictionalCharacter) =>
+                                gender
+                                    ? gender === "Non-binary"
+                                        ? fictionalCharacter.gender !==
+                                              "Female" &&
+                                          fictionalCharacter.gender !== "Male"
+                                        : fictionalCharacter.gender === gender
+                                    : true
+                            )
+                            .map(
+                                (fictionalCharacter) => fictionalCharacter.name
+                            )
+                    );
+                    break;
+
                 case "server":
                     // Reading options values
                     const channel = interaction.options.getChannel("channel");
@@ -174,12 +293,11 @@ module.exports = {
                     )
                     .setFooter({
                         text: `Options chosen among ${
-                            interaction.options.getSubcommand() ===
-                            "celebrities"
-                                ? `famous ${interaction.options.getString(
-                                      "category"
-                                  )}s`
-                                : "members of this server"
+                            subcommand === "server"
+                                ? "members of this server"
+                                : subcommand === "celebrities"
+                                ? "celebrities"
+                                : "fictional characters"
                         }!`,
                     }),
             ];
@@ -195,14 +313,18 @@ module.exports = {
                     savedMessageComponent.type === ComponentType.ActionRow &&
                     messageComponentNames.includes(savedMessageComponent.name)
             )
-            .map((savedActionRow) => savedActionRow.create(interaction, {}));
+            .map((savedActionRow) =>
+                savedActionRow.create(interaction, {
+                    kmkShowPictures: { disabled: subcommand === "server" },
+                })
+            );
 
         // Checking if modal is necessary
-        if (interaction.options.getSubcommand() === "celebrities" && custom) {
+        if (subcommand !== "server" && custom) {
             // Showing modal to user
             interaction.showModal(
                 interaction.client.modals
-                    .find((modal) => modal.name === "kmkCustomCelebrities")
+                    .find((modal) => modal.name === "kmkCustom")
                     .create(interaction)
             );
         } else {

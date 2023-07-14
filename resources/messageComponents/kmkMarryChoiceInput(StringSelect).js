@@ -1,5 +1,6 @@
 // Importing classes and methods
 const {
+    ChannelType,
     ComponentType,
     EmbedBuilder,
     StringSelectMenuBuilder,
@@ -71,7 +72,7 @@ module.exports = {
                     option && !option.includes("none")
                         ? subcommand === "server"
                             ? option.replace(/[^0-9]/g, "")
-                            : option
+                            : option.replace("- ", "")
                         : null
                 );
 
@@ -83,7 +84,7 @@ module.exports = {
                     option && !option.includes("none")
                         ? subcommand === "server"
                             ? option.replace(/[^0-9]/g, "")
-                            : option
+                            : option.replace("- ", "")
                         : null
                 );
 
@@ -95,7 +96,7 @@ module.exports = {
                     option && !option.includes("none")
                         ? subcommand === "server"
                             ? option.replace(/[^0-9]/g, "")
-                            : option
+                            : option.replace("- ", "")
                         : null
                 );
 
@@ -249,7 +250,11 @@ module.exports = {
 
             // Updating interaction message
             interaction.update({
-                content: `Thank you for your contribution! Check out the original message to see what others have chosen!`,
+                content: `Thank you for your contribution! Check out the original message to see your results${
+                    interaction.channel.type === ChannelType.DM
+                        ? ""
+                        : "and what others have chosen"
+                }!`,
                 ephemeral: true,
             });
         }

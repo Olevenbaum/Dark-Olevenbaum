@@ -4,11 +4,11 @@ const { ComponentType, EmbedBuilder, ModalBuilder } = require("discord.js");
 module.exports = {
     // Setting modals message components and name
     messageComponents: [
-        "kmkCustomCelebritiesInput1",
-        "kmkCustomCelebritiesInput2",
-        "kmkCustomCelebritiesInput3",
+        "kmkCustomInput1",
+        "kmkCustomInput2",
+        "kmkCustomInput3",
     ],
-    name: "kmkCustomCelebrities",
+    name: "kmkCustom",
 
     // Creating modal
     create(interaction, options = {}) {
@@ -32,24 +32,22 @@ module.exports = {
 
     // Handling interaction
     async execute(interaction) {
+        console.log(interaction.message);
+        // Reading subcommand
+        const subcommand = interaction.fields.getField("kmkCustomInputField1");
+
         // Defining options
         const options = [];
 
         // Adding field values to options
         options.push(
-            interaction.fields
-                .getTextInputValue("kmkCustomCelebritiesInputField1")
-                .trim()
+            interaction.fields.getTextInputValue("kmkCustomInputField1").trim()
         );
         options.push(
-            interaction.fields
-                .getTextInputValue("kmkCustomCelebritiesInputField2")
-                .trim()
+            interaction.fields.getTextInputValue("kmkCustomInputField2").trim()
         );
         options.push(
-            interaction.fields
-                .getTextInputValue("kmkCustomCelebritiesInputField3")
-                .trim()
+            interaction.fields.getTextInputValue("kmkCustomInputField3").trim()
         );
 
         // Defining reply object
@@ -74,7 +72,7 @@ module.exports = {
                         )}`
                     )
                     .setFooter({
-                        text: "Options chosen among custom celebrities!",
+                        text: "Options chosen among custom persons!",
                     }),
             ];
 

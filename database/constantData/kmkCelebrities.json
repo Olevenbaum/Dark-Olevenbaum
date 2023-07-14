@@ -1,0 +1,560 @@
+[
+    {
+        "categories": ["Singer"],
+        "gender": "Female",
+        "name": "Adele",
+        "picture": "https://upload.wikimedia.org/wikipedia/commons/5/52/Adele_for_Vogue_in_2021.png"
+    },
+    {
+        "categories": ["Pianist", "Singer"],
+        "gender": "Female",
+        "name": "Alicia Keys",
+        "picture": "https://tse1.mm.bing.net/th?id=OIP.If3TUsrkk253FLu544CTCwHaFj&pid=Api"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Female",
+        "name": "Amy Winehouse",
+        "picture": "https://www.rollingstone.com/wp-content/uploads/2022/12/Amy-Winehouse-GettyImages-832983788.jpg?w=1280"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Angelina Jolie",
+        "picture": "https://celebmafia.com/wp-content/uploads/2018/01/angelina-jolie-the-national-board-of-review-annual-awards-gala-in-nyc-12.jpg"
+    },
+    {
+        "categories": ["Actor", "Singer"],
+        "gender": "Female",
+        "name": "Ariana Grande",
+        "picture": "http://images2.fanpop.com/image/photos/12400000/Ariana-Grande-ariana-grande-12417837-620-1024.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Aubrey Plaza",
+        "picture": "https://celebmafia.com/wp-content/uploads/2019/10/aubrey-plaza-jojo-rabbit-premiere-in-los-angeles-3.jpg"
+    },
+    {
+        "categories": ["Politician"],
+        "gender": "Male",
+        "name": "Barack Obama",
+        "picture": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/President_Barack_Obama.jpg/1200px-President_Barack_Obama.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Benedict Cumberbatch",
+        "picture": "https://www.themoviedb.org/t/p/original/fBEucxECxGLKVHBznO0qHtCGiMO.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Female",
+        "name": "Beyoncé",
+        "picture": "http://www.hawtcelebs.com/wp-content/uploads/2015/02/beyonce-at-2015-grammy-awards-in-los-angeles_6.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Non-Binary",
+        "name": "Bilal Hassani",
+        "picture": "https://cdn-elle.ladmedia.fr/var/plain_site/storage/images/people/la-vie-des-people/news/bilal-hassani-se-confie-sur-ses-perruques-c-est-therapeutique-3786679/90432831-1-fre-FR/Bilal-Hassani-se-confie-sur-ses-perruques-C-est-therapeutique.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Female",
+        "name": "Billie Eilish",
+        "picture": "https://cdn.britannica.com/03/214803-050-6809BA1C/American-singer-songwriter-Billie-Eilish-2020.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Brad Pitt",
+        "picture": "http://4.bp.blogspot.com/-uQNBOyG6zEk/UhidtVxefrI/AAAAAAAAAls/kCsCCUTKNOM/s1600/Brad+Pitt+Net+Worth.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Male",
+        "name": "Bruno Mars",
+        "picture": "https://www.syracuse.com/resizer/dRCx4fWpai8NBkzyVESGs1HJSvU=/1280x0/smart/advancelocal-adapter-image-uploads.s3.amazonaws.com/image.syracuse.com/home/syr-media/width2048/img/entertainment/photo/ent-011812-bruno-marsjpg-022eeac672ec6ce1.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Cameron Boyce",
+        "picture": "https://wallpapercave.com/wp/wp2395935.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Cameron Diaz",
+        "picture": "http://eselcine.com/wp-content/uploads/2013/07/cameron-diaz.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Cara Delevingne",
+        "picture": "https://www.hawtcelebs.com/wp-content/uploads/2014/11/CARA-DELEVINGNE-Vogue-Magazine-Photoshoot-4.jpg"
+    },
+    {
+        "categories": ["Rapper", "Singer"],
+        "gender": "Female",
+        "name": "Doja Cat",
+        "picture": "https://celebmafia.com/wp-content/uploads/2020/05/doja-cat-say-so-live-performance-vevo-lift-photos-4.jpg"
+    },
+    {
+        "categories": ["Politician"],
+        "gender": "Male",
+        "name": "Donald Trump",
+        "picture": "https://media.salon.com/2020/09/donald-trump-0929201.jpg"
+    },
+    {
+        "categories": ["Actor", "Singer"],
+        "gender": "Female",
+        "name": "Dove Cameron",
+        "picture": "https://mx.web.img3.acsta.net/pictures/18/01/08/13/57/3752878.jpg"
+    },
+    {
+        "categories": ["Rapper", "Singer"],
+        "gender": "Male",
+        "name": "Drake",
+        "picture": "https://tse1.mm.bing.net/th?id=OIP.PhB3gbszCL0MkbZ3fgY0PAHaHa&pid=Api"
+    },
+    {
+        "categories": ["Actor", "Singer"],
+        "gender": "Female",
+        "name": "Dua Lipa",
+        "picture": "https://i.pinimg.com/originals/e3/8b/ad/e38bad0d0326430e7e304d1c5c33877f.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Male",
+        "name": "Ed Sheeran",
+        "picture": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Ed_Sheeran-6886_%28cropped%29.jpg/800px-Ed_Sheeran-6886_%28cropped%29.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Elizabeth Olsen",
+        "picture": "https://media.glamour.com/photos/5695a4e993ef4b09520dcccd/master/pass/beauty-2014-05-elizabeth-olsen-makeup-main.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Elliot Page",
+        "picture": "https://nypost.com/wp-content/uploads/sites/2/2021/09/elliot-page-met-gala-2021-1.jpg?quality=90&strip=all"
+    },
+    {
+        "categories": ["Pianist", "Singer"],
+        "gender": "Male",
+        "name": "Elton John",
+        "picture": "https://1.bp.blogspot.com/-rTS-CujoFfw/XRBzDgNvYnI/AAAAAAADjXY/98u_QEPVW3g6RdKBEQN0S5kFADFGCF5tACLcBGAs/s1600/elton-john-1970s-1.jpg"
+    },
+    {
+        "categories": ["Actor", "Singer"],
+        "gender": "Male",
+        "name": "Elvis Presley",
+        "picture": "http://images4.fanpop.com/image/photos/22300000/Elvis-Presley-elvis-presley-22316403-1883-2560.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Elyas M'Barek",
+        "picture": "https://www.welt.de/img/newsticker/dpa_nt/infoline_nt/boulevard_nt/mobile171298761/4062508607-ci102l-w1024/urn-newsml-dpa-com-20090101-171205-99-154583-large-4-3-jpg.jpg"
+    },
+    {
+        "categories": ["Rapper", "Singer"],
+        "gender": "Male",
+        "name": "Eminem",
+        "picture": "http://wprapradar.s3.amazonaws.com/wp-content/uploads/2010/04/recoveryapprovedcrop.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Emma Watson",
+        "picture": "https://3.bp.blogspot.com/-FIIsC84eRRY/U1Y9wqzT47I/AAAAAAAAYjk/DBqtVAM9HDA/s3400/Emma%2bWatson%2bphoto.filmcelebritiesactresses.blogspot-1640.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Florence Pugh",
+        "picture": "https://celebmafia.com/wp-content/uploads/2023/07/florence-pugh-valentino-haute-couture-show-portrait-july-2023-2-1_thumbnail.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Male",
+        "name": "Freddie Mercury",
+        "picture": "https://2.bp.blogspot.com/-Ub-VQEE6K10/WDhkgpCHqdI/AAAAAAACdf8/7NNUFqG9t1gR62-vEmHqOYwkvdf9cX2uwCLcB/s1600/freddie-mercury-facts-3.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Female",
+        "name": "Girl in Red",
+        "picture": "https://www.peoples.ru/art/music/pop/girl-in-red/kEEWTFIdv3bgh.jpeg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Non-Binary",
+        "name": "Halsey",
+        "picture": "http://www.gotceleb.com/wp-content/uploads/photos/halsey-performs/at-zedd-s-welcome-aclu-benefit-concert-in-la/Halsey:-Performs-at-Zedds-Welcome-ACLU-Benefit-Concert--31.jpg"
+    },
+    {
+        "categories": ["Actor", "Singer"],
+        "gender": "Male",
+        "name": "Harry Styles",
+        "picture": "https://wallpapercave.com/wp/wp4420967.jpg"
+    },
+    {
+        "categories": ["Politician"],
+        "gender": "Female",
+        "name": "Hillary Clinton",
+        "picture": "http://static3.businessinsider.com/image/55ba288c371d22472c8b8fff-3680-2760/ap_253230310839.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Hunter Schafer",
+        "picture": "https://celebmafia.com/wp-content/uploads/2019/12/hunter-schafer-billboard-women-in-music-2019-9.jpg"
+    },
+    {
+        "categories": ["Dancer", "K-pop", "Rapper", "Singer"],
+        "gender": "Male",
+        "name": "J-Hope",
+        "picture": "https://lh3.googleusercontent.com/CytBM-lpt77-d_nR_bhwlD--MAHAM5-EY5HLo_yDLq6jLpTYmBs5HA2N7Pw_YTebovoL_MHxVCfIMpta69-cI9HUrtAtDyhOfQ=w1600-rj"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Jenna Ortega",
+        "picture": "https://www.hawtcelebs.com/wp-content/uploads/2018/10/jenna-ortega-at-venom-premiere-in-los-angels-10-01-2018-9.jpg"
+    },
+    {
+        "categories": ["K-pop", "Rapper", "Singer"],
+        "gender": "Female",
+        "name": "Jennie",
+        "picture": "https://bloganchoi.com/wp-content/uploads/2018/12/je-ni-1.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Jennifer Aniston",
+        "picture": "https://www.usmagazine.com/wp-content/uploads/jennifer-7b53fcc1-c587-4e04-88f3-a660a7f458ad.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Jennifer Lawrence",
+        "picture": "https://assets.vogue.com/photos/589175a685b3959618474244/master/w_2560%2Cc_limit/01-jennifer-lawrence.jpg"
+    },
+    {
+        "categories": ["Dancer", "K-pop", "Singer"],
+        "gender": "Male",
+        "name": "Jimin",
+        "picture": "https://images6.fanpop.com/image/photos/43200000/Jimin-bts-43250802-1280-1920.jpg"
+    },
+    {
+        "categories": ["Actor", "K-pop", "Singer"],
+        "gender": "Female",
+        "name": "Jisoo",
+        "picture": "https://2.bp.blogspot.com/-trgZ1759f9A/V77LL5pQbKI/AAAAAAAABMY/MRnhmLT-KFcrqtQTBKZr9awXzjTVT1Y_gCLcB/s1600/Black%2BPink%2BJisoo%2BLatest%2BPhotos%2B-%2BKim%2BJi-soo%2BPictures%2Band%2BImages%2B-%2Bbiotist.blogspot.com%2B%252818%2529.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Male",
+        "name": "John Lennon",
+        "picture": "https://www.beatlesbible.com/wp/media/john-lennon-how-i-won-the-war_05.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Johnny Depp",
+        "picture": "http://weknowyourdreams.com/images/johnny-depp/johnny-depp-02.jpg"
+    },
+    {
+        "categories": ["Dancer", "K-pop", "Singer"],
+        "gender": "Male",
+        "name": "Jung Kook",
+        "picture": "https://captionsnation.com/wp-content/uploads/2021/06/jeon-jungkook8.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Male",
+        "name": "Justin Bieber",
+        "picture": "http://images6.fanpop.com/image/photos/36900000/justin-bieber-justin-bieber-36918699-1804-2500.jpg"
+    },
+    {
+        "categories": ["Rapper", "Singer"],
+        "gender": "Male",
+        "name": "Kanye West",
+        "picture": "http://aceshowbiz.com/images/wennpic/kanye-west-2015-bet-honors-01.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Katie McGrath",
+        "picture": "https://i.pinimg.com/originals/c2/0d/01/c20d014ef00bf42810160b7e714d1f23.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Female",
+        "name": "Katy Perry",
+        "picture": "http://pictures.4ever.eu/data/download/people/musicians/katy-perry-149287.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Keanu Reeves",
+        "picture": "http://gazettereview.com/wp-content/uploads/2016/12/keanu-reeves.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Keira Knightley",
+        "picture": "http://images.fanpop.com/images/image_uploads/Keira-Knightley-keira-knightley-229062_1280_1024.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Female",
+        "name": "Kelly Clarkson",
+        "picture": "https://www.rollingstone.com/wp-content/uploads/2022/12/Kelly-Clarkson-GettyImages-903203800.jpg?w=1280"
+    },
+    {
+        "categories": ["Politician"],
+        "gender": "Male",
+        "name": "Kim Jong Un",
+        "picture": "https://tse3.mm.bing.net/th?id=OIP.PDaiUGrYBDsUMvw9nXUq4wHaFD&pid=Api"
+    },
+    {
+        "categories": ["Actor", "Singer"],
+        "gender": "Female",
+        "name": "Lady Gaga",
+        "picture": "https://i.pinimg.com/736x/e8/20/7b/e8207b8598bb411de73ab2c829f364c4.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Female",
+        "name": "Lana Del Rey",
+        "picture": "https://tse2.mm.bing.net/th?id=OIP.ogfIhqsB-pKmZJBuFC1ekQHaLH&pid=Api"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Leonardo DiCaprio",
+        "picture": "https://i.pinimg.com/originals/e2/5f/3d/e25f3d88a68e063efa60b3ae391879ab.jpg"
+    },
+    {
+        "categories": ["Dancer", "K-pop", "Rapper", "Singer"],
+        "gender": "Female",
+        "name": "Lisa",
+        "picture": "https://1.bp.blogspot.com/-rc9AmntfFb8/Xv7clNXu-FI/AAAAAAAALNg/TV6tgGYCQnUaOcaZ-SRUvaPZJRM15XcnACLcBGAsYHQ/s1600/Blackpink-Lisa-1.jpg"
+    },
+    {
+        "categories": ["Actor", "Rapper", "Singer"],
+        "gender": "Female",
+        "name": "Lizzo",
+        "picture": "https://lastfm.freetls.fastly.net/i/u/ar0/081131423e451aa320773522e4126573.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Female",
+        "name": "Madison Beer",
+        "picture": "https://www.hawtcelebs.com/wp-content/uploads/2017/04/madison-beer-at-we-day-california-in-los-angeles-04-27-2017_7.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Margot Robbie",
+        "picture": "https://celebmafia.com/wp-content/uploads/2018/12/margot-robbie-photoshoot-for-usa-today-2018-more-photos-13.jpg"
+    },
+    {
+        "categories": ["Politician"],
+        "gender": "Female",
+        "name": "Marine Le Pen",
+        "picture": "https://www.welt.de/img/politik/ausland/mobile163715483/0042509027-ci102l-w1024/FILE-PHOTO-Marine-Le-Pen-French-National-Front-FN-political-p.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Megan Fox",
+        "picture": "http://3.bp.blogspot.com/-B5TW-jQ7Fxs/T8G6Q9WTlPI/AAAAAAAAA98/ZA6XBReK43g/s1600/Megan-Fox3.jpg"
+    },
+    {
+        "categories": ["Actor", "Politician"],
+        "gender": "Female",
+        "name": "Meghan Markle",
+        "picture": "https://static.hollywoodreporter.com/sites/default/files/2018/03/gettyimages-929181914-h_2018-1024x577.jpg"
+    },
+    {
+        "categories": ["Dancer", "Singer"],
+        "gender": "Male",
+        "name": "Michael Jackson",
+        "picture": "http://images2.fanpop.com/image/photos/10700000/Close-Up-Large-Photo-michael-jackson-10731676-1267-1333.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Millie Bobby Brown",
+        "picture": "https://media.vogue.de/photos/5b237ec6cc2d6600113289b2/2:3/w_2048%2cc_limit/GettyImages-960297788.jpg"
+    },
+    {
+        "categories": ["Actor", "K-pop", "Singer"],
+        "gender": "Female",
+        "name": "Miyeon",
+        "picture": "https://static.asiachan.com/Cho.Miyeon.full.200700.jpg"
+    },
+    {
+        "categories": ["Politician"],
+        "gender": "Female",
+        "name": "Mutti",
+        "picture": "https://cms.qz.com/wp-content/uploads/2017/09/ap_17192505972118.jpg?quality=80&strip=all&w=3974"
+    },
+    {
+        "categories": ["Rapper", "Singer"],
+        "gender": "Female",
+        "name": "Nicki Minaj",
+        "picture": "http://www.aceshowbiz.com/images/wennpic/nicki-minaj-american-idol-finale-results-show-live-01.jpg"
+    },
+    {
+        "categories": ["Actor", "Singer"],
+        "gender": "Female",
+        "name": "Olivia Rodrigo",
+        "picture": "https://celebmafia.com/wp-content/uploads/2018/06/olivia-rodrigo-incredibles-2-world-premiere-in-hollywood-4.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Male",
+        "name": "Paul McCartney",
+        "picture": "https://i.pinimg.com/originals/99/dd/de/99dddebe0043d080d25c84d0eceb1e59.jpg"
+    },
+    {
+        "categories": ["Actor", "Singer"],
+        "gender": "Female",
+        "name": "Rihanna",
+        "picture": "https://i0.wp.com/austinemedia.com/wp-content/uploads/2017/11/1-12.jpg?fit=1180%2C842&ssl=1"
+    },
+    {
+        "categories": ["Dancer", "K-pop", "Singer"],
+        "gender": "Female",
+        "name": "Rosé",
+        "picture": "https://www.americanpost.news/wp-content/uploads/2022/02/BLACKPINKs-Rose-tests-positive-for-COVID-19.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Ryan Reynolds",
+        "picture": "https://upload.wikimedia.org/wikipedia/commons/1/14/Deadpool_2_Japan_Premiere_Red_Carpet_Ryan_Reynolds_(cropped).jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Non-Binary",
+        "name": "Sam Smith",
+        "picture": "https://superstarsbio.com/wp-content/uploads/2020/04/Sam-Smith.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Scarlett Johansson",
+        "picture": "https://celebmafia.com/wp-content/uploads/2018/09/scarlett-johansson-2018-emmy-awards-27.jpg"
+    },
+    {
+        "categories": ["Actor", "Singer"],
+        "gender": "Female",
+        "name": "Selena Gomez",
+        "picture": "https://celebmafia.com/wp-content/uploads/2016/08/selena-gomez-cosmopolitan-philippines-august-2016-issue-1.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Female",
+        "name": "Shakira",
+        "picture": "https://fr.web.img4.acsta.net/pictures/15/09/24/11/19/077124.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Male",
+        "name": "Shawn Mendes",
+        "picture": "https://otakukart.com/wp-content/uploads/2021/07/Shawn-Mendes.jpg"
+    },
+    {
+        "categories": ["K-pop", "Rapper", "Singer"],
+        "gender": "Female",
+        "name": "Soyeon",
+        "picture": "https://i.pinimg.com/originals/c3/0f/bd/c30fbd8ed71143ff15dfa0dd2fbe2eeb.jpg"
+    },
+    {
+        "categories": ["K-pop", "Rapper", "Singer"],
+        "gender": "Male",
+        "name": "Suga",
+        "picture": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Min_Yoon-gi_May_2018.jpg/800px-Min_Yoon-gi_May_2018.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Female",
+        "name": "Taylor Swift",
+        "picture": "https://tse3.mm.bing.net/th?id=OIP.zc1q2-RfRjHI2DYrBxOEXwHaHH&pid=Api"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Male",
+        "name": "The Weeknd",
+        "picture": "https://tse3.mm.bing.net/th?id=OIP.zOZzMlDn6dTHfo6RcUdfCwHaGy&pid=Api"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Timothée Chalamet",
+        "picture": "https://i.pinimg.com/originals/ed/e7/d4/ede7d45b82f31240bf60360b3de990b9.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Tom Hiddleston",
+        "picture": "https://ilarge.lisimg.com/image/3177768/1118full-tom-hiddleston.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Tom Holland",
+        "picture": "https://i.pinimg.com/736x/e7/1b/b0/e71bb0e192ce091c5d314dd1fd47683c.jpg"
+    },
+    {
+        "categories": ["Rapper", "Singer"],
+        "gender": "Male",
+        "name": "Tupac",
+        "picture": "http://runthetrap.com/wp-content/uploads/2016/09/Tupac.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Female",
+        "name": "Victoria Pedretti",
+        "picture": "https://www.themoviedb.org/t/p/original/uJeZv5HwaUKFGEUHuNhBWnHxYgK.jpg"
+    },
+    {
+        "categories": ["Politician"],
+        "gender": "Male",
+        "name": "Vladimir Putin",
+        "picture": "https://api.time.com/wp-content/uploads/2015/11/vladimir-putin-power.jpg"
+    },
+    {
+        "categories": ["Actor", "Singer"],
+        "gender": "Female",
+        "name": "Whitney Houston",
+        "picture": "http://images5.fanpop.com/image/photos/29200000/Whitney-Houston-whitney-houston-29203942-2560-2166.jpg"
+    },
+    {
+        "categories": ["Actor"],
+        "gender": "Male",
+        "name": "Will Smith",
+        "picture": "http://www.blackfilm.com/read/wp-content/uploads/2015/01/Will-Smith-pic-2.jpg"
+    },
+    {
+        "categories": ["Singer"],
+        "gender": "Male",
+        "name": "YUNGBLUD",
+        "picture": "https://lastfm.freetls.fastly.net/i/u/770x0/1047b79451dcd5b0df07e5aa93627f86.jpg#1047b79451dcd5b0df07e5aa93627f86"
+    },
+    {
+        "categories": ["Actor", "Singer"],
+        "gender": "Female",
+        "name": "Zendaya",
+        "picture": "https://www.usmagazine.com/wp-content/uploads/2019/02/Zendaya-1.jpg"
+    }
+]

@@ -3,8 +3,8 @@ const { ActionRowBuilder, ComponentType } = require("discord.js");
 
 module.exports = {
     // Setting message components components, name and type
-    messageComponents: ["kmkCustomCelebritiesInputField1"],
-    name: "kmkCustomCelebritiesInput1",
+    messageComponents: ["kmkCustomInputField3"],
+    name: "kmkCustomInput3",
     type: ComponentType.ActionRow,
 
     // Creating message component

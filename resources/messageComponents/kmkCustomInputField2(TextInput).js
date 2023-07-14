@@ -7,7 +7,7 @@ const {
 
 module.exports = {
     // Setting message components name and type
-    name: "kmkCustomCelebritiesInputField2",
+    name: "kmkCustomInputField2",
     type: ComponentType.TextInput,
 
     // Creating message component

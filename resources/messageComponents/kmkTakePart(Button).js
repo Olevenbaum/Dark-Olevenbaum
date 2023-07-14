@@ -32,12 +32,10 @@ module.exports = {
         // Reading subcommand
         const subcommand = interaction.message.embeds
             .find((embed) => embed.title === "Kiss Marry Kill")
-            .footer.text.includes("server")
-            ? "server"
-            : "celebrities";
+            .footer.text.includes("server");
 
         // Checking subcommand
-        if (subcommand === "server") {
+        if (subcommand) {
             // Fetching members from Discord
             options.splice(
                 0,
@@ -87,6 +85,7 @@ module.exports = {
             .map((savedActionRow) =>
                 savedActionRow.create(interaction, {
                     general: { options: options },
+                    kmkShowPictures: { disabled: subcommand },
                 })
             );
 
