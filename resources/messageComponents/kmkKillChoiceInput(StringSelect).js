@@ -54,7 +54,7 @@ module.exports = {
                 id: userMention(interaction.user.id),
                 kill:
                     subcommand === "server"
-                        ? userMention(interaction.values.at(0))
+                        ? interaction.values.at(0)
                         : interaction.values.at(0),
             });
         } else {
@@ -105,13 +105,15 @@ module.exports = {
                 (playerId) => playerId === interaction.user.id
             );
 
+            // Checking if player already chose
             if (playersPosition === -1) {
-                // Checking if player already chose
                 // Adding player
                 players.push(interaction.user.id);
 
                 // Adding options
                 kill.push(interaction.values.at(0));
+                kiss.push(null);
+                marry.push(null);
             } else {
                 // Checking for duplicates
                 if (
@@ -132,13 +134,6 @@ module.exports = {
 
             // Checking if duplicate was found
             if (!duplicate) {
-                // Editing players in players
-                players.splice(
-                    0,
-                    players.length,
-                    ...players.map((option) => userMention(option))
-                );
-
                 // Checking subcommand
                 if (subcommand === "server") {
                     // Editing options in kiss
@@ -184,7 +179,7 @@ module.exports = {
             }
         }
 
-        // Checking if dupicate was found
+        // Checking if duplicate was found
         if (!duplicate) {
             // Defining embeds
             const embeds = [
@@ -193,7 +188,9 @@ module.exports = {
                         name: "Players:",
                         value: playersOptions
                             .map((player, index) =>
-                                index === 0 ? `- ${player.id}` : player.id
+                                index === 0
+                                    ? `- ${userMention(player.id)}`
+                                    : userMention(player.id)
                             )
                             .join(",\n- "),
                     },
@@ -253,7 +250,7 @@ module.exports = {
                 content: `Thank you for your contribution! Check out the original message to see your results${
                     interaction.channel.type === ChannelType.DM
                         ? ""
-                        : "and what others have chosen"
+                        : " and what others have chosen"
                 }!`,
                 ephemeral: true,
             });

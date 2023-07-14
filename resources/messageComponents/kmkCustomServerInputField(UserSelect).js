@@ -23,7 +23,7 @@ module.exports = {
     // Handling interaction
     async execute(interaction) {
         // Reading options
-        const { values: options } = interaction;
+        const { members: options } = interaction;
 
         // Defining embed for reply message
         const embeds = [
@@ -31,7 +31,7 @@ module.exports = {
                 .setTitle("Kiss Marry Kill")
                 .setDescription(
                     `You have to choose between: ${options
-                        .map((userId) => userMention(userId))
+                        .map((member) => userMention(member.id))
                         .reduce(
                             (optionsString, option, index) =>
                                 (optionsString +=
@@ -55,7 +55,29 @@ module.exports = {
                 .find(
                     (savedActionRow) => savedActionRow.name === "kmkManagement"
                 )
-                .create(interaction),
+                .create(interaction, {
+                    kmkPicture1: {
+                        disabled: true,
+                        label: `Show ${
+                            options.at(0).nickname ??
+                            options.at(0).user.username
+                        }`,
+                    },
+                    kmkPicture2: {
+                        disabled: true,
+                        label: `Show ${
+                            options.at(1).nickname ??
+                            options.at(1).user.username
+                        }`,
+                    },
+                    kmkPicture3: {
+                        disabled: true,
+                        label: `Show ${
+                            options.at(2).nickname ??
+                            options.at(2).user.username
+                        }`,
+                    },
+                }),
         ];
 
         // Replying to interaction

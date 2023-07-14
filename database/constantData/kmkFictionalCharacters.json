@@ -48,6 +48,12 @@
         "picture": "https://www.anime-planet.com/images/characters/conny-springer-23874.jpg?t=1531388496"
     },
     {
+        "fandom": "Looney Tunes",
+        "gender": "Male",
+        "name": "Daffy Duck",
+        "picture": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f4/Daffy_Duck.svg/1200px-Daffy_Duck.svg.png"
+    },
+    {
         "fandom": "Harry Potter",
         "gender": "Female",
         "name": "Dolores Umbridge",
@@ -200,6 +206,12 @@
     {
         "fandom": "Looney Tunes",
         "gender": "Male",
+        "name": "Playboy Penguin",
+        "picture": "https://img3.wikia.nocookie.net/__cb20100329174136/looneytunes/images/e/e4/Playboy_Penguin.png"
+    },
+    {
+        "fandom": "Looney Tunes",
+        "gender": "Male",
         "name": "Porky Pig",
         "picture": "https://s-media-cache-ak0.pinimg.com/originals/2d/a0/3f/2da03f73141ff61403cccdd3593223ec.jpg"
     },
@@ -256,6 +268,18 @@
         "gender": "Male",
         "name": "Sirius Black",
         "picture": "http://img2.wikia.nocookie.net/__cb20100730200404/es.harrypotter/images/7/75/Sirius_Black_profile.jpg"
+    },
+    {
+        "fandom": "Looney Tunes",
+        "gender": "Male",
+        "name": "Speedy Gonzales",
+        "picture": "https://vignette.wikia.nocookie.net/warner-bros-entertainment/images/4/42/Speedy.jpg/revision/latest?cb=20161030020553"
+    },
+    {
+        "fandom": "Looney Tunes",
+        "gender": "Male",
+        "name": "Tweety",
+        "picture": "https://i.etsystatic.com/17331691/r/il/96f67b/1528962253/il_fullxfull.1528962253_bwif.jpg"
     },
     {
         "fandom": "Heaven Officials Blessing",

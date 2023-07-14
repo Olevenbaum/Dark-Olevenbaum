@@ -183,6 +183,9 @@ module.exports = {
         // Variable for message components of reply
         const messageComponentNames = [];
 
+        // Defining options
+        const options = [];
+
         // Checking if command option custom is true
         if (custom) {
             // Checking subcommand
@@ -194,15 +197,14 @@ module.exports = {
                 reply.ephemeral = true;
             }
         } else {
-            // Defining options
-            const options = [];
+            // Reading gender option
+            const gender = interaction.options.getString("gender");
 
             // Editing subcommand specific reply
             switch (subcommand) {
                 case "celebrities":
                     // Reading option values
                     const category = interaction.options.getString("category");
-                    let gender = interaction.options.getString("gender");
 
                     // Adding options
                     options.push(
@@ -227,16 +229,13 @@ module.exports = {
                 case "fictional_characters":
                     // Reading option values
                     const fandom = interaction.options.getString("fandom");
-                    gender = interaction.options.getString("gender");
 
                     // Adding options
                     options.push(
                         ...require("../../database/constantData/kmkFictionalCharacters.json")
                             .filter((fictionalCharacter) =>
                                 fandom
-                                    ? fictionalCharacter.categories.includes(
-                                          fandom
-                                      )
+                                    ? fictionalCharacter.fandom === fandom
                                     : true
                             )
                             .filter((fictionalCharacter) =>
@@ -315,7 +314,18 @@ module.exports = {
             )
             .map((savedActionRow) =>
                 savedActionRow.create(interaction, {
-                    kmkShowPictures: { disabled: subcommand === "server" },
+                    kmkShowPicture1: {
+                        disabled: subcommand === "server",
+                        label: `Show ${options.at(0)}`,
+                    },
+                    kmkShowPicture2: {
+                        disabled: subcommand === "server",
+                        label: `Show ${options.at(1)}`,
+                    },
+                    kmkShowPicture3: {
+                        disabled: subcommand === "server",
+                        label: `Show ${options.at(2)}`,
+                    },
                 })
             );
 
