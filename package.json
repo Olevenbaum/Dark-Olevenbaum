@@ -9,8 +9,8 @@
     "main": "application/application.js",
     "name": "dark-olevenbaum",
     "scripts": {
-        "commands": "node ./management/resetCommands.js",
-        "database": "node ./management/resetDatabase.js",
+        "resetCommands": "node ./management/resetCommands.js",
+        "resetDatabase": "node ./management/resetDatabase.js",
         "start": "node .",
         "test": "node . -resetDatabase"
     }
