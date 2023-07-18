@@ -13,7 +13,10 @@ module.exports = {
                 this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
             )
             .setDisabled(options.disabled ?? false)
-            .setLabel(options.label ?? this.name.replace(/\((.*?)\)/, ""))
+            .setLabel(
+                options.label ??
+                    this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
+            )
             .setStyle(options.style ?? ButtonStyle);
     },
 

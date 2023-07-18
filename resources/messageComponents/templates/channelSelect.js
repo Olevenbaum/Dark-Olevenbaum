@@ -16,7 +16,10 @@ module.exports = {
             .setDisabled(options.disabled ?? false)
             .setMaxValues(options.maximalValues ?? null)
             .setMinValues(options.minimalValues ?? 1)
-            .setPlaceholder(options.placeholder ?? null);
+            .setPlaceholder(
+                options.placeholder ??
+                    this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
+            );
     },
 
     // Handling interaction
