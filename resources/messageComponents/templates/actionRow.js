@@ -32,11 +32,8 @@ module.exports = {
                                 )
                         )
                         .find(
-                            (
-                                savedMessageComponent,
-                                savedMessageComponentName
-                            ) =>
-                                savedMessageComponentName ===
+                            (savedMessageComponent) =>
+                                savedMessageComponent.name ===
                                 messageComponentName
                         )
                         .create(interaction, {
