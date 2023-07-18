@@ -16,10 +16,16 @@ module.exports = {
             .setCustomId(
                 this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
             )
-            .setLabel(options.label ?? this.name.replace(/\((.*?)\)/, ""))
+            .setLabel(
+                options.label ??
+                    this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
+            )
             .setMaxLength(options.maximalLength ?? null)
             .setMinLength(options.minimalLength ?? 1)
-            .setPlaceholder(options.setPlaceholder ?? null)
+            .setPlaceholder(
+                options.setPlaceholder ??
+                    this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
+            )
             .setRequired(options.required ?? false)
             .setStyle(options.style ?? TextInputStyle)
             .setValue(options.value ?? null);

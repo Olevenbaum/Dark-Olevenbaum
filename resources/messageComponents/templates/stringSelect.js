@@ -21,7 +21,10 @@ module.exports = {
             )
             .setMinValues(options.minimalValues ?? 1)
             .setOptions(options.options ?? this.options)
-            .setPlaceholder(options.placeholder ?? null);
+            .setPlaceholder(
+                options.placeholder ??
+                    this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
+            );
     },
 
     // Handling interaction
