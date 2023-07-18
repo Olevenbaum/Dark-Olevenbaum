@@ -39,7 +39,15 @@ module.exports = {
         }
 
         // Returning action row
-        return new ActionRowBuilder().setComponents(messageComponents);
+        return new ModalBuilder()
+            .setComponents(messageComponents)
+            .setCustomId(
+                this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
+            )
+            .setTitle(
+                options.title ??
+                    this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
+            );
     },
 
     // Handling interaction
