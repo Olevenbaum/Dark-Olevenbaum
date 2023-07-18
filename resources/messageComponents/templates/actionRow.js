@@ -28,13 +28,18 @@ module.exports = {
                             (savedMessageComponent) =>
                                 savedMessageComponent.type === ComponentType &&
                                 this.messageComponents.hasOwn(
-                                    savedMessageComponent.name
+                                    savedMessageComponent.name.replace(
+                                        /\((.*?)\)/,
+                                        ""
+                                    )
                                 )
                         )
                         .find(
                             (savedMessageComponent) =>
-                                savedMessageComponent.name ===
-                                messageComponentName
+                                savedMessageComponent.name.replace(
+                                    /\((.*?)\)/,
+                                    ""
+                                ) === messageComponentName
                         )
                         .create(interaction, {
                             ...options.general,
