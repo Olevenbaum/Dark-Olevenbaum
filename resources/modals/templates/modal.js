@@ -4,7 +4,7 @@ const { ComponentType, ModalBuilder } = require("discord.js");
 module.exports = {
     // Setting modals message components and name
     messageComponents: {},
-    name: "",
+    name: "(Modal)",
 
     // Creating modal
     create(interaction, options = {}) {
@@ -25,13 +25,18 @@ module.exports = {
                                 savedMessageComponent.type ===
                                     ComponentType.ActionRow &&
                                 this.messageComponents.hasOwn(
-                                    savedMessageComponent.name
+                                    savedMessageComponent.name.replace(
+                                        /\((.*?)\)/,
+                                        ""
+                                    )
                                 )
                         )
                         .find(
                             (savedMessageComponent) =>
-                                savedMessageComponent.name ===
-                                messageComponentName
+                                savedMessageComponent.name.replace(
+                                    /\((.*?)\)/,
+                                    ""
+                                ) === messageComponentName
                         )
                         .create(interaction, options)
                 );
