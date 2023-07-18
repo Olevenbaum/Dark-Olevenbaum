@@ -3,14 +3,16 @@ const { ComponentType, StringSelectMenuBuilder } = require("discord.js");
 
 module.exports = {
     // Setting message components name, options and type
-    name: "",
+    name: "(StringSelect)",
     options: [],
     type: ComponentType.StringSelect,
 
     // Creating message component
     create(interaction, options) {
         return new StringSelectMenuBuilder()
-            .setCustomId(this.name)
+            .setCustomId(
+                this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
+            )
             .setDisabled(options.disabled ?? false)
             .setMaxValues(
                 options.maximalValues ??

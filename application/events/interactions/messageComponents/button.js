@@ -13,7 +13,7 @@ module.exports = {
         // Searching for button component
         const buttonComponent = interaction.client.messageComponents
             .filter((messageComponent) => messageComponent.type === this.type)
-            .get(interaction.customId);
+            .get(interaction.customId.replace(/[0-9]/g, ""));
 
         // Checking if button component was found
         if (buttonComponent) {
@@ -35,14 +35,20 @@ module.exports = {
         } else {
             // Replying to interaction
             interaction.reply(
-                `The button component ${interaction.customId} could not be found!`
+                `The button component ${interaction.customId.replace(
+                    /[0-9]/g,
+                    ""
+                )} could not be found!`
             );
 
             // Printing error message
             console.error(
                 "[ERROR]".padEnd(consoleSpace),
                 ":",
-                `No button component matching ${interaction.customId} was found`
+                `No button component matching ${interaction.customId.replace(
+                    /[0-9]/g,
+                    ""
+                )} was found`
             );
         }
     },

@@ -3,13 +3,15 @@ const { ComponentType, RoleSelectMenuBuilder } = require("discord.js");
 
 module.exports = {
     // Setting message components name and type
-    name: "",
+    name: "(RoleSelect)",
     type: ComponentType.RoleSelect,
 
     // Creating message component
     create(interaction, options = {}) {
         return new RoleSelectMenuBuilder()
-            .setCustomId(this.name)
+            .setCustomId(
+                this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
+            )
             .setDisabled(options.disabled ?? false)
             .setMaxValues(options.maximalValues ?? null)
             .setMinValues(options.minimalValues ?? 1)

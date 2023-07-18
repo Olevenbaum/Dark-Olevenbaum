@@ -13,7 +13,7 @@ module.exports = {
         // Searching for channel select component
         const channelselectComponent = interaction.client.messageComponents
             .filter((messageComponent) => messageComponent.type === this.type)
-            .get(interaction.customId);
+            .get(interaction.customId.replace(/[0-9]/g, ""));
 
         // Checking if channel select component was found
         if (channelselectComponent) {
@@ -35,14 +35,20 @@ module.exports = {
         } else {
             // Replying to interaction
             interaction.reply(
-                `The channel select component ${interaction.customId} could not be found!`
+                `The channel select component ${interaction.customId.replace(
+                    /[0-9]/g,
+                    ""
+                )} could not be found!`
             );
 
             // Printing error
             console.error(
                 "[ERROR]".padEnd(consoleSpace),
                 ":",
-                `No channel select component matching ${interaction.customId} was found`
+                `No channel select component matching ${interaction.customId.replace(
+                    /[0-9]/g,
+                    ""
+                )} was found`
             );
         }
     },
