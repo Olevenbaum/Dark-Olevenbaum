@@ -43,7 +43,7 @@ module.exports = {
             }
         }
 
-        // Returning action row
+        // Returning modal
         return new ModalBuilder()
             .setComponents(messageComponents)
             .setCustomId(
