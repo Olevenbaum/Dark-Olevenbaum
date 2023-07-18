@@ -7,14 +7,16 @@ const {
 
 module.exports = {
     // Setting message components name and type
-    name: "",
+    name: "(TextInput)",
     type: ComponentType.TextInput,
 
     // Creating message component
     create(interaction, options) {
         return new TextInputBuilder()
-            .setCustomId(this.name)
-            .setLabel(options.label ?? this.name)
+            .setCustomId(
+                this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
+            )
+            .setLabel(options.label ?? this.name.replace(/\((.*?)\)/, ""))
             .setMaxLength(options.maximalLength ?? null)
             .setMinLength(options.minimalLength ?? 1)
             .setPlaceholder(options.setPlaceholder ?? null)

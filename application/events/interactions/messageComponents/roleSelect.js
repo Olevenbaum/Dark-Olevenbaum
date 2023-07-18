@@ -13,7 +13,7 @@ module.exports = {
         // Searching for role select component
         const roleSelectComponent = interaction.client.messageComponents
             .filter((messageComponent) => messageComponent.type === this.type)
-            .get(interaction.customId);
+            .get(interaction.customId.replace(/[0-9]/g, ""));
 
         // Checking if role select component was found
         if (roleSelectComponent) {
@@ -35,14 +35,20 @@ module.exports = {
         } else {
             // Replying to interaction
             interaction.reply(
-                `The role select component ${interaction.customId} could not be found!`
+                `The role select component ${interaction.customId.replace(
+                    /[0-9]/g,
+                    ""
+                )} could not be found!`
             );
 
             // Printing error
             console.error(
                 "[ERROR]".padEnd(consoleSpace),
                 ":",
-                `No role select component matching ${interaction.customId} was found`
+                `No role select component matching ${interaction.customId.replace(
+                    /[0-9]/g,
+                    ""
+                )} was found`
             );
         }
     },

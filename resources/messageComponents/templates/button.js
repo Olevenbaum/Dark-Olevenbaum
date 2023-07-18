@@ -3,15 +3,17 @@ const { ButtonBuilder, ButtonStyle, ComponentType } = require("discord.js");
 
 module.exports = {
     // Setting message components name and type
-    name: "",
+    name: "(Button)",
     type: ComponentType.Button,
 
     // Creating message component
     create(interaction, options = {}) {
         return new ButtonBuilder()
-            .setCustomId(this.name)
+            .setCustomId(
+                this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
+            )
             .setDisabled(options.disabled ?? false)
-            .setLabel(options.label ?? this.name)
+            .setLabel(options.label ?? this.name.replace(/\((.*?)\)/, ""))
             .setStyle(options.style ?? ButtonStyle);
     },
 

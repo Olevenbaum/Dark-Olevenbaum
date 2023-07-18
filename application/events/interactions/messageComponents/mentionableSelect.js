@@ -13,7 +13,7 @@ module.exports = {
         // Searching for mentionable select component
         const mentionableSelectComponent = interaction.client.messageComponents
             .filter((messageComponent) => messageComponent.type === this.type)
-            .get(interaction.customId);
+            .get(interaction.customId.replace(/[0-9]/g, ""));
 
         // Checking if mentionable select component was found
         if (mentionableSelectComponent) {
@@ -37,14 +37,20 @@ module.exports = {
         } else {
             // Replying to interaction
             interaction.reply(
-                `The mentionable select component ${interaction.customId} could not be found!`
+                `The mentionable select component ${interaction.customId.replace(
+                    /[0-9]/g,
+                    ""
+                )} could not be found!`
             );
 
             // Printing error
             console.error(
                 "[ERROR]".padEnd(consoleSpace),
                 ":",
-                `No mentionable select component matching ${interaction.customId} was found`
+                `No mentionable select component matching ${interaction.customId.replace(
+                    /[0-9]/g,
+                    ""
+                )} was found`
             );
         }
     },
