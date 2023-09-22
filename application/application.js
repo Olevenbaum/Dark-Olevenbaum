@@ -192,7 +192,7 @@ modalFiles.forEach((modalFile) => {
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
-            `Missing required 'creat', 'execute', 'messageComponents' or 'name' property of message component ${messageComponent.name}`
+            `Missing required 'create', 'execute', 'messageComponents' or 'name' property of message component ${messageComponent.name}`
         );
     }
 });
