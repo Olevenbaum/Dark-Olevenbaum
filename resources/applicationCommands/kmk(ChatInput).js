@@ -310,7 +310,9 @@ module.exports = {
             .filter(
                 (savedMessageComponent) =>
                     savedMessageComponent.type === ComponentType.ActionRow &&
-                    messageComponentNames.includes(savedMessageComponent.name)
+                    messageComponentNames.includes(
+                        savedMessageComponent.name.replace(/\((.*?)\)/, "")
+                    )
             )
             .map((savedActionRow) =>
                 savedActionRow.create(interaction, {
@@ -334,7 +336,10 @@ module.exports = {
             // Showing modal to user
             interaction.showModal(
                 interaction.client.modals
-                    .find((modal) => modal.name === "kmkCustom")
+                    .find(
+                        (modal) =>
+                            modal.name.replace(/\((.*?)\)/, "") === "kmkCustom"
+                    )
                     .create(interaction)
             );
         } else {

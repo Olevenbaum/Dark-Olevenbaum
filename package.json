@@ -1,9 +1,13 @@
 {
+    "author": {
+        "email": "oh.deifuss@gmx.de",
+        "name": "olevenbaum"
+    },
     "dependencies": {
-        "discord.js": "^14.11.0",
+        "discord.js": "^14.13.0",
         "node.js": "^0.0.1-security",
-        "npm": "^9.8.0",
-        "sequelize": "^6.32.1"
+        "npm": "^9.8.1",
+        "sequelize": "^6.33.0"
     },
     "license": "Unilicense",
     "main": "application/application.js",

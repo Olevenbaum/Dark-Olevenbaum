@@ -3,39 +3,59 @@ const { ComponentType, EmbedBuilder, ModalBuilder } = require("discord.js");
 
 module.exports = {
     // Setting modals message components and name
-    messageComponents: [
-        "kmkCustomInput1",
-        "kmkCustomInput2",
-        "kmkCustomInput3",
-    ],
+    messageComponents: { kmkCustomInput: 3 },
     name: "kmkCustom",
 
     // Creating modal
     create(interaction, options = {}) {
+        // Creating empty array for message components
+        const messageComponents = [];
+
+        // Iterating over message components
+        for (const [messageComponentName, number] in Object.entries(
+            this.messageComponents
+        )) {
+            // Iteracting over counter of message component
+            for (let counter = 0; counter < number; counter++) {
+                // Defining index option for custom ID
+                options.kmkCustomInputField = {};
+                options.kmkCustomInputField.customIdIndex = counter;
+
+                // Adding message component
+                messageComponents.push(
+                    interaction.client.messageComponents
+                        .filter(
+                            (savedMessageComponent) =>
+                                savedMessageComponent.type ===
+                                    ComponentType.ActionRow &&
+                                this.messageComponents.hasOwn(
+                                    savedMessageComponent.name.replace(
+                                        /\((.*?)\)/,
+                                        ""
+                                    )
+                                )
+                        )
+                        .find(
+                            (savedMessageComponent) =>
+                                savedMessageComponent.name.replace(
+                                    /\((.*?)\)/,
+                                    ""
+                                ) === messageComponentName
+                        )
+                        .create(interaction, options)
+                );
+            }
+        }
+
+        // Returning modal
         return new ModalBuilder()
-            .setComponents(
-                interaction.client.messageComponents
-                    .filter(
-                        (messageComponent) =>
-                            messageComponent.type === ComponentType.ActionRow &&
-                            this.messageComponents.includes(
-                                messageComponent.name
-                            )
-                    )
-                    .map((messageComponent) =>
-                        messageComponent.create(interaction, options)
-                    )
-            )
+            .setComponents(messageComponents)
             .setCustomId(this.name)
-            .setTitle(options.titel ?? this.name);
+            .setTitle(options.title ?? this.name);
     },
 
     // Handling interaction
     async execute(interaction) {
-        console.log(interaction.message);
-        // Reading subcommand
-        const subcommand = interaction.fields.getField("kmkCustomInputField1");
-
         // Defining options
         const options = [];
 
@@ -86,7 +106,8 @@ module.exports = {
                     )
                     .find(
                         (savedActionRow) =>
-                            savedActionRow.name === "kmkManagement"
+                            savedActionRow.name.replace(/\((.*?)\)/, "") ===
+                            "kmkManagement"
                     )
                     .create(interaction),
             ];

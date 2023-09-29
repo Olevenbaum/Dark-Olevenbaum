@@ -8,7 +8,7 @@ const {
 
 module.exports = {
     // Setting message components name and type
-    name: "kmkCustomServerInputField",
+    name: "kmkCustomServerInputField(userSelect)",
     type: ComponentType.UserSelect,
 
     // Creating message component
@@ -53,7 +53,9 @@ module.exports = {
                         savedMessageComponent.type === ComponentType.ActionRow
                 )
                 .find(
-                    (savedActionRow) => savedActionRow.name === "kmkManagement"
+                    (savedActionRow) =>
+                        savedActionRow.name.replace(/\((.*?)\)/, "") ===
+                        "kmkManagement"
                 )
                 .create(interaction, {
                     kmkPicture1: {

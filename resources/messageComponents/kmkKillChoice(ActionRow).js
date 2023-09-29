@@ -4,7 +4,7 @@ const { ActionRowBuilder, ComponentType } = require("discord.js");
 module.exports = {
     // Setting message components components, name and type
     messageComponents: ["kmkKillChoiceInput"],
-    name: "kmkKillChoice",
+    name: "kmkKillChoice(ActionRow)",
     type: ComponentType.ActionRow,
 
     // Creating message component

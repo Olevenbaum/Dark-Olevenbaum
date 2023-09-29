@@ -4,7 +4,7 @@ const { ComponentType, ModalBuilder } = require("discord.js");
 module.exports = {
     // Setting modals message components and name
     messageComponents: {},
-    name: "(Modal)",
+    name: "",
 
     // Creating modal
     create(interaction, options = {}) {
@@ -46,13 +46,8 @@ module.exports = {
         // Returning modal
         return new ModalBuilder()
             .setComponents(messageComponents)
-            .setCustomId(
-                this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
-            )
-            .setTitle(
-                options.title ??
-                    this.name.replace(/\((.*?)\)/, options.customIdIndex ?? "")
-            );
+            .setCustomId(this.name)
+            .setTitle(options.title ?? this.name);
     },
 
     // Handling interaction

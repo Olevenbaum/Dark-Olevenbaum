@@ -294,7 +294,7 @@ module.exports = async (client) => {
                         .post(
                             Routes.applicationCommands(client.application.id),
                             {
-                                body: savedApplicationCommand,
+                                body: savedApplicationCommand.data,
                             }
                         )
                         .then(
@@ -327,7 +327,7 @@ module.exports = async (client) => {
                                 registeredApplicationCommand.id
                             ),
                             {
-                                body: savedApplicationCommand,
+                                body: savedApplicationCommand.data,
                             }
                         )
                         .then(

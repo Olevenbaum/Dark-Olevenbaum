@@ -3,8 +3,8 @@ const { ActionRowBuilder, ComponentType } = require("discord.js");
 
 module.exports = {
     // Setting message components components, name and type
-    messageComponents: {},
-    name: `(${this.type})`,
+    messageComponents: { kmkCustomInputField: 1 },
+    name: `kmkCustomInput(${this.type})`,
     type: ComponentType.ActionRow,
 
     // Creating message component
@@ -13,26 +13,15 @@ module.exports = {
         const messageComponents = [];
 
         // Iterating over message components
-        for (const [messageComponentName, option] in Object.entries(
+        for (const [messageComponentName, number] in Object.entries(
             this.messageComponents
         )) {
-            // Creating counter
-            counter = typeof option === "number" ? option : option.length;
-
-            // Iterating over counter of message component
-            for (let index = 0; index < counter; index++) {
-                // Checking number of message components
+            // Iteracting over counter of message component
+            for (let counter = 0; counter < number; counter++) {
+                // Checking counter of message component
                 if (counter > 1) {
                     // Defining index option for custom ID
-                    options[messageComponentName].customIdIndex = index;
-                    // Checking if option or counter was given
-                    if (typeof option !== "number") {
-                        // Adding options
-                        options[messageComponentName] = {
-                            ...options[messageComponentName],
-                            ...option,
-                        };
-                    }
+                    options[messageComponentName].customIdIndex = counter;
                 }
 
                 // Adding message component
@@ -40,7 +29,8 @@ module.exports = {
                     interaction.client.messageComponents
                         .filter(
                             (savedMessageComponent) =>
-                                savedMessageComponent.type === ComponentType &&
+                                savedMessageComponent.type ===
+                                    ComponentType.TextInput &&
                                 this.messageComponents.hasOwn(
                                     savedMessageComponent.name.replace(
                                         /\((.*?)\)/,
@@ -66,4 +56,7 @@ module.exports = {
         // Returning action row
         return new ActionRowBuilder().setComponents(messageComponents);
     },
+
+    // Handling interaction
+    async execute(interaction) {},
 };

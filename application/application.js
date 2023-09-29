@@ -14,9 +14,9 @@ const {
 } = require("../configuration.json");
 
 // Defining prototype functions
-Array.prototype.asynchronousFind = async function (predicate, thisArg = null) {
+Array.prototype.asynchronousFind = async function (predicate, argument = null) {
     // Binding second argument to callback function
-    const boundPredicate = predicate.bind(thisArg);
+    const boundPredicate = predicate.bind(argument);
 
     // Iteracting over keys of array
     for (const key of this.keys()) {
@@ -68,11 +68,11 @@ Array.prototype.shuffle = function () {
 // Creating new client
 const client = new Client({
     intents: [
+        GatewayIntentBits.DirectMessages,
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.DirectMessages,
     ],
 });
 
@@ -196,7 +196,7 @@ modalFiles.forEach((modalFile) => {
         console.warn(
             "[WARNING]".padEnd(consoleSpace),
             ":",
-            `Missing required 'creat', 'execute', 'messageComponents' or 'name' property of message component ${messageComponent.name}`
+            `Missing required 'create', 'execute', 'messageComponents' or 'name' property of message component ${messageComponent.name}`
         );
     }
 });
