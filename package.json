@@ -5,7 +5,7 @@
         "npm": "^9.8.0",
         "sequelize": "^6.32.1"
     },
-    "license": "Unilicense",
+    "license": "BSD 3-Clause License",
     "main": "application/application.js",
     "name": "dark-olevenbaum",
     "scripts": {
